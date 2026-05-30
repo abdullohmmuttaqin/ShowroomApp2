@@ -1,26 +1,73 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-// Import semua halaman yang sudah kita buat
+// Import semua halaman
 import HomeScreen from './screens/HomeScreen';
 import TransaksiScreen from './screens/TransaksiScreen';
 import StokScreen from './screens/StokScreen';
 import LaporanScreen from './screens/LaporanScreen';
 
-// Membuat objek Tab Navigator
-const Tab = createBottomTabNavigator();
-
-// App adalah pintu utama — semua halaman didaftarkan di sini
 export default function App() {
+  // activeTab menyimpan halaman yang sedang aktif
+  const [activeTab, setActiveTab] = useState('Home');
+
+  // Fungsi untuk menentukan halaman mana yang ditampilkan
+  const renderScreen = () => {
+    if (activeTab === 'Home') return <HomeScreen />;
+    if (activeTab === 'Transaksi') return <TransaksiScreen />;
+    if (activeTab === 'Stok') return <StokScreen />;
+    if (activeTab === 'Laporan') return <LaporanScreen />;
+  };
+
   return (
-    // NavigationContainer membungkus seluruh navigasi aplikasi
-    <NavigationContainer>
-      <Tab.Navigator>
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Transaksi" component={TransaksiScreen} />
-        <Tab.Screen name="Stok" component={StokScreen} />
-        <Tab.Screen name="Laporan" component={LaporanScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <View style={styles.container}>
+      {/* Area konten halaman */}
+      <View style={styles.content}>{renderScreen()}</View>
+
+      {/* Tab bar bawah */}
+      <View style={styles.tabBar}>
+        {['Home', 'Transaksi', 'Stok', 'Laporan'].map((tab) => (
+          <TouchableOpacity
+            key={tab}
+            style={styles.tabItem}
+            onPress={() => setActiveTab(tab)}
+          >
+            <Text style={activeTab === tab ? styles.tabAktif : styles.tabNormal}>
+              {tab}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#102bda',
+    paddingBottom: 50,
+    paddingTop: 10,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  tabAktif: {
+    color: '#2563eb',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  tabNormal: {
+    color: '#888',
+    fontSize: 12,
+  },
+});
