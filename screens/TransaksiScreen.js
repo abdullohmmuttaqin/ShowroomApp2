@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView,
     TouchableOpacity, TextInput, Modal
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Data dummy transaksi awal
+// Key untuk AsyncStorage — nama "laci" tempat data disimpan
+const STORAGE_KEY = 'transaksi_showroom';
+
+// Data dummy transaksi awal — hanya dipakai kalau belum ada data tersimpan
 const dataAwal = [
     { id: 1, jenis: 'jual', mobil: 'Toyota Avanza', harga: 180000000, tanggal: '01 Jun 2026' },
     { id: 2, jenis: 'beli', mobil: 'Honda Jazz', harga: 150000000, tanggal: '30 Mei 2026' },
@@ -19,19 +23,44 @@ const formatRupiah = (angka) => {
 };
 
 export default function TransaksiScreen() {
-    // State list transaksi — diisi dengan data awal
-    const [transaksi, setTransaksi] = useState(dataAwal);
-
-    // State filter aktif — Semua, jual, atau beli
+    const [transaksi, setTransaksi] = useState([]);
     const [filterAktif, setFilterAktif] = useState('Semua');
-
-    // State untuk kontrol modal form tambah transaksi
     const [modalVisible, setModalVisible] = useState(false);
-
-    // State untuk menyimpan input form
     const [formMobil, setFormMobil] = useState('');
     const [formHarga, setFormHarga] = useState('');
     const [formJenis, setFormJenis] = useState('jual');
+
+    // useEffect — dijalankan sekali saat halaman pertama kali dibuka
+    // Fungsinya: baca data dari AsyncStorage
+    useEffect(() => {
+        bacaData();
+    }, []);
+
+    // Fungsi baca data dari AsyncStorage
+    const bacaData = async () => {
+        try {
+            const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY);
+            if (dataTersimpan !== null) {
+                // Kalau ada data tersimpan, pakai itu
+                setTransaksi(JSON.parse(dataTersimpan));
+            } else {
+                // Kalau belum ada, pakai data awal dan simpan
+                setTransaksi(dataAwal);
+                await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataAwal));
+            }
+        } catch (e) {
+            console.log('Error baca data:', e);
+        }
+    };
+
+    // Fungsi simpan data ke AsyncStorage
+    const simpanData = async (dataBaru) => {
+        try {
+            await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataBaru));
+        } catch (e) {
+            console.log('Error simpan data:', e);
+        }
+    };
 
     // Filter transaksi berdasarkan pilihan
     const transaksiFiltered = transaksi.filter((t) => {
@@ -40,12 +69,11 @@ export default function TransaksiScreen() {
     });
 
     // Fungsi tambah transaksi baru
-    const tambahTransaksi = () => {
-        // Validasi — jangan simpan kalau form kosong
+    const tambahTransaksi = async () => {
         if (!formMobil || !formHarga) return;
 
         const baru = {
-            id: transaksi.length + 1,
+            id: Date.now(),
             jenis: formJenis,
             mobil: formMobil,
             harga: parseInt(formHarga),
@@ -54,8 +82,11 @@ export default function TransaksiScreen() {
             }),
         };
 
-        // Tambahkan transaksi baru ke list
-        setTransaksi([baru, ...transaksi]);
+        const dataBaru = [baru, ...transaksi];
+
+        // Update state dan simpan ke AsyncStorage sekaligus
+        setTransaksi(dataBaru);
+        await simpanData(dataBaru);
 
         // Reset form dan tutup modal
         setFormMobil('');
@@ -121,7 +152,6 @@ export default function TransaksiScreen() {
                     <View style={styles.modalKonten}>
                         <Text style={styles.modalJudul}>Tambah Transaksi</Text>
 
-                        {/* Input nama mobil */}
                         <Text style={styles.inputLabel}>Nama Mobil</Text>
                         <TextInput
                             style={styles.input}
@@ -130,7 +160,6 @@ export default function TransaksiScreen() {
                             onChangeText={setFormMobil}
                         />
 
-                        {/* Input harga */}
                         <Text style={styles.inputLabel}>Harga (Rp)</Text>
                         <TextInput
                             style={styles.input}
@@ -140,28 +169,22 @@ export default function TransaksiScreen() {
                             keyboardType="numeric"
                         />
 
-                        {/* Pilih jenis transaksi */}
                         <Text style={styles.inputLabel}>Jenis Transaksi</Text>
                         <View style={styles.jenisWrapper}>
                             <TouchableOpacity
                                 style={formJenis === 'jual' ? styles.jenisAktif : styles.jenisNormal}
                                 onPress={() => setFormJenis('jual')}
                             >
-                                <Text style={formJenis === 'jual' ? styles.jenisTeksAktif : styles.jenisTeksNormal}>
-                                    Jual
-                                </Text>
+                                <Text style={formJenis === 'jual' ? styles.jenisTeksAktif : styles.jenisTeksNormal}>Jual</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 style={formJenis === 'beli' ? styles.jenisAktif : styles.jenisNormal}
                                 onPress={() => setFormJenis('beli')}
                             >
-                                <Text style={formJenis === 'beli' ? styles.jenisTeksAktif : styles.jenisTeksNormal}>
-                                    Beli
-                                </Text>
+                                <Text style={formJenis === 'beli' ? styles.jenisTeksAktif : styles.jenisTeksNormal}>Beli</Text>
                             </TouchableOpacity>
                         </View>
 
-                        {/* Tombol simpan dan batal */}
                         <View style={styles.modalTombol}>
                             <TouchableOpacity
                                 style={styles.tombolBatal}
