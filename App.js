@@ -8,7 +8,6 @@ import StokScreen from './screens/StokScreen';
 import LaporanScreen from './screens/LaporanScreen';
 
 export default function App() {
-  // activeTab menyimpan halaman yang sedang aktif
   const [activeTab, setActiveTab] = useState('Home');
 
   // Fungsi untuk menentukan halaman mana yang ditampilkan
@@ -43,31 +42,17 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-  },
+  container: { flex: 1 },
+  content: { flex: 1 },
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderTopWidth: 1,
-    borderTopColor: '#102bda',
+    borderTopColor: '#ddd',
     paddingBottom: 50,
     paddingTop: 10,
   },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  tabAktif: {
-    color: '#2563eb',
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  tabNormal: {
-    color: '#888',
-    fontSize: 12,
-  },
+  tabItem: { flex: 1, alignItems: 'center' },
+  tabAktif: { color: '#2563eb', fontWeight: 'bold', fontSize: 12 },
+  tabNormal: { color: '#888', fontSize: 12 },
 });

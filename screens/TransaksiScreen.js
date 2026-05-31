@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView,
-    TouchableOpacity, TextInput, Modal
+    TouchableOpacity, TextInput, Modal, Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Key untuk AsyncStorage — nama "laci" tempat data disimpan
 const STORAGE_KEY = 'transaksi_showroom';
 
-// Data dummy transaksi awal — hanya dipakai kalau belum ada data tersimpan
 const dataAwal = [
     { id: 1, jenis: 'jual', mobil: 'Toyota Avanza', harga: 180000000, tanggal: '01 Jun 2026' },
     { id: 2, jenis: 'beli', mobil: 'Honda Jazz', harga: 150000000, tanggal: '30 Mei 2026' },
@@ -17,7 +15,6 @@ const dataAwal = [
     { id: 5, jenis: 'jual', mobil: 'Mitsubishi Xpander', harga: 210000000, tanggal: '27 Mei 2026' },
 ];
 
-// Fungsi format Rupiah
 const formatRupiah = (angka) => {
     return 'Rp ' + Number(angka).toLocaleString('id-ID');
 };
@@ -30,21 +27,16 @@ export default function TransaksiScreen() {
     const [formHarga, setFormHarga] = useState('');
     const [formJenis, setFormJenis] = useState('jual');
 
-    // useEffect — dijalankan sekali saat halaman pertama kali dibuka
-    // Fungsinya: baca data dari AsyncStorage
     useEffect(() => {
         bacaData();
     }, []);
 
-    // Fungsi baca data dari AsyncStorage
     const bacaData = async () => {
         try {
             const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY);
             if (dataTersimpan !== null) {
-                // Kalau ada data tersimpan, pakai itu
                 setTransaksi(JSON.parse(dataTersimpan));
             } else {
-                // Kalau belum ada, pakai data awal dan simpan
                 setTransaksi(dataAwal);
                 await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataAwal));
             }
@@ -53,7 +45,6 @@ export default function TransaksiScreen() {
         }
     };
 
-    // Fungsi simpan data ke AsyncStorage
     const simpanData = async (dataBaru) => {
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataBaru));
@@ -62,15 +53,39 @@ export default function TransaksiScreen() {
         }
     };
 
-    // Filter transaksi berdasarkan pilihan
+    // Fungsi hapus transaksi — tampilkan konfirmasi dulu sebelum hapus
+    const hapusTransaksi = (id) => {
+        Alert.alert(
+            'Hapus Transaksi',
+            'Yakin ingin menghapus transaksi ini?',
+            [
+                { text: 'Batal', style: 'cancel' },
+                {
+                    text: 'Hapus',
+                    style: 'destructive',
+                    onPress: async () => {
+                        const dataBaru = transaksi.filter((t) => t.id !== id);
+                        setTransaksi(dataBaru);
+                        await simpanData(dataBaru);
+                    },
+                },
+            ]
+        );
+    };
+
     const transaksiFiltered = transaksi.filter((t) => {
         if (filterAktif === 'Semua') return true;
         return t.jenis === filterAktif;
     });
 
-    // Fungsi tambah transaksi baru
     const tambahTransaksi = async () => {
         if (!formMobil || !formHarga) return;
+
+        // Validasi harga maksimal 10 miliar
+        if (parseInt(formHarga) > 10000000000) {
+            Alert.alert('Harga terlalu besar', 'Maksimal harga adalah Rp 10.000.000.000');
+            return;
+        }
 
         const baru = {
             id: Date.now(),
@@ -83,12 +98,9 @@ export default function TransaksiScreen() {
         };
 
         const dataBaru = [baru, ...transaksi];
-
-        // Update state dan simpan ke AsyncStorage sekaligus
         setTransaksi(dataBaru);
         await simpanData(dataBaru);
 
-        // Reset form dan tutup modal
         setFormMobil('');
         setFormHarga('');
         setFormJenis('jual');
@@ -133,6 +145,13 @@ export default function TransaksiScreen() {
                                     {t.jenis === 'jual' ? 'Jual' : 'Beli'}
                                 </Text>
                             </View>
+                            {/* Tombol hapus */}
+                            <TouchableOpacity
+                                style={styles.tombolHapus}
+                                onPress={() => hapusTransaksi(t.id)}
+                            >
+                                <Text style={styles.tombolHapusTeks}>Hapus</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 ))}
@@ -226,6 +245,8 @@ const styles = StyleSheet.create({
     badgeHijau: { backgroundColor: '#dcfce7', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 },
     badgeMerah: { backgroundColor: '#fee2e2', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2 },
     badgeTeks: { fontSize: 11, fontWeight: '600' },
+    tombolHapus: { marginTop: 6 },
+    tombolHapusTeks: { fontSize: 11, color: '#dc2626' },
     tombolTambah: { backgroundColor: '#2563eb', margin: 16, borderRadius: 12, padding: 16, alignItems: 'center' },
     tombolTambahTeks: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
