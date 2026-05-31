@@ -51,34 +51,25 @@ export default function LaporanScreen() {
                 <Text style={styles.keuntunganNilai}>{formatRupiah(totalKeuntungan)}</Text>
             </View>
 
-            {/* Tabel rekap bulanan */}
+            {/* Rekap bulanan — tampilan kartu */}
             <View style={styles.tabelWrapper}>
                 <Text style={styles.tabelJudul}>Rekap Per Bulan</Text>
 
-                {/* Header tabel */}
-                <View style={styles.tabelHeader}>
-                    <Text style={[styles.tabelHeaderTeks, { flex: 2 }]}>Bulan</Text>
-                    <Text style={[styles.tabelHeaderTeks, { flex: 2 }]}>Pemasukan</Text>
-                    <Text style={[styles.tabelHeaderTeks, { flex: 2 }]}>Pengeluaran</Text>
-                    <Text style={[styles.tabelHeaderTeks, { flex: 1.5 }]}>Untung</Text>
-                </View>
-
-                {/* Baris data */}
                 {dataLaporan.map((d, index) => (
-                    <View
-                        key={index}
-                        style={[styles.tabelBaris, index % 2 === 0 && styles.tabelBarisBg]}
-                    >
-                        <Text style={[styles.tabelTeks, { flex: 2 }]}>{d.bulan}</Text>
-                        <Text style={[styles.tabelTeks, styles.teksHijau, { flex: 2 }]}>
-                            {formatRupiah(d.pemasukan)}
-                        </Text>
-                        <Text style={[styles.tabelTeks, styles.teksMerah, { flex: 2 }]}>
-                            {formatRupiah(d.pengeluaran)}
-                        </Text>
-                        <Text style={[styles.tabelTeks, styles.teksBiru, { flex: 1.5 }]}>
-                            {formatRupiah(d.pemasukan - d.pengeluaran)}
-                        </Text>
+                    <View key={index} style={styles.kartuBulan}>
+                        <Text style={styles.namaBulan}>{d.bulan}</Text>
+                        <View style={styles.barisBulan}>
+                            <Text style={styles.labelBulan}>Pemasukan</Text>
+                            <Text style={styles.teksHijau}>{formatRupiah(d.pemasukan)}</Text>
+                        </View>
+                        <View style={styles.barisBulan}>
+                            <Text style={styles.labelBulan}>Pengeluaran</Text>
+                            <Text style={styles.teksMerah}>{formatRupiah(d.pengeluaran)}</Text>
+                        </View>
+                        <View style={styles.barisBulan}>
+                            <Text style={styles.labelBulan}>Keuntungan</Text>
+                            <Text style={styles.teksBiru}>{formatRupiah(d.pemasukan - d.pengeluaran)}</Text>
+                        </View>
                     </View>
                 ))}
             </View>
@@ -105,15 +96,17 @@ const styles = StyleSheet.create({
     keuntunganNilai: { fontSize: 20, fontWeight: 'bold', color: '#fff', marginTop: 4 },
     tabelWrapper: { backgroundColor: '#fff', margin: 16, borderRadius: 12, padding: 16 },
     tabelJudul: { fontSize: 16, fontWeight: 'bold', marginBottom: 12 },
-    tabelHeader: {
-        flexDirection: 'row', backgroundColor: '#f5f5f5',
-        borderRadius: 8, padding: 10, marginBottom: 4
-    },
-    tabelHeaderTeks: { fontSize: 11, fontWeight: 'bold', color: '#555' },
-    tabelBaris: { flexDirection: 'row', paddingVertical: 10, paddingHorizontal: 4 },
-    tabelBarisBg: { backgroundColor: '#fafafa' },
-    tabelTeks: { fontSize: 11, color: '#333' },
+
     teksHijau: { color: '#16a34a' },
     teksMerah: { color: '#dc2626' },
     teksBiru: { color: '#2563eb', fontWeight: 'bold' },
+
+    kartuBulan: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
+        paddingVertical: 12,
+    },
+    namaBulan: { fontSize: 14, fontWeight: 'bold', marginBottom: 8, color: '#333' },
+    barisBulan: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+    labelBulan: { fontSize: 13, color: '#888' },
 });
