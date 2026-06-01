@@ -127,6 +127,38 @@ export default function StokScreen() {
                 <Text style={styles.headerSub}>{stok.length} unit terdaftar</Text>
             </View>
 
+            {/* Ringkasan Statistik */}
+            <View style={styles.statistikContainer}>
+
+                <View style={styles.statistikCard}>
+                    <Text style={styles.statistikAngka}>
+                        {stok.length}
+                    </Text>
+                    <Text style={styles.statistikLabel}>
+                        Total
+                    </Text>
+                </View>
+
+                <View style={styles.statistikCard}>
+                    <Text style={styles.statistikAngka}>
+                        {stok.filter(mobil => mobil.status === 'tersedia').length}
+                    </Text>
+                    <Text style={styles.statistikLabel}>
+                        Tersedia
+                    </Text>
+                </View>
+
+                <View style={styles.statistikCard}>
+                    <Text style={styles.statistikAngka}>
+                        {stok.filter(mobil => mobil.status === 'terjual').length}
+                    </Text>
+                    <Text style={styles.statistikLabel}>
+                        Terjual
+                    </Text>
+                </View>
+
+            </View>
+
             {/* Search bar */}
             <View style={styles.searchWrapper}>
                 <TextInput
@@ -248,8 +280,30 @@ const styles = StyleSheet.create({
     header: { backgroundColor: '#2563eb', padding: 24, paddingTop: 48 },
     headerJudul: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
     headerSub: { fontSize: 14, color: '#bfdbfe', marginTop: 4 },
-    searchWrapper: { padding: 16, backgroundColor: '#fff' },
-    searchInput: { backgroundColor: '#f5f5f5', borderRadius: 8, padding: 10, fontSize: 14 },
+    searchWrapper: {
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: 16,
+    },
+    searchInput: {
+        backgroundColor: '#ffffff',
+        borderRadius: 12,
+        padding: 12,
+        fontSize: 14,
+
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+
+        elevation: 1,
+    },
     list: { flex: 1, padding: 16 },
     kartu: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
     kartuKiri: { flex: 1 },
@@ -277,4 +331,42 @@ const styles = StyleSheet.create({
     tombolBatalTeks: { color: '#555', fontWeight: 'bold' },
     tombolSimpan: { flex: 1, backgroundColor: '#2563eb', borderRadius: 8, padding: 14, alignItems: 'center' },
     tombolSimpanTeks: { color: '#fff', fontWeight: 'bold' },
+    statistikContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 8,
+    },
+
+    statistikCard: {
+        flex: 1,
+        backgroundColor: '#ffffff',
+        marginHorizontal: 4,
+        borderRadius: 12,
+        padding: 12,
+        alignItems: 'center',
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+
+        elevation: 2,
+    },
+
+    statistikAngka: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#2563eb',
+    },
+
+    statistikLabel: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 4,
+    },
 });
