@@ -24,10 +24,14 @@ export default function StokScreen() {
     const [stok, setStok] = useState([]);
     const [cari, setCari] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
+
     const [formMerk, setFormMerk] = useState('');
     const [formTipe, setFormTipe] = useState('');
     const [formTahun, setFormTahun] = useState('');
     const [formHarga, setFormHarga] = useState('');
+
+    // Menyimpan ID mobil yang sedang diedit
+    const [editId, setEditId] = useState(null);
 
     useEffect(() => {
         bacaData();
@@ -96,6 +100,16 @@ export default function StokScreen() {
             mobil.tipe.toLowerCase().includes(cari.toLowerCase())
     );
 
+    const editStok = (mobil) => {
+        setFormMerk(mobil.merk);
+        setFormTipe(mobil.tipe);
+        setFormTahun(mobil.tahun.toString());
+        setFormHarga(mobil.harga.toString());
+
+        setEditId(mobil.id);
+
+        setModalVisible(true);
+    };
     const tambahStok = async () => {
         if (!formMerk || !formTipe || !formTahun || !formHarga) return;
 
