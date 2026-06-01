@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView,
-    TouchableOpacity, TextInput, Modal
+    TouchableOpacity, TextInput, Modal, Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Key untuk AsyncStorage
 const STORAGE_KEY = 'stok_showroom';
 
-// Data dummy stok awal
 const dataAwal = [
     { id: 1, merk: 'Toyota', tipe: 'Avanza', tahun: 2021, harga: 180000000, status: 'tersedia' },
     { id: 2, merk: 'Honda', tipe: 'Jazz', tahun: 2020, harga: 150000000, status: 'terjual' },
@@ -18,7 +16,6 @@ const dataAwal = [
     { id: 6, merk: 'Toyota', tipe: 'Fortuner', tahun: 2021, harga: 450000000, status: 'tersedia' },
 ];
 
-// Fungsi format Rupiah
 const formatRupiah = (angka) => {
     return 'Rp ' + angka.toLocaleString('id-ID');
 };
@@ -27,19 +24,15 @@ export default function StokScreen() {
     const [stok, setStok] = useState([]);
     const [cari, setCari] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
-
-    // State form tambah stok
     const [formMerk, setFormMerk] = useState('');
     const [formTipe, setFormTipe] = useState('');
     const [formTahun, setFormTahun] = useState('');
     const [formHarga, setFormHarga] = useState('');
 
-    // Baca data saat halaman pertama kali dibuka
     useEffect(() => {
         bacaData();
     }, []);
 
-    // Fungsi baca data dari AsyncStorage
     const bacaData = async () => {
         try {
             const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY);
@@ -54,7 +47,6 @@ export default function StokScreen() {
         }
     };
 
-    // Fungsi simpan data ke AsyncStorage
     const simpanData = async (dataBaru) => {
         try {
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataBaru));
@@ -63,14 +55,47 @@ export default function StokScreen() {
         }
     };
 
-    // Filter stok berdasarkan pencarian
+    // Fungsi ubah status mobil — tersedia jadi terjual atau sebaliknya
+    const ubahStatus = async (id) => {
+        const dataBaru = stok.map((mobil) => {
+            if (mobil.id === id) {
+                return {
+                    ...mobil,
+                    status: mobil.status === 'tersedia' ? 'terjual' : 'tersedia',
+                };
+            }
+            return mobil;
+        });
+        setStok(dataBaru);
+        await simpanData(dataBaru);
+    };
+
+    // Fungsi hapus stok — tampilkan konfirmasi dulu
+    const hapusStok = (id) => {
+        Alert.alert(
+            'Hapus Stok',
+            'Yakin ingin menghapus mobil ini dari stok?',
+            [
+                { text: 'Batal', style: 'cancel' },
+                {
+                    text: 'Hapus',
+                    style: 'destructive',
+                    onPress: async () => {
+                        const dataBaru = stok.filter((mobil) => mobil.id !== id);
+                        setStok(dataBaru);
+                        await simpanData(dataBaru);
+                    },
+                },
+            ]
+        );
+    };
+
     const stokFiltered = stok.filter(
         (mobil) =>
             mobil.merk.toLowerCase().includes(cari.toLowerCase()) ||
             mobil.tipe.toLowerCase().includes(cari.toLowerCase())
     );
 
-    // Fungsi tambah stok baru
     const tambahStok = async () => {
         if (!formMerk || !formTipe || !formTahun || !formHarga) return;
 
@@ -87,7 +112,6 @@ export default function StokScreen() {
         setStok(dataBaru);
         await simpanData(dataBaru);
 
-        // Reset form dan tutup modal
         setFormMerk('');
         setFormTipe('');
         setFormTahun('');
@@ -121,7 +145,28 @@ export default function StokScreen() {
                             <Text style={styles.namaMobil}>{mobil.merk} {mobil.tipe}</Text>
                             <Text style={styles.tahun}>Tahun {mobil.tahun}</Text>
                             <Text style={styles.harga}>{formatRupiah(mobil.harga)}</Text>
+
+                            {/* Tombol ubah status dan hapus */}
+                            <View style={styles.tombolWrapper}>
+                                <TouchableOpacity
+                                    style={mobil.status === 'tersedia' ? styles.tombolTerjual : styles.tombolTersedia}
+                                    onPress={() => ubahStatus(mobil.id)}
+                                >
+                                    <Text style={styles.tombolStatusTeks}>
+                                        {mobil.status === 'tersedia' ? 'Tandai Terjual' : 'Tandai Tersedia'}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={styles.tombolHapus}
+                                    onPress={() => hapusStok(mobil.id)}
+                                >
+                                    <Text style={styles.tombolHapusTeks}>Hapus</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
+
+                        {/* Badge status */}
                         <View style={mobil.status === 'tersedia' ? styles.badgeHijau : styles.badgeMerah}>
                             <Text style={styles.badgeTeks}>{mobil.status}</Text>
                         </View>
@@ -211,6 +256,12 @@ const styles = StyleSheet.create({
     namaMobil: { fontSize: 15, fontWeight: 'bold' },
     tahun: { fontSize: 12, color: '#888', marginTop: 2 },
     harga: { fontSize: 13, fontWeight: '600', color: '#2563eb', marginTop: 4 },
+    tombolWrapper: { flexDirection: 'row', gap: 8, marginTop: 8 },
+    tombolTerjual: { backgroundColor: '#fee2e2', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
+    tombolTersedia: { backgroundColor: '#dcfce7', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
+    tombolStatusTeks: { fontSize: 11, fontWeight: '600', color: '#333' },
+    tombolHapus: { backgroundColor: '#f5f5f5', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
+    tombolHapusTeks: { fontSize: 11, fontWeight: '600', color: '#dc2626' },
     badgeHijau: { backgroundColor: '#dcfce7', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
     badgeMerah: { backgroundColor: '#fee2e2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
     badgeTeks: { fontSize: 11, fontWeight: '600', textTransform: 'capitalize' },
