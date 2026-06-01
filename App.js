@@ -2,19 +2,19 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 // Import semua halaman
-import HomeScreen from './screens/HomeScreen';
-import TransaksiScreen from './screens/TransaksiScreen';
+import DashboardScreen from './screens/DashboardScreen';
 import StokScreen from './screens/StokScreen';
+import PenjualanScreen from './screens/PenjualanScreen';
 import LaporanScreen from './screens/LaporanScreen';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('Home');
+  const [activeTab, setActiveTab] = useState('Dashboard');
 
   // Fungsi untuk menentukan halaman mana yang ditampilkan
   const renderScreen = () => {
-    if (activeTab === 'Home') return <HomeScreen />;
-    if (activeTab === 'Transaksi') return <TransaksiScreen />;
+    if (activeTab === 'Dashboard') return <DashboardScreen />;
     if (activeTab === 'Stok') return <StokScreen />;
+    if (activeTab === 'Penjualan') return <PenjualanScreen />;
     if (activeTab === 'Laporan') return <LaporanScreen />;
   };
 
@@ -25,7 +25,7 @@ export default function App() {
 
       {/* Tab bar bawah */}
       <View style={styles.tabBar}>
-        {['Home', 'Transaksi', 'Stok', 'Laporan'].map((tab) => (
+        {['Dashboard', 'Stok', 'Penjualan', 'Laporan'].map((tab) => (
           <TouchableOpacity
             key={tab}
             style={styles.tabItem}
