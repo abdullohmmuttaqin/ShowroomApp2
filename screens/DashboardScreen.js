@@ -1,13 +1,19 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
 export default function DashboardScreen() {
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
 
             {/* Header */}
-            <Text style={styles.title}>
-                Dashboard Showroom
-            </Text>
+            <View style={styles.headerContainer}>
+                <Text style={styles.title}>
+                    Dashboard
+                </Text>
+
+                <Text style={styles.subtitle}>
+                    Selamat Datang di Showroom
+                </Text>
+            </View>
 
             {/* Statistik */}
             <View style={styles.statsContainer}>
@@ -78,7 +84,7 @@ export default function DashboardScreen() {
                 </Text>
             </View>
 
-        </View>
+        </ScrollView>
     );
 }
 
@@ -92,8 +98,17 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
+    },
+
+    headerContainer: {
         marginTop: 50,
         marginBottom: 20,
+    },
+
+    subtitle: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 4,
     },
 
     statsContainer: {
