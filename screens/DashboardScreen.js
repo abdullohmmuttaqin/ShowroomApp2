@@ -59,6 +59,25 @@ export default function DashboardScreen() {
 
             </View>
 
+            {/* Aktivitas Terbaru */}
+            <Text style={styles.sectionTitle}>
+                Aktivitas Terbaru
+            </Text>
+
+            <View style={styles.activityCard}>
+                <Text style={styles.activityItem}>
+                    • Toyota Avanza terjual
+                </Text>
+
+                <Text style={styles.activityItem}>
+                    • Honda Jazz masuk stok
+                </Text>
+
+                <Text style={styles.activityItem}>
+                    • Pembayaran Rp 50.000.000 diterima
+                </Text>
+            </View>
+
         </View>
     );
 }
@@ -116,5 +135,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         padding: 15,
         borderRadius: 12,
+    },
+
+    activityCard: {
+        backgroundColor: '#ffffff',
+        padding: 15,
+        borderRadius: 12,
+        marginTop: 10,
+    },
+
+    activityItem: {
+        marginBottom: 10,
+        color: '#444',
     },
 });
