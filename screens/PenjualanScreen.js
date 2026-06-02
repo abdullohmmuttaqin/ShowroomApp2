@@ -1,6 +1,15 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useState } from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+    TextInput,
+    Modal,
+} from 'react-native';
 
-const dataPenjualan = [
+const dataAwal = [
     {
         id: 1,
         mobil: 'Toyota Avanza',
@@ -22,10 +31,44 @@ const formatRupiah = (angka) => {
 };
 
 export default function PenjualanScreen() {
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const [namaMobil, setNamaMobil] = useState('');
+    const [hargaJual, setHargaJual] = useState('');
+    const [tanggalJual, setTanggalJual] = useState('');
+
+    const [dataPenjualan, setDataPenjualan] = useState(dataAwal);
+
     const totalOmset = dataPenjualan.reduce(
         (total, item) => total + item.harga,
         0
     );
+
+    const simpanPenjualan = () => {
+
+        if (!namaMobil || !hargaJual || !tanggalJual) {
+            return;
+        }
+
+        const transaksiBaru = {
+            id: Date.now(),
+            mobil: namaMobil,
+            harga: parseInt(hargaJual),
+            tanggal: tanggalJual,
+            status: 'Lunas',
+        };
+
+        setDataPenjualan([
+            transaksiBaru,
+            ...dataPenjualan,
+        ]);
+
+        setNamaMobil('');
+        setHargaJual('');
+        setTanggalJual('');
+
+        setModalVisible(false);
+    };
 
     return (
         <ScrollView style={styles.container}>
@@ -101,6 +144,75 @@ export default function PenjualanScreen() {
 
                 </View>
             ))}
+
+            <TouchableOpacity
+                style={styles.tombolTambah}
+                onPress={() => setModalVisible(true)}
+            >
+                <Text style={styles.tombolTambahTeks}>
+                    + Tambah Penjualan
+                </Text>
+            </TouchableOpacity>
+
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent
+            >
+                <View style={styles.modalOverlay}>
+
+                    <View style={styles.modalContainer}>
+
+                        <Text style={styles.modalTitle}>
+                            Tambah Penjualan
+                        </Text>
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nama Mobil"
+                            value={namaMobil}
+                            onChangeText={setNamaMobil}
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Harga Jual"
+                            value={hargaJual}
+                            onChangeText={setHargaJual}
+                            keyboardType="numeric"
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Tanggal"
+                            value={tanggalJual}
+                            onChangeText={setTanggalJual}
+                        />
+
+                        <View style={styles.modalButtonContainer}>
+
+                            <TouchableOpacity
+                                style={styles.btnBatal}
+                                onPress={() => setModalVisible(false)}
+                            >
+                                <Text>Batal</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.btnSimpan}
+                                onPress={simpanPenjualan}
+                            >
+                                <Text style={styles.btnSimpanText}>
+                                    Simpan
+                                </Text>
+                            </TouchableOpacity>
+
+                        </View>
+
+                    </View>
+
+                </View>
+            </Modal>
 
         </ScrollView>
     );
@@ -216,5 +328,73 @@ const styles = StyleSheet.create({
         color: '#f59e0b',
         marginTop: 8,
         fontWeight: '600',
+    },
+
+    tombolTambah: {
+        backgroundColor: '#2563eb',
+        marginTop: 20,
+        marginBottom: 30,
+        borderRadius: 12,
+        padding: 16,
+        alignItems: 'center',
+    },
+
+    tombolTambahTeks: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'flex-end',
+    },
+
+    modalContainer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+
+    input: {
+        backgroundColor: '#f5f5f5',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 12,
+    },
+
+    modalButtonContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 10,
+    },
+
+    btnBatal: {
+        flex: 1,
+        backgroundColor: '#f3f4f6',
+        padding: 14,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
+    btnSimpan: {
+        flex: 1,
+        backgroundColor: '#2563eb',
+        padding: 14,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
+    btnSimpanText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
 });
