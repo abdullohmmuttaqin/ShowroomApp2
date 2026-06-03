@@ -1,6 +1,65 @@
+import { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const STORAGE_KEY_STOK = 'stok_showroom';
+const STORAGE_KEY_PENJUALAN = 'penjualan_showroom';
 
 export default function DashboardScreen() {
+
+    const [totalStok, setTotalStok] = useState(0);
+    const [totalTerjual, setTotalTerjual] = useState(0);
+    const [totalOmset, setTotalOmset] = useState(0);
+    const [aktivitas, setAktivitas] = useState([]);
+
+    useEffect(() => {
+        bacaDataStok();
+        bacaDataPenjualan();
+    }, []);
+
+    const bacaDataStok = async () => {
+        try {
+            const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY_STOK);
+
+            if (dataTersimpan) {
+                const dataStok = JSON.parse(dataTersimpan);
+
+                setTotalStok(dataStok.length);
+
+                setTotalTerjual(
+                    dataStok.filter(
+                        mobil => mobil.status === 'terjual'
+                    ).length
+                );
+            }
+        } catch (error) {
+            console.log('Error baca stok:', error);
+        }
+    };
+
+    const bacaDataPenjualan = async () => {
+        try {
+            const dataTersimpan = await AsyncStorage.getItem(
+                STORAGE_KEY_PENJUALAN
+            );
+
+            if (dataTersimpan) {
+                const dataPenjualan = JSON.parse(dataTersimpan);
+
+                const omset = dataPenjualan.reduce(
+                    (total, item) => total + item.harga,
+                    0
+                );
+
+                setTotalOmset(omset);
+
+                setAktivitas(dataPenjualan.slice(0, 3));
+            }
+        } catch (error) {
+            console.log('Error baca penjualan:', error);
+        }
+    };
+
     return (
         <ScrollView style={styles.container}>
 
@@ -19,13 +78,22 @@ export default function DashboardScreen() {
             <View style={styles.statsContainer}>
 
                 <View style={styles.card}>
-                    <Text style={styles.cardNumber}>25</Text>
-                    <Text style={styles.cardLabel}>Total Stok</Text>
+                    <Text style={styles.cardNumber}>
+                        {totalStok}
+                    </Text>
+                    <Text style={styles.cardLabel}>
+                        Total Stok
+                    </Text>
                 </View>
 
                 <View style={styles.card}>
-                    <Text style={styles.cardNumber}>8</Text>
-                    <Text style={styles.cardLabel}>Terjual</Text>
+                    <Text style={styles.cardNumber}>
+                        {totalTerjual}
+                    </Text>
+
+                    <Text style={styles.cardLabel}>
+                        Terjual
+                    </Text>
                 </View>
 
                 <View style={styles.card}>

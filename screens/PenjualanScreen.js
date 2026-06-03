@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
     View,
     Text,
@@ -8,6 +9,8 @@ import {
     TextInput,
     Modal,
 } from 'react-native';
+
+const STORAGE_KEY = 'penjualan_showroom';
 
 const dataAwal = [
     {
@@ -39,6 +42,33 @@ export default function PenjualanScreen() {
 
     const [dataPenjualan, setDataPenjualan] = useState(dataAwal);
 
+    useEffect(() => {
+        bacaDataPenjualan();
+    }, []);
+
+    const bacaDataPenjualan = async () => {
+        try {
+            const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY);
+
+            if (dataTersimpan !== null) {
+                setDataPenjualan(JSON.parse(dataTersimpan));
+            }
+        } catch (error) {
+            console.log('Error baca penjualan:', error);
+        }
+    };
+
+    const simpanDataPenjualan = async (dataBaru) => {
+        try {
+            await AsyncStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(dataBaru)
+            );
+        } catch (error) {
+            console.log('Error simpan penjualan:', error);
+        }
+    };
+
     const totalOmset = dataPenjualan.reduce(
         (total, item) => total + item.harga,
         0
@@ -58,10 +88,14 @@ export default function PenjualanScreen() {
             status: 'Lunas',
         };
 
-        setDataPenjualan([
+        const dataBaru = [
             transaksiBaru,
             ...dataPenjualan,
-        ]);
+        ];
+
+        setDataPenjualan(dataBaru);
+
+        simpanDataPenjualan(dataBaru);
 
         setNamaMobil('');
         setHargaJual('');
