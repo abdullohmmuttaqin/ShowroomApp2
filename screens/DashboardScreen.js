@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    ScrollView,
+} from 'react-native';
 
 const STORAGE_KEY_STOK = 'stok_showroom';
 const STORAGE_KEY_PENJUALAN = 'penjualan_showroom';
+const formatRupiah = (angka) => {
+    return 'Rp ' + angka.toLocaleString('id-ID');
+};
 
 export default function DashboardScreen() {
 
@@ -13,50 +23,40 @@ export default function DashboardScreen() {
     const [aktivitas, setAktivitas] = useState([]);
 
     useEffect(() => {
-        bacaDataStok();
-        bacaDataPenjualan();
+        loadDashboardData();
     }, []);
 
-    const bacaDataStok = async () => {
+    const loadDashboardData = async () => {
         try {
-            const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY_STOK);
 
-            if (dataTersimpan) {
-                const dataStok = JSON.parse(dataTersimpan);
+            const stokData = await AsyncStorage.getItem('stok_showroom');
+            const penjualanData = await AsyncStorage.getItem('penjualan_showroom');
 
-                setTotalStok(dataStok.length);
+            if (stokData) {
+                const stok = JSON.parse(stokData);
 
-                setTotalTerjual(
-                    dataStok.filter(
-                        mobil => mobil.status === 'terjual'
-                    ).length
-                );
+                setTotalStok(stok.length);
             }
-        } catch (error) {
-            console.log('Error baca stok:', error);
-        }
-    };
 
-    const bacaDataPenjualan = async () => {
-        try {
-            const dataTersimpan = await AsyncStorage.getItem(
-                STORAGE_KEY_PENJUALAN
-            );
+            if (penjualanData) {
+                const penjualan = JSON.parse(penjualanData);
 
-            if (dataTersimpan) {
-                const dataPenjualan = JSON.parse(dataTersimpan);
+                setTotalTerjual(penjualan.length);
 
-                const omset = dataPenjualan.reduce(
+                const omset = penjualan.reduce(
                     (total, item) => total + item.harga,
                     0
                 );
 
                 setTotalOmset(omset);
 
-                setAktivitas(dataPenjualan.slice(0, 3));
+                setAktivitas(
+                    penjualan.slice(0, 3)
+                );
             }
+
         } catch (error) {
-            console.log('Error baca penjualan:', error);
+            console.log('Error dashboard:', error);
         }
     };
 
@@ -102,8 +102,13 @@ export default function DashboardScreen() {
                 </View>
 
                 <View style={styles.card}>
-                    <Text style={styles.cardNumber}>120JT</Text>
-                    <Text style={styles.cardLabel}>Kas</Text>
+                    <Text style={styles.cardNumber}>
+                        {formatRupiah(totalOmset)}
+                    </Text>
+
+                    <Text style={styles.cardLabel}>
+                        Total Omset
+                    </Text>
                 </View>
 
             </View>
@@ -139,17 +144,16 @@ export default function DashboardScreen() {
             </Text>
 
             <View style={styles.activityCard}>
-                <Text style={styles.activityItem}>
-                    • Toyota Avanza terjual
-                </Text>
 
-                <Text style={styles.activityItem}>
-                    • Honda Jazz masuk stok
-                </Text>
+                {aktivitas.map((item) => (
+                    <Text
+                        key={item.id}
+                        style={styles.activityItem}
+                    >
+                        • {item.mobil} terjual
+                    </Text>
+                ))}
 
-                <Text style={styles.activityItem}>
-                    • Pembayaran Rp 50.000.000 diterima
-                </Text>
             </View>
 
         </ScrollView>
@@ -194,7 +198,7 @@ const styles = StyleSheet.create({
     },
 
     cardNumber: {
-        fontSize: 20,
+        fontSize: 14,
         fontWeight: 'bold',
     },
 
