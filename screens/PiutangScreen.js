@@ -5,6 +5,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Modal,
+    TextInput,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,6 +33,10 @@ export default function PiutangScreen() {
 
     const [dataPiutang, setDataPiutang] = useState(dataAwal);
     const [modalVisible, setModalVisible] = useState(false);
+    const [namaPelanggan, setNamaPelanggan] = useState('');
+    const [namaMobil, setNamaMobil] = useState('');
+    const [sisaPiutang, setSisaPiutang] = useState('');
+    const [jatuhTempo, setJatuhTempo] = useState('');
 
     useEffect(() => {
         bacaDataPiutang();
@@ -173,6 +178,35 @@ export default function PiutangScreen() {
                         <Text style={styles.modalTitle}>
                             Tambah Piutang
                         </Text>
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nama Pelanggan"
+                            value={namaPelanggan}
+                            onChangeText={setNamaPelanggan}
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nama Mobil"
+                            value={namaMobil}
+                            onChangeText={setNamaMobil}
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Sisa Piutang"
+                            value={sisaPiutang}
+                            onChangeText={setSisaPiutang}
+                            keyboardType="numeric"
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Jatuh Tempo"
+                            value={jatuhTempo}
+                            onChangeText={setJatuhTempo}
+                        />
 
                         <TouchableOpacity
                             style={styles.btnTutup}
@@ -336,6 +370,13 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 20,
+    },
+
+    input: {
+        backgroundColor: '#f5f5f5',
+        padding: 12,
+        borderRadius: 10,
+        marginBottom: 12,
     },
 
     btnTutup: {
