@@ -1,4 +1,10 @@
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TouchableOpacity,
+} from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -145,6 +151,12 @@ export default function PiutangScreen() {
                 </View>
             ))}
 
+            <TouchableOpacity style={styles.tombolTambah}>
+                <Text style={styles.tombolTambahText}>
+                    + Tambah Piutang
+                </Text>
+            </TouchableOpacity>
+
         </ScrollView>
     );
 }
@@ -263,5 +275,19 @@ const styles = StyleSheet.create({
         color: '#777',
         marginTop: 4,
         fontSize: 12,
+    },
+
+    tombolTambah: {
+        backgroundColor: '#2563eb',
+        padding: 16,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 30,
+    },
+
+    tombolTambahText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
     },
 });
