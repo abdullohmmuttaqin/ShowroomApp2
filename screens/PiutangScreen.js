@@ -83,6 +83,38 @@ export default function PiutangScreen() {
         }
     };
 
+    const simpanPiutang = () => {
+
+        if (
+            !namaPelanggan ||
+            !namaMobil ||
+            !sisaPiutang ||
+            !jatuhTempo
+        ) {
+            return;
+        }
+
+        const piutangBaru = {
+            id: Date.now(),
+            nama: namaPelanggan,
+            mobil: namaMobil,
+            sisa: parseInt(sisaPiutang),
+            jatuhTempo: jatuhTempo,
+        };
+
+        setDataPiutang([
+            piutangBaru,
+            ...dataPiutang,
+        ]);
+
+        setNamaPelanggan('');
+        setNamaMobil('');
+        setSisaPiutang('');
+        setJatuhTempo('');
+
+        setModalVisible(false);
+    };
+
     const totalPiutang = dataPiutang.reduce(
         (total, item) => total + item.sisa,
         0
@@ -208,12 +240,25 @@ export default function PiutangScreen() {
                             onChangeText={setJatuhTempo}
                         />
 
-                        <TouchableOpacity
-                            style={styles.btnTutup}
-                            onPress={() => setModalVisible(false)}
-                        >
-                            <Text>Tutup</Text>
-                        </TouchableOpacity>
+                        <View style={styles.modalButtonContainer}>
+
+                            <TouchableOpacity
+                                style={styles.btnTutup}
+                                onPress={() => setModalVisible(false)}
+                            >
+                                <Text>Tutup</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.btnSimpan}
+                                onPress={simpanPiutang}
+                            >
+                                <Text style={styles.btnSimpanText}>
+                                    Simpan
+                                </Text>
+                            </TouchableOpacity>
+
+                        </View>
 
                     </View>
                 </View>
@@ -380,9 +425,29 @@ const styles = StyleSheet.create({
     },
 
     btnTutup: {
+        flex: 1,
         backgroundColor: '#f3f4f6',
         padding: 14,
         borderRadius: 10,
         alignItems: 'center',
+    },
+
+    modalButtonContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 10,
+    },
+
+    btnSimpan: {
+        flex: 1,
+        backgroundColor: '#2563eb',
+        padding: 14,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
+    btnSimpanText: {
+        color: '#fff',
+        fontWeight: 'bold',
     },
 });
