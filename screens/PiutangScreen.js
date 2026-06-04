@@ -17,6 +17,11 @@ const dataPiutang = [
     },
 ];
 export default function PiutangScreen() {
+
+    const totalPiutang = dataPiutang.reduce(
+        (total, item) => total + item.sisa,
+        0
+    );
     return (
         <ScrollView style={styles.container}>
 
@@ -36,7 +41,7 @@ export default function PiutangScreen() {
                 </Text>
 
                 <Text style={styles.heroAmount}>
-                    Rp 0
+                    Rp {totalPiutang.toLocaleString('id-ID')}
                 </Text>
 
                 <Text style={styles.heroSubtitle}>
@@ -46,7 +51,9 @@ export default function PiutangScreen() {
 
             <View style={styles.statsContainer}>
                 <View style={styles.card}>
-                    <Text style={styles.cardNumber}>0</Text>
+                    <Text style={styles.cardNumber}>
+                        {dataPiutang.length}
+                    </Text>
                     <Text style={styles.cardLabel}>
                         Piutang Aktif
                     </Text>
