@@ -32,6 +32,7 @@ const STORAGE_KEY = 'piutang_showroom';
 export default function PiutangScreen() {
 
     const [dataPiutang, setDataPiutang] = useState(dataAwal);
+    const [jumlahJatuhTempo, setJumlahJatuhTempo] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [namaPelanggan, setNamaPelanggan] = useState('');
     const [namaMobil, setNamaMobil] = useState('');
@@ -115,6 +116,21 @@ export default function PiutangScreen() {
         setModalVisible(false);
     };
 
+    useEffect(() => {
+
+        const hariIni = new Date();
+
+        const jatuhTempo = dataPiutang.filter((item) => {
+
+            const tanggalPiutang = new Date(item.jatuhTempo);
+
+            return tanggalPiutang < hariIni;
+        });
+
+        setJumlahJatuhTempo(jatuhTempo.length);
+
+    }, [dataPiutang]);
+
     const totalPiutang = dataPiutang.reduce(
         (total, item) => total + item.sisa,
         0
@@ -157,7 +173,9 @@ export default function PiutangScreen() {
                 </View>
 
                 <View style={styles.card}>
-                    <Text style={styles.cardNumber}>0</Text>
+                    <Text style={styles.cardNumber}>
+                        {jumlahJatuhTempo}
+                    </Text>
                     <Text style={styles.cardLabel}>
                         Jatuh Tempo
                     </Text>
