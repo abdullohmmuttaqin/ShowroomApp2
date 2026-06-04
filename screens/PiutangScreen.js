@@ -4,6 +4,7 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
+    Modal,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,6 +31,7 @@ const STORAGE_KEY = 'piutang_showroom';
 export default function PiutangScreen() {
 
     const [dataPiutang, setDataPiutang] = useState(dataAwal);
+    const [modalVisible, setModalVisible] = useState(false);
 
     useEffect(() => {
         bacaDataPiutang();
@@ -151,11 +153,37 @@ export default function PiutangScreen() {
                 </View>
             ))}
 
-            <TouchableOpacity style={styles.tombolTambah}>
+            <TouchableOpacity
+                style={styles.tombolTambah}
+                onPress={() => setModalVisible(true)}
+            >
                 <Text style={styles.tombolTambahText}>
                     + Tambah Piutang
                 </Text>
             </TouchableOpacity>
+
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+
+                        <Text style={styles.modalTitle}>
+                            Tambah Piutang
+                        </Text>
+
+                        <TouchableOpacity
+                            style={styles.btnTutup}
+                            onPress={() => setModalVisible(false)}
+                        >
+                            <Text>Tutup</Text>
+                        </TouchableOpacity>
+
+                    </View>
+                </View>
+            </Modal>
 
         </ScrollView>
     );
@@ -289,5 +317,31 @@ const styles = StyleSheet.create({
     tombolTambahText: {
         color: '#ffffff',
         fontWeight: 'bold',
+    },
+
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        justifyContent: 'flex-end',
+    },
+
+    modalContainer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+    },
+
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+
+    btnTutup: {
+        backgroundColor: '#f3f4f6',
+        padding: 14,
+        borderRadius: 10,
+        alignItems: 'center',
     },
 });
