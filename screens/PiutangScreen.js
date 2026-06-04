@@ -1,5 +1,21 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 
+const dataPiutang = [
+    {
+        id: 1,
+        nama: 'Budi Santoso',
+        mobil: 'Toyota Avanza',
+        sisa: 50000000,
+        jatuhTempo: '15 Juni 2026',
+    },
+    {
+        id: 2,
+        nama: 'Andi Pratama',
+        mobil: 'Honda Jazz',
+        sisa: 25000000,
+        jatuhTempo: '20 Juni 2026',
+    },
+];
 export default function PiutangScreen() {
     return (
         <ScrollView style={styles.container}>
@@ -48,11 +64,27 @@ export default function PiutangScreen() {
                 Daftar Piutang
             </Text>
 
-            <View style={styles.emptyCard}>
-                <Text style={styles.emptyText}>
-                    Belum ada data piutang
-                </Text>
-            </View>
+            {dataPiutang.map((item) => (
+                <View key={item.id} style={styles.piutangCard}>
+
+                    <Text style={styles.namaCustomer}>
+                        {item.nama}
+                    </Text>
+
+                    <Text style={styles.namaMobil}>
+                        {item.mobil}
+                    </Text>
+
+                    <Text style={styles.nominalPiutang}>
+                        Rp {item.sisa.toLocaleString('id-ID')}
+                    </Text>
+
+                    <Text style={styles.jatuhTempo}>
+                        Jatuh Tempo: {item.jatuhTempo}
+                    </Text>
+
+                </View>
+            ))}
 
         </ScrollView>
     );
@@ -143,5 +175,34 @@ const styles = StyleSheet.create({
 
     emptyText: {
         color: '#666',
+    },
+
+    piutangCard: {
+        backgroundColor: '#ffffff',
+        padding: 15,
+        borderRadius: 12,
+        marginBottom: 10,
+    },
+
+    namaCustomer: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+
+    namaMobil: {
+        color: '#666',
+        marginTop: 4,
+    },
+
+    nominalPiutang: {
+        color: '#dc2626',
+        fontWeight: 'bold',
+        marginTop: 8,
+    },
+
+    jatuhTempo: {
+        color: '#777',
+        marginTop: 4,
+        fontSize: 12,
     },
 });
