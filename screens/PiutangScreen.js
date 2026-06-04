@@ -1,6 +1,8 @@
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const dataPiutang = [
+const dataAwal = [
     {
         id: 1,
         nama: 'Budi Santoso',
@@ -16,7 +18,57 @@ const dataPiutang = [
         jatuhTempo: '20 Juni 2026',
     },
 ];
+
+const STORAGE_KEY = 'piutang_showroom';
+
 export default function PiutangScreen() {
+
+    const [dataPiutang, setDataPiutang] = useState(dataAwal);
+
+    useEffect(() => {
+        bacaDataPiutang();
+    }, []);
+
+    useEffect(() => {
+        simpanDataPiutang();
+    }, [dataPiutang]);
+
+    const bacaDataPiutang = async () => {
+        try {
+            const dataTersimpan =
+                await AsyncStorage.getItem(STORAGE_KEY);
+
+            if (dataTersimpan !== null) {
+                setDataPiutang(
+                    JSON.parse(dataTersimpan)
+                );
+            } else {
+                await AsyncStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(dataAwal)
+                );
+            }
+        } catch (error) {
+            console.log(
+                'Error baca piutang:',
+                error
+            );
+        }
+    };
+
+    const simpanDataPiutang = async () => {
+        try {
+            await AsyncStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(dataPiutang)
+            );
+        } catch (error) {
+            console.log(
+                'Error simpan piutang:',
+                error
+            );
+        }
+    };
 
     const totalPiutang = dataPiutang.reduce(
         (total, item) => total + item.sisa,
