@@ -15,7 +15,7 @@ const formatRupiah = (angka) => {
     return 'Rp ' + angka.toLocaleString('id-ID');
 };
 
-export default function DashboardScreen() {
+export default function DashboardScreen({ setActiveTab }) {
 
     const [totalStok, setTotalStok] = useState(0);
     const [totalTerjual, setTotalTerjual] = useState(0);
@@ -70,7 +70,7 @@ export default function DashboardScreen() {
                 </Text>
 
                 <Text style={styles.subtitle}>
-                    Selamat Datang di Showroom
+                    Selamat Datang di ShowroomApp
                 </Text>
             </View>
 
@@ -124,7 +124,10 @@ export default function DashboardScreen() {
                     <Text>Transaksi</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.menuButton}>
+                <TouchableOpacity
+                    style={styles.menuButton}
+                    onPress={() => setActiveTab('Piutang')}
+                >
                     <Text>Piutang</Text>
                 </TouchableOpacity>
 

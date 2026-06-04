@@ -6,16 +6,19 @@ import DashboardScreen from './screens/DashboardScreen';
 import StokScreen from './screens/StokScreen';
 import PenjualanScreen from './screens/PenjualanScreen';
 import LaporanScreen from './screens/LaporanScreen';
+import PiutangScreen from './screens/PiutangScreen';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('Dashboard');
 
   // Fungsi untuk menentukan halaman mana yang ditampilkan
   const renderScreen = () => {
-    if (activeTab === 'Dashboard') return <DashboardScreen />;
+    if (activeTab === 'Dashboard')
+      return <DashboardScreen setActiveTab={setActiveTab} />;
     if (activeTab === 'Stok') return <StokScreen />;
     if (activeTab === 'Penjualan') return <PenjualanScreen />;
     if (activeTab === 'Laporan') return <LaporanScreen />;
+    if (activeTab === 'Piutang') return <PiutangScreen />;
   };
 
   return (
