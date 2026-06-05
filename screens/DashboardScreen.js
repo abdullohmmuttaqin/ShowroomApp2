@@ -11,6 +11,7 @@ import {
 
 const STORAGE_KEY_STOK = 'stok_showroom';
 const STORAGE_KEY_PENJUALAN = 'penjualan_showroom';
+const STORAGE_KEY_PIUTANG = 'piutang_showroom';
 const formatRupiah = (angka) => {
     return 'Rp ' + angka.toLocaleString('id-ID');
 };
@@ -20,6 +21,7 @@ export default function DashboardScreen({ setActiveTab }) {
     const [totalStok, setTotalStok] = useState(0);
     const [totalTerjual, setTotalTerjual] = useState(0);
     const [totalOmset, setTotalOmset] = useState(0);
+    const [totalPiutang, setTotalPiutang] = useState(0);
     const [aktivitas, setAktivitas] = useState([]);
 
     useEffect(() => {
@@ -29,8 +31,14 @@ export default function DashboardScreen({ setActiveTab }) {
     const loadDashboardData = async () => {
         try {
 
-            const stokData = await AsyncStorage.getItem('stok_showroom');
-            const penjualanData = await AsyncStorage.getItem('penjualan_showroom');
+            const stokData =
+                await AsyncStorage.getItem(STORAGE_KEY_STOK);
+
+            const penjualanData =
+                await AsyncStorage.getItem(STORAGE_KEY_PENJUALAN);
+
+            const piutangData =
+                await AsyncStorage.getItem(STORAGE_KEY_PIUTANG);
 
             if (stokData) {
                 const stok = JSON.parse(stokData);
@@ -53,6 +61,14 @@ export default function DashboardScreen({ setActiveTab }) {
                 setAktivitas(
                     penjualan.slice(0, 3)
                 );
+            }
+
+            if (piutangData) {
+
+                const piutang =
+                    JSON.parse(piutangData);
+
+                setTotalPiutang(piutang.length);
             }
 
         } catch (error) {
@@ -97,7 +113,9 @@ export default function DashboardScreen({ setActiveTab }) {
                 </View>
 
                 <View style={styles.card}>
-                    <Text style={styles.cardNumber}>3</Text>
+                    <Text style={styles.cardNumber}>
+                        {totalPiutang}
+                    </Text>
                     <Text style={styles.cardLabel}>Piutang</Text>
                 </View>
 
