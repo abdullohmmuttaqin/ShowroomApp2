@@ -31,6 +31,9 @@ export default function DashboardScreen({ setActiveTab }) {
     const loadDashboardData = async () => {
         try {
 
+            let aktivitasPenjualan = [];
+            let aktivitasPiutang = [];
+
             const stokData =
                 await AsyncStorage.getItem(STORAGE_KEY_STOK);
 
@@ -58,9 +61,10 @@ export default function DashboardScreen({ setActiveTab }) {
 
                 setTotalOmset(omset);
 
-                setAktivitas(
-                    penjualan.slice(0, 3)
-                );
+                aktivitasPenjualan = penjualan.map(item => ({
+                    id: item.id,
+                    teks: `${item.mobil} terjual`,
+                }));
             }
 
             if (piutangData) {
@@ -69,7 +73,21 @@ export default function DashboardScreen({ setActiveTab }) {
                     JSON.parse(piutangData);
 
                 setTotalPiutang(piutang.length);
+
+                aktivitasPiutang = piutang.map(item => ({
+                    id: item.id,
+                    teks: `Piutang ${item.nama} ditambahkan`,
+                }));
             }
+
+            const semuaAktivitas = [
+                ...aktivitasPenjualan,
+                ...aktivitasPiutang,
+            ];
+
+            setAktivitas(
+                semuaAktivitas.slice(0, 3)
+            );
 
         } catch (error) {
             console.log('Error dashboard:', error);
@@ -138,7 +156,10 @@ export default function DashboardScreen({ setActiveTab }) {
 
             <View style={styles.menuContainer}>
 
-                <TouchableOpacity style={styles.menuButton}>
+                <TouchableOpacity
+                    style={styles.menuButton}
+                    onPress={() => setActiveTab('Penjualan')}
+                >
                     <Text>Transaksi</Text>
                 </TouchableOpacity>
 
@@ -149,12 +170,18 @@ export default function DashboardScreen({ setActiveTab }) {
                     <Text>Piutang</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.menuButton}>
-                    <Text>Kas & Bank</Text>
+                <TouchableOpacity
+                    style={styles.menuButton}
+                    disabled={true}
+                >
+                    <Text>Kas & Bank (Segera)</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.menuButton}>
-                    <Text>Pengaturan</Text>
+                <TouchableOpacity
+                    style={styles.menuButton}
+                    disabled={true}
+                >
+                    <Text>Pengaturan (Segaera)</Text>
                 </TouchableOpacity>
 
             </View>
@@ -166,14 +193,20 @@ export default function DashboardScreen({ setActiveTab }) {
 
             <View style={styles.activityCard}>
 
-                {aktivitas.map((item) => (
-                    <Text
-                        key={item.id}
-                        style={styles.activityItem}
-                    >
-                        • {item.mobil} terjual
+                {aktivitas.length === 0 ? (
+                    <Text style={styles.activityItem}>
+                        Belum ada aktivitas
                     </Text>
-                ))}
+                ) : (
+                    aktivitas.map((item) => (
+                        <Text
+                            key={item.id}
+                            style={styles.activityItem}
+                        >
+                            • {item.teks}
+                        </Text>
+                    ))
+                )}
 
             </View>
 
