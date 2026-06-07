@@ -38,6 +38,8 @@ export default function PiutangScreen() {
     const [namaMobil, setNamaMobil] = useState('');
     const [sisaPiutang, setSisaPiutang] = useState('');
     const [jatuhTempo, setJatuhTempo] = useState('');
+    const [piutangDipilih, setPiutangDipilih] = useState(null);
+    const [modalBayarVisible, setModalBayarVisible] = useState(false);
 
     useEffect(() => {
         bacaDataPiutang();
@@ -117,18 +119,7 @@ export default function PiutangScreen() {
     };
 
     useEffect(() => {
-
-        const hariIni = new Date();
-
-        const jatuhTempo = dataPiutang.filter((item) => {
-
-            const tanggalPiutang = new Date(item.jatuhTempo);
-
-            return tanggalPiutang < hariIni;
-        });
-
-        setJumlahJatuhTempo(jatuhTempo.length);
-
+        setJumlahJatuhTempo(dataPiutang.length);
     }, [dataPiutang]);
 
     const totalPiutang = dataPiutang.reduce(
@@ -158,7 +149,7 @@ export default function PiutangScreen() {
                 </Text>
 
                 <Text style={styles.heroSubtitle}>
-                    Belum ada piutang aktif
+                    {dataPiutang.length} piutang aktif
                 </Text>
             </View>
 
@@ -205,8 +196,22 @@ export default function PiutangScreen() {
                         Jatuh Tempo: {item.jatuhTempo}
                     </Text>
 
+                    <TouchableOpacity
+                        style={styles.btnBayar}
+                        onPress={() => {
+                            setPiutangDipilih(item);
+                            setModalBayarVisible(true);
+                        }}
+                    >
+                        <Text style={styles.btnBayarText}>
+                            Bayar
+                        </Text>
+                    </TouchableOpacity>
+
                 </View>
             ))}
+
+
 
             <TouchableOpacity
                 style={styles.tombolTambah}
@@ -264,7 +269,9 @@ export default function PiutangScreen() {
                                 style={styles.btnTutup}
                                 onPress={() => setModalVisible(false)}
                             >
-                                <Text>Tutup</Text>
+                                <Text style={styles.btnTutupText}>
+                                    Tutup
+                                </Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -279,6 +286,43 @@ export default function PiutangScreen() {
                         </View>
 
                     </View>
+                </View>
+            </Modal>
+
+            <Modal
+                visible={modalBayarVisible}
+                transparent
+                animationType="slide"
+            >
+                <View style={styles.modalOverlay}>
+
+                    <View style={styles.modalContainer}>
+
+                        <Text style={styles.modalTitle}>
+                            Pembayaran Piutang
+                        </Text>
+
+                        <Text>
+                            {piutangDipilih?.nama}
+                        </Text>
+
+                        <Text>
+                            Sisa:
+                            {' '}
+                            Rp {piutangDipilih?.sisa?.toLocaleString('id-ID')}
+                        </Text>
+
+                        <TouchableOpacity
+                            style={styles.btnTutupBayar}
+                            onPress={() => setModalBayarVisible(false)}
+                        >
+                            <Text style={styles.btnTutupBayarText}>
+                                Tutup
+                            </Text>
+                        </TouchableOpacity>
+
+                    </View>
+
                 </View>
             </Modal>
 
@@ -450,6 +494,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
+    btnTutupText: {
+        color: '#111827',
+        fontWeight: '600',
+    },
+
     modalButtonContainer: {
         flexDirection: 'row',
         gap: 10,
@@ -467,5 +516,42 @@ const styles = StyleSheet.create({
     btnSimpanText: {
         color: '#fff',
         fontWeight: 'bold',
+    },
+
+    btnBayar: {
+        backgroundColor: '#16a34a',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 10,
+        alignItems: 'center',
+    },
+
+    btnBayarText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+    },
+
+    btnTutupBayar: {
+        backgroundColor: '#f3f4f6',
+        padding: 14,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 15,
+    },
+
+    btnTutupBayarText: {
+        color: '#111827',
+        fontWeight: '600',
+    },
+
+    btnTutupBayarText: {
+        color: '#111827',
+        fontWeight: '600',
+    },
+
+    btnSimpanText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 16,
     },
 });
