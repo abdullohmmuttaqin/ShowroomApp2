@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     Modal,
     TextInput,
+    Alert,
 } from 'react-native';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -151,10 +152,25 @@ export default function PiutangScreen() {
             })
             .filter((item) => item.sisa > 0);
 
-        setDataPiutang(dataBaru);
+        Alert.alert(
+            'Konfirmasi Pembayaran',
+            `Terima pembayaran Rp ${bayar.toLocaleString('id-ID')} ?`,
+            [
+                {
+                    text: 'Batal',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Ya, Bayar',
+                    onPress: () => {
+                        setDataPiutang(dataBaru);
 
-        setNominalBayar('');
-        setModalBayarVisible(false);
+                        setNominalBayar('');
+                        setModalBayarVisible(false);
+                    },
+                },
+            ]
+        );
     };
 
     useEffect(() => {
