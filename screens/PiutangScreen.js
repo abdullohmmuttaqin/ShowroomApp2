@@ -127,22 +127,29 @@ export default function PiutangScreen() {
 
         const bayar = parseInt(nominalBayar);
 
+        if (bayar > piutangDipilih.sisa) {
+            alert('Nominal pembayaran melebihi sisa piutang');
+            return;
+        }
+
         if (bayar <= 0) {
             return;
         }
 
-        const dataBaru = dataPiutang.map((item) => {
+        const dataBaru = dataPiutang
+            .map((item) => {
 
-            if (item.id === piutangDipilih.id) {
+                if (item.id === piutangDipilih.id) {
 
-                return {
-                    ...item,
-                    sisa: item.sisa - bayar,
-                };
-            }
+                    return {
+                        ...item,
+                        sisa: item.sisa - bayar,
+                    };
+                }
 
-            return item;
-        });
+                return item;
+            })
+            .filter((item) => item.sisa > 0);
 
         setDataPiutang(dataBaru);
 
