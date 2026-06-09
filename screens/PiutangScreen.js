@@ -40,6 +40,7 @@ export default function PiutangScreen() {
     const [jatuhTempo, setJatuhTempo] = useState('');
     const [piutangDipilih, setPiutangDipilih] = useState(null);
     const [modalBayarVisible, setModalBayarVisible] = useState(false);
+    const [nominalBayar, setNominalBayar] = useState('');
 
     useEffect(() => {
         bacaDataPiutang();
@@ -116,6 +117,37 @@ export default function PiutangScreen() {
         setJatuhTempo('');
 
         setModalVisible(false);
+    };
+
+    const prosesPembayaran = () => {
+
+        if (!nominalBayar || !piutangDipilih) {
+            return;
+        }
+
+        const bayar = parseInt(nominalBayar);
+
+        if (bayar <= 0) {
+            return;
+        }
+
+        const dataBaru = dataPiutang.map((item) => {
+
+            if (item.id === piutangDipilih.id) {
+
+                return {
+                    ...item,
+                    sisa: item.sisa - bayar,
+                };
+            }
+
+            return item;
+        });
+
+        setDataPiutang(dataBaru);
+
+        setNominalBayar('');
+        setModalBayarVisible(false);
     };
 
     useEffect(() => {
@@ -312,14 +344,35 @@ export default function PiutangScreen() {
                             Rp {piutangDipilih?.sisa?.toLocaleString('id-ID')}
                         </Text>
 
-                        <TouchableOpacity
-                            style={styles.btnTutupBayar}
-                            onPress={() => setModalBayarVisible(false)}
-                        >
-                            <Text style={styles.btnTutupBayarText}>
-                                Tutup
-                            </Text>
-                        </TouchableOpacity>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nominal Pembayaran"
+                            value={nominalBayar}
+                            onChangeText={setNominalBayar}
+                            keyboardType="numeric"
+                        />
+
+                        <View style={styles.modalButtonContainer}>
+
+                            <TouchableOpacity
+                                style={styles.btnTutup}
+                                onPress={() => setModalBayarVisible(false)}
+                            >
+                                <Text style={styles.btnTutupText}>
+                                    Tutup
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.btnSimpan}
+                                onPress={prosesPembayaran}
+                            >
+                                <Text style={styles.btnSimpanText}>
+                                    Bayar
+                                </Text>
+                            </TouchableOpacity>
+
+                        </View>
 
                     </View>
 
