@@ -166,6 +166,7 @@ export default function PiutangScreen() {
                         setDataPiutang(dataBaru);
 
                         setNominalBayar('');
+                        setPiutangDipilih(null);
                         setModalBayarVisible(false);
 
                         Alert.alert(
@@ -409,6 +410,7 @@ export default function PiutangScreen() {
                                 style={styles.btnTutup}
                                 onPress={() => {
                                     setNominalBayar('');
+                                    setPiutangDipilih(null);
                                     setModalBayarVisible(false);
                                 }}
                             >
