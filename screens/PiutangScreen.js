@@ -357,13 +357,35 @@ export default function PiutangScreen() {
                             Pembayaran Piutang
                         </Text>
 
-                        <Text>
+                        <Text style={styles.detailLabel}>
+                            Nama Pelanggan
+                        </Text>
+
+                        <Text style={styles.detailValue}>
                             {piutangDipilih?.nama}
                         </Text>
 
-                        <Text>
-                            Sisa:
-                            {' '}
+                        <Text style={styles.detailLabel}>
+                            Mobil
+                        </Text>
+
+                        <Text style={styles.detailValue}>
+                            {piutangDipilih?.mobil}
+                        </Text>
+
+                        <Text style={styles.detailLabel}>
+                            Jatuh Tempo
+                        </Text>
+
+                        <Text style={styles.detailValue}>
+                            {piutangDipilih?.jatuhTempo}
+                        </Text>
+
+                        <Text style={styles.detailLabel}>
+                            Sisa Piutang
+                        </Text>
+
+                        <Text style={styles.detailNominal}>
                             Rp {piutangDipilih?.sisa?.toLocaleString('id-ID')}
                         </Text>
 
@@ -589,11 +611,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    btnSimpanText: {
-        color: '#fff',
-        fontWeight: 'bold',
-    },
-
     btnBayar: {
         backgroundColor: '#16a34a',
         padding: 10,
@@ -620,14 +637,31 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
 
-    btnTutupBayarText: {
-        color: '#111827',
-        fontWeight: '600',
-    },
-
     btnSimpanText: {
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 16,
+    },
+
+    detailLabel: {
+        fontSize: 13,
+        color: '#6b7280',
+        marginTop: 10,
+    },
+
+    detailValue: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#111827',
+        marginTop: 2,
+        marginBottom: 8,
+    },
+
+    detailNominal: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#dc2626',
+        marginTop: 2,
+        marginBottom: 16,
     },
 });
