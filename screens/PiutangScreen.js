@@ -260,6 +260,7 @@ export default function PiutangScreen() {
                         style={styles.btnBayar}
                         onPress={() => {
                             setPiutangDipilih(item);
+                            setNominalBayar('');
                             setModalBayarVisible(true);
                         }}
                     >
@@ -406,7 +407,10 @@ export default function PiutangScreen() {
 
                             <TouchableOpacity
                                 style={styles.btnTutup}
-                                onPress={() => setModalBayarVisible(false)}
+                                onPress={() => {
+                                    setNominalBayar('');
+                                    setModalBayarVisible(false);
+                                }}
                             >
                                 <Text style={styles.btnTutupText}>
                                     Tutup
