@@ -167,6 +167,11 @@ export default function PiutangScreen() {
 
                         setNominalBayar('');
                         setModalBayarVisible(false);
+
+                        Alert.alert(
+                            'Berhasil',
+                            'Pembayaran piutang berhasil disimpan.'
+                        );
                     },
                 },
             ]
