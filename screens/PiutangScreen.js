@@ -140,19 +140,15 @@ export default function PiutangScreen() {
 
     const prosesPembayaran = () => {
 
-        if (!nominalBayar || !piutangDipilih) {
+        if (!nominalBayar.trim()) {
+            Alert.alert(
+                'Peringatan',
+                'Masukkan nominal pembayaran.'
+            );
             return;
         }
 
         const bayar = parseInt(nominalBayar, 10);
-
-        if (isNaN(bayar)) {
-            Alert.alert(
-                'Peringatan',
-                'Masukkan nominal pembayaran yang valid.'
-            );
-            return;
-        }
 
         if (bayar <= 0) {
             Alert.alert(
@@ -454,7 +450,10 @@ export default function PiutangScreen() {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={styles.btnSimpan}
+                                style={[
+                                    styles.btnSimpan,
+                                    nominalBayar.trim() === '' && styles.btnDisabled,
+                                ]}
                                 onPress={prosesPembayaran}
                             >
                                 <Text style={styles.btnSimpanText}>
@@ -708,5 +707,9 @@ const styles = StyleSheet.create({
         color: '#dc2626',
         marginTop: 2,
         marginBottom: 16,
+    },
+
+    btnDisabled: {
+        backgroundColor: '#9ca3af',
     },
 });
