@@ -51,6 +51,7 @@ export default function PiutangScreen() {
     const [piutangDipilih, setPiutangDipilih] = useState(null);
     const [modalBayarVisible, setModalBayarVisible] = useState(false);
     const [nominalBayar, setNominalBayar] = useState('');
+    const [riwayatPembayaran, setRiwayatPembayaran] = useState([]);
     const nominalBayarRef = useRef(null);
 
     useEffect(() => {
@@ -191,6 +192,17 @@ export default function PiutangScreen() {
                     text: 'Ya, Bayar',
                     onPress: () => {
                         setDataPiutang(dataBaru);
+
+                        setRiwayatPembayaran((prev) => [
+                            {
+                                id: Date.now(),
+                                nama: piutangDipilih.nama,
+                                mobil: piutangDipilih.mobil,
+                                nominal: bayar,
+                                tanggal: new Date().toLocaleDateString('id-ID'),
+                            },
+                            ...prev,
+                        ]);
 
                         setNominalBayar('');
                         setPiutangDipilih(null);
