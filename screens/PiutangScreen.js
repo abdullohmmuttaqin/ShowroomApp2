@@ -126,14 +126,29 @@ export default function PiutangScreen() {
             return;
         }
 
-        const bayar = parseInt(nominalBayar);
+        const bayar = parseInt(nominalBayar, 10);
 
-        if (bayar > piutangDipilih.sisa) {
-            alert('Nominal pembayaran melebihi sisa piutang');
+        if (isNaN(bayar)) {
+            Alert.alert(
+                'Peringatan',
+                'Masukkan nominal pembayaran yang valid.'
+            );
             return;
         }
 
         if (bayar <= 0) {
+            Alert.alert(
+                'Peringatan',
+                'Nominal pembayaran harus lebih dari 0.'
+            );
+            return;
+        }
+
+        if (bayar > piutangDipilih.sisa) {
+            Alert.alert(
+                'Peringatan',
+                'Nominal pembayaran melebihi sisa piutang.'
+            );
             return;
         }
 
