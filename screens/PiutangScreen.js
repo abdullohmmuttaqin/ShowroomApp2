@@ -139,9 +139,7 @@ export default function PiutangScreen() {
 
         const dataBaru = dataPiutang
             .map((item) => {
-
                 if (item.id === piutangDipilih.id) {
-
                     return {
                         ...item,
                         sisa: item.sisa - bayar,
