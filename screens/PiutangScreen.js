@@ -8,7 +8,7 @@ import {
     TextInput,
     Alert,
 } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const dataAwal = [
@@ -51,6 +51,7 @@ export default function PiutangScreen() {
     const [piutangDipilih, setPiutangDipilih] = useState(null);
     const [modalBayarVisible, setModalBayarVisible] = useState(false);
     const [nominalBayar, setNominalBayar] = useState('');
+    const nominalBayarRef = useRef(null);
 
     useEffect(() => {
         bacaDataPiutang();
@@ -59,6 +60,14 @@ export default function PiutangScreen() {
     useEffect(() => {
         simpanDataPiutang();
     }, [dataPiutang]);
+
+    useEffect(() => {
+        if (modalBayarVisible) {
+            setTimeout(() => {
+                nominalBayarRef.current?.focus();
+            }, 300);
+        }
+    }, [modalBayarVisible]);
 
     const bacaDataPiutang = async () => {
         try {
@@ -419,6 +428,7 @@ export default function PiutangScreen() {
                         </Text>
 
                         <TextInput
+                            ref={nominalBayarRef}
                             style={styles.input}
                             placeholder="Masukkan nominal pembayaran"
                             value={formatRupiah(nominalBayar)}
