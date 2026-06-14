@@ -29,6 +29,7 @@ const dataAwal = [
 ];
 
 const STORAGE_KEY = 'piutang_showroom';
+const HISTORY_STORAGE_KEY = 'riwayat_pembayaran_showroom';
 const formatRupiah = (value) => {
     const angka = value.replace(/[^0-9]/g, '');
 
@@ -56,11 +57,16 @@ export default function PiutangScreen() {
 
     useEffect(() => {
         bacaDataPiutang();
+        bacaRiwayatPembayaran();
     }, []);
 
     useEffect(() => {
         simpanDataPiutang();
     }, [dataPiutang]);
+
+    useEffect(() => {
+        simpanRiwayatPembayaran();
+    }, [riwayatPembayaran]);
 
     useEffect(() => {
         if (modalBayarVisible) {
@@ -102,6 +108,40 @@ export default function PiutangScreen() {
         } catch (error) {
             console.log(
                 'Error simpan piutang:',
+                error
+            );
+        }
+    };
+
+    const simpanRiwayatPembayaran = async () => {
+        try {
+            await AsyncStorage.setItem(
+                HISTORY_STORAGE_KEY,
+                JSON.stringify(riwayatPembayaran)
+            );
+        } catch (error) {
+            console.log(
+                'Error simpan riwayat pembayaran:',
+                error
+            );
+        }
+    };
+
+    const bacaRiwayatPembayaran = async () => {
+        try {
+            const data =
+                await AsyncStorage.getItem(
+                    HISTORY_STORAGE_KEY
+                );
+
+            if (data !== null) {
+                setRiwayatPembayaran(
+                    JSON.parse(data)
+                );
+            }
+        } catch (error) {
+            console.log(
+                'Error baca riwayat pembayaran:',
                 error
             );
         }
