@@ -29,6 +29,15 @@ const dataAwal = [
 ];
 
 const STORAGE_KEY = 'piutang_showroom';
+const formatRupiah = (value) => {
+    const angka = value.replace(/[^0-9]/g, '');
+
+    if (!angka) {
+        return '';
+    }
+
+    return `Rp ${parseInt(angka, 10).toLocaleString('id-ID')}`;
+};
 
 export default function PiutangScreen() {
 
@@ -411,9 +420,11 @@ export default function PiutangScreen() {
 
                         <TextInput
                             style={styles.input}
-                            placeholder="Nominal Pembayaran"
-                            value={nominalBayar}
-                            onChangeText={setNominalBayar}
+                            placeholder="Masukkan nominal pembayaran"
+                            value={formatRupiah(nominalBayar)}
+                            onChangeText={(text) =>
+                                setNominalBayar(text.replace(/[^0-9]/g, ''))
+                            }
                             keyboardType="numeric"
                         />
 
