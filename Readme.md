@@ -119,7 +119,7 @@ npx expo start
 
 ---
 
-## 👨‍💻 Developer
+## Developer
 
 **Abd Muttaqin** — [@abdullohmmuttaqin](https://github.com/abdullohmmuttaqin)
 
