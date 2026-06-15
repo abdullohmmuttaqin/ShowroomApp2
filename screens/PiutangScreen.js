@@ -242,7 +242,7 @@ export default function PiutangScreen() {
                                 nama: piutangDipilih.nama,
                                 mobil: piutangDipilih.mobil,
                                 nominal: bayar,
-                                tanggal: new Date().toLocaleDateString('id-ID'),
+                                tanggal: new Date().toLocaleString('id-ID'),
                             },
                             ...prev,
                         ]);
