@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const dataAwal = [
     {
@@ -50,6 +51,8 @@ export default function PiutangScreen() {
     const [namaMobil, setNamaMobil] = useState('');
     const [sisaPiutang, setSisaPiutang] = useState('');
     const [jatuhTempo, setJatuhTempo] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [piutangDipilih, setPiutangDipilih] = useState(null);
     const [modalBayarVisible, setModalBayarVisible] = useState(false);
     const [nominalBayar, setNominalBayar] = useState('');
@@ -150,6 +153,31 @@ export default function PiutangScreen() {
         }
     };
 
+    const pilihTanggal = (event, date) => {
+        setShowDatePicker(false);
+
+        if (event.type === 'dismissed') {
+            return;
+        }
+
+        if (!date) {
+            return;
+        }
+
+        setSelectedDate(date);
+
+        const tanggalFormat = date.toLocaleDateString(
+            'id-ID',
+            {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+            }
+        );
+
+        setJatuhTempo(tanggalFormat);
+    };
+
     const simpanPiutang = () => {
 
         if (
@@ -178,6 +206,7 @@ export default function PiutangScreen() {
         setNamaMobil('');
         setSisaPiutang('');
         setJatuhTempo('');
+        setSelectedDate(new Date());
 
         setModalVisible(false);
     };
@@ -449,18 +478,41 @@ export default function PiutangScreen() {
                             keyboardType="numeric"
                         />
 
-                        <TextInput
+                        <TouchableOpacity
                             style={styles.input}
-                            placeholder="Jatuh Tempo"
-                            value={jatuhTempo}
-                            onChangeText={setJatuhTempo}
-                        />
+                            onPress={() => setShowDatePicker(true)}
+                        >
+                            <Text
+                                style={{
+                                    color: jatuhTempo ? '#111827' : '#9ca3af',
+                                }}
+                            >
+                                📅 {jatuhTempo || 'Pilih Jatuh Tempo'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={selectedDate}
+                                mode="date"
+                                display="default"
+                                onChange={pilihTanggal}
+                            />
+                        )}
 
                         <View style={styles.modalButtonContainer}>
 
                             <TouchableOpacity
                                 style={styles.btnTutup}
-                                onPress={() => setModalVisible(false)}
+                                onPress={() => {
+                                    setNamaPelanggan('');
+                                    setNamaMobil('');
+                                    setSisaPiutang('');
+                                    setJatuhTempo('');
+                                    setSelectedDate(new Date());
+
+                                    setModalVisible(false);
+                                }}
                             >
                                 <Text style={styles.btnTutupText}>
                                     Tutup
