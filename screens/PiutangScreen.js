@@ -43,6 +43,7 @@ const formatRupiah = (value) => {
 export default function PiutangScreen() {
 
     const [dataPiutang, setDataPiutang] = useState(dataAwal);
+    const [isLoading, setIsLoading] = useState(true);
     const [jumlahJatuhTempo, setJumlahJatuhTempo] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [namaPelanggan, setNamaPelanggan] = useState('');
@@ -61,8 +62,10 @@ export default function PiutangScreen() {
     }, []);
 
     useEffect(() => {
-        simpanDataPiutang();
-    }, [dataPiutang]);
+        if (!isLoading) {
+            simpanDataPiutang();
+        }
+    }, [dataPiutang, isLoading]);
 
     useEffect(() => {
         simpanRiwayatPembayaran();
@@ -83,13 +86,13 @@ export default function PiutangScreen() {
 
             if (dataTersimpan !== null) {
                 setDataPiutang(
-                    JSON.parse(dataTersimpan)
-                );
+                    JSON.parse(dataTersimpan));
+                setIsLoading(false);
             } else {
                 await AsyncStorage.setItem(
                     STORAGE_KEY,
-                    JSON.stringify(dataAwal)
-                );
+                    JSON.stringify(dataAwal));
+                setIsLoading(false);
             }
         } catch (error) {
             console.log(
@@ -352,7 +355,40 @@ export default function PiutangScreen() {
                 </View>
             ))}
 
+            <Text style={styles.sectionTitle}>
+                Riwayat Pembayaran
+            </Text>
 
+            {riwayatPembayaran.length === 0 ? (
+                <View style={styles.emptyCard}>
+                    <Text style={styles.emptyText}>
+                        Belum ada riwayat pembayaran
+                    </Text>
+                </View>
+            ) : (
+                riwayatPembayaran.map((item) => (
+                    <View
+                        key={item.id}
+                        style={styles.riwayatCard}
+                    >
+                        <Text style={styles.namaCustomer}>
+                            {item.nama}
+                        </Text>
+
+                        <Text style={styles.namaMobil}>
+                            {item.mobil}
+                        </Text>
+
+                        <Text style={styles.nominalBayarHistory}>
+                            Rp {item.nominal.toLocaleString('id-ID')}
+                        </Text>
+
+                        <Text style={styles.jatuhTempo}>
+                            {item.tanggal}
+                        </Text>
+                    </View>
+                ))
+            )}
 
             <TouchableOpacity
                 style={styles.tombolTambah}
@@ -763,5 +799,18 @@ const styles = StyleSheet.create({
 
     btnDisabled: {
         backgroundColor: '#9ca3af',
+    },
+
+    riwayatCard: {
+        backgroundColor: '#ffffff',
+        padding: 15,
+        borderRadius: 12,
+        marginBottom: 10,
+    },
+
+    nominalBayarHistory: {
+        color: '#16a34a',
+        fontWeight: 'bold',
+        marginTop: 8,
     },
 });
