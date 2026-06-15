@@ -269,6 +269,12 @@ export default function PiutangScreen() {
         (total, item) => total + item.sisa,
         0
     );
+
+    const totalPembayaran = riwayatPembayaran.reduce(
+        (total, item) => total + item.nominal,
+        0
+    );
+
     return (
         <ScrollView style={styles.container}>
 
@@ -358,6 +364,16 @@ export default function PiutangScreen() {
             <Text style={styles.sectionTitle}>
                 Riwayat Pembayaran
             </Text>
+
+            <View style={styles.totalRiwayatCard}>
+                <Text style={styles.totalRiwayatLabel}>
+                    Total Pembayaran
+                </Text>
+
+                <Text style={styles.totalRiwayatNominal}>
+                    Rp {totalPembayaran.toLocaleString('id-ID')}
+                </Text>
+            </View>
 
             {riwayatPembayaran.length === 0 ? (
                 <View style={styles.emptyCard}>
@@ -812,5 +828,24 @@ const styles = StyleSheet.create({
         color: '#16a34a',
         fontWeight: 'bold',
         marginTop: 8,
+    },
+
+    totalRiwayatCard: {
+        backgroundColor: '#ecfdf5',
+        padding: 15,
+        borderRadius: 12,
+        marginBottom: 12,
+    },
+
+    totalRiwayatLabel: {
+        color: '#166534',
+        fontSize: 13,
+    },
+
+    totalRiwayatNominal: {
+        color: '#16a34a',
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginTop: 4,
     },
 });
