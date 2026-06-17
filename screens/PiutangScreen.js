@@ -58,6 +58,8 @@ export default function PiutangScreen() {
     const [nominalBayar, setNominalBayar] = useState('');
     const [riwayatPembayaran, setRiwayatPembayaran] = useState([]);
     const nominalBayarRef = useRef(null);
+    const [modeEdit, setModeEdit] = useState(false);
+    const [idEdit, setIdEdit] = useState(null);
 
     useEffect(() => {
         bacaDataPiutang();
@@ -223,24 +225,74 @@ export default function PiutangScreen() {
             return;
         }
 
-        const piutangBaru = {
-            id: Date.now(),
+        const dataPiutangBaru = {
+            id: modeEdit ? idEdit : Date.now(),
             nama: namaPelanggan.trim(),
             mobil: namaMobil.trim(),
             sisa: parseInt(sisaPiutang, 10),
             jatuhTempo: jatuhTempo,
         };
 
-        setDataPiutang([
-            piutangBaru,
-            ...dataPiutang,
-        ]);
+        if (modeEdit) {
+
+            const dataUpdate = dataPiutang.map(
+                (item) =>
+                    item.id === idEdit
+                        ? dataPiutangBaru
+                        : item
+            );
+
+            Alert.alert(
+                'Konfirmasi Update',
+                'Simpan perubahan data piutang?',
+                [
+                    {
+                        text: 'Batal',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Update',
+                        onPress: () => {
+                            setDataPiutang(dataUpdate);
+
+                            setNamaPelanggan('');
+                            setNamaMobil('');
+                            setSisaPiutang('');
+                            setJatuhTempo('');
+                            setSelectedDate(new Date());
+
+                            setModeEdit(false);
+                            setIdEdit(null);
+
+                            setModalVisible(false);
+
+                            Alert.alert(
+                                'Berhasil',
+                                'Data piutang berhasil diperbarui.'
+                            );
+                        },
+                    },
+                ]
+            );
+
+            return;
+        } else {
+
+            setDataPiutang([
+                dataPiutangBaru,
+                ...dataPiutang,
+            ]);
+
+        }
 
         setNamaPelanggan('');
         setNamaMobil('');
         setSisaPiutang('');
         setJatuhTempo('');
         setSelectedDate(new Date());
+
+        setModeEdit(false);
+        setIdEdit(null);
 
         setModalVisible(false);
     };
@@ -416,6 +468,25 @@ export default function PiutangScreen() {
                     </Text>
 
                     <TouchableOpacity
+                        style={styles.btnEdit}
+                        onPress={() => {
+                            setModeEdit(true);
+                            setIdEdit(item.id);
+
+                            setNamaPelanggan(item.nama);
+                            setNamaMobil(item.mobil);
+                            setSisaPiutang(item.sisa.toString());
+                            setJatuhTempo(item.jatuhTempo);
+
+                            setModalVisible(true);
+                        }}
+                    >
+                        <Text style={styles.btnEditText}>
+                            Edit
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
                         style={styles.btnBayar}
                         onPress={() => {
                             setPiutangDipilih(item);
@@ -478,7 +549,18 @@ export default function PiutangScreen() {
 
             <TouchableOpacity
                 style={styles.tombolTambah}
-                onPress={() => setModalVisible(true)}
+                onPress={() => {
+                    setModeEdit(false);
+                    setIdEdit(null);
+
+                    setNamaPelanggan('');
+                    setNamaMobil('');
+                    setSisaPiutang('');
+                    setJatuhTempo('');
+                    setSelectedDate(new Date());
+
+                    setModalVisible(false);
+                }}
             >
                 <Text style={styles.tombolTambahText}>
                     + Tambah Piutang
@@ -494,7 +576,7 @@ export default function PiutangScreen() {
                     <View style={styles.modalContainer}>
 
                         <Text style={styles.modalTitle}>
-                            Tambah Piutang
+                            {modeEdit ? 'Edit Piutang' : 'Tambah Piutang'}
                         </Text>
 
                         <TextInput
@@ -568,7 +650,7 @@ export default function PiutangScreen() {
                                 onPress={simpanPiutang}
                             >
                                 <Text style={styles.btnSimpanText}>
-                                    Simpan
+                                    {modeEdit ? 'Update' : 'Simpan'}
                                 </Text>
                             </TouchableOpacity>
 
@@ -861,6 +943,19 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginTop: 10,
         alignItems: 'center',
+    },
+
+    btnEdit: {
+        backgroundColor: '#f59e0b',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 10,
+        alignItems: 'center',
+    },
+
+    btnEditText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
     },
 
     btnBayarText: {
