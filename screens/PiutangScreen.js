@@ -88,13 +88,24 @@ export default function PiutangScreen() {
                 await AsyncStorage.getItem(STORAGE_KEY);
 
             if (dataTersimpan !== null) {
-                setDataPiutang(
-                    JSON.parse(dataTersimpan));
+
+                const data = JSON.parse(dataTersimpan);
+
+                const dataBersih = data.filter(
+                    (item) =>
+                        item.nama?.trim() &&
+                        item.mobil?.trim() &&
+                        item.sisa !== null
+                );
+
+                setDataPiutang(dataBersih);
                 setIsLoading(false);
             } else {
                 await AsyncStorage.setItem(
                     STORAGE_KEY,
-                    JSON.stringify(dataAwal));
+                    JSON.stringify(dataAwal)
+                );
+
                 setIsLoading(false);
             }
         } catch (error) {
@@ -180,20 +191,43 @@ export default function PiutangScreen() {
 
     const simpanPiutang = () => {
 
-        if (
-            !namaPelanggan ||
-            !namaMobil ||
-            !sisaPiutang ||
-            !jatuhTempo
-        ) {
+        if (!namaPelanggan.trim()) {
+            Alert.alert(
+                'Peringatan',
+                'Nama pelanggan wajib diisi.'
+            );
+            return;
+        }
+
+        if (!namaMobil.trim()) {
+            Alert.alert(
+                'Peringatan',
+                'Nama mobil wajib diisi.'
+            );
+            return;
+        }
+
+        if (!sisaPiutang || parseInt(sisaPiutang, 10) <= 0) {
+            Alert.alert(
+                'Peringatan',
+                'Sisa piutang harus lebih dari 0.'
+            );
+            return;
+        }
+
+        if (!jatuhTempo) {
+            Alert.alert(
+                'Peringatan',
+                'Pilih tanggal jatuh tempo.'
+            );
             return;
         }
 
         const piutangBaru = {
             id: Date.now(),
-            nama: namaPelanggan,
-            mobil: namaMobil,
-            sisa: parseInt(sisaPiutang),
+            nama: namaPelanggan.trim(),
+            mobil: namaMobil.trim(),
+            sisa: parseInt(sisaPiutang, 10),
             jatuhTempo: jatuhTempo,
         };
 
@@ -303,6 +337,13 @@ export default function PiutangScreen() {
         (total, item) => total + item.nominal,
         0
     );
+
+    const formValid =
+        namaPelanggan.trim() !== '' &&
+        namaMobil.trim() !== '' &&
+        sisaPiutang.trim() !== '' &&
+        parseInt(sisaPiutang, 10) > 0 &&
+        jatuhTempo !== '';
 
     return (
         <ScrollView style={styles.container}>
@@ -520,7 +561,10 @@ export default function PiutangScreen() {
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={styles.btnSimpan}
+                                style={[
+                                    styles.btnSimpan,
+                                    !formValid && styles.btnDisabled,
+                                ]}
                                 onPress={simpanPiutang}
                             >
                                 <Text style={styles.btnSimpanText}>
