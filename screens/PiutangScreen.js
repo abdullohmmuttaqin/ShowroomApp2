@@ -499,6 +499,45 @@ export default function PiutangScreen() {
                         </Text>
                     </TouchableOpacity>
 
+                    <TouchableOpacity
+                        style={styles.btnHapus}
+                        onPress={() => {
+                            Alert.alert(
+                                'Konfirmasi Hapus',
+                                `Hapus piutang ${item.nama}?`,
+                                [
+                                    {
+                                        text: 'Batal',
+                                        style: 'cancel',
+                                    },
+                                    {
+                                        text: 'Hapus',
+                                        style: 'destructive',
+                                        onPress: () => {
+                                            const dataBaru = dataPiutang.filter(
+                                                (piutang) => piutang.id !== item.id
+                                            );
+
+                                            setDataPiutang(dataBaru);
+
+                                            setModeEdit(false);
+                                            setIdEdit(null);
+
+                                            Alert.alert(
+                                                'Berhasil',
+                                                'Piutang berhasil dihapus.'
+                                            );
+                                        },
+                                    },
+                                ]
+                            );
+                        }}
+                    >
+                        <Text style={styles.btnHapusText}>
+                            Hapus
+                        </Text>
+                    </TouchableOpacity>
+
                 </View>
             ))}
 
@@ -559,7 +598,7 @@ export default function PiutangScreen() {
                     setJatuhTempo('');
                     setSelectedDate(new Date());
 
-                    setModalVisible(false);
+                    setModalVisible(true);
                 }}
             >
                 <Text style={styles.tombolTambahText}>
@@ -1038,5 +1077,18 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: 'bold',
         marginTop: 4,
+    },
+
+    btnHapus: {
+        backgroundColor: '#dc2626',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 10,
+        alignItems: 'center',
+    },
+
+    btnHapusText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
     },
 });
