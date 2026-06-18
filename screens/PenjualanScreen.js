@@ -1,3 +1,4 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -34,13 +35,14 @@ const formatRupiah = (angka) => {
 };
 
 export default function PenjualanScreen() {
-    const [modalVisible, setModalVisible] = useState(false);
 
+    const [modalVisible, setModalVisible] = useState(false);
     const [namaMobil, setNamaMobil] = useState('');
     const [hargaJual, setHargaJual] = useState('');
     const [tanggalJual, setTanggalJual] = useState('');
-
     const [dataPenjualan, setDataPenjualan] = useState(dataAwal);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
     useEffect(() => {
         bacaDataPenjualan();
@@ -100,8 +102,30 @@ export default function PenjualanScreen() {
         setNamaMobil('');
         setHargaJual('');
         setTanggalJual('');
+        setSelectedDate(new Date());
 
         setModalVisible(false);
+    };
+
+    const pilihTanggal = (event, date) => {
+        setShowDatePicker(false);
+
+        if (!date) {
+            return;
+        }
+
+        setSelectedDate(date);
+
+        const tanggalFormat = date.toLocaleDateString(
+            'id-ID',
+            {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+            }
+        );
+
+        setTanggalJual(tanggalFormat);
     };
 
     return (
@@ -216,18 +240,40 @@ export default function PenjualanScreen() {
                             keyboardType="numeric"
                         />
 
-                        <TextInput
+                        <TouchableOpacity
                             style={styles.input}
-                            placeholder="Tanggal"
-                            value={tanggalJual}
-                            onChangeText={setTanggalJual}
-                        />
+                            onPress={() => setShowDatePicker(true)}
+                        >
+                            <Text
+                                style={{
+                                    color: tanggalJual ? '#111827' : '#9ca3af',
+                                }}
+                            >
+                                {tanggalJual || 'Pilih Tanggal'}
+                            </Text>
+                        </TouchableOpacity>
+
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={selectedDate}
+                                mode="date"
+                                display="default"
+                                onChange={pilihTanggal}
+                            />
+                        )}
 
                         <View style={styles.modalButtonContainer}>
 
                             <TouchableOpacity
                                 style={styles.btnBatal}
-                                onPress={() => setModalVisible(false)}
+                                onPress={() => {
+                                    setNamaMobil('');
+                                    setHargaJual('');
+                                    setTanggalJual('');
+                                    setSelectedDate(new Date());
+
+                                    setModalVisible(false);
+                                }}
                             >
                                 <Text>Batal</Text>
                             </TouchableOpacity>
