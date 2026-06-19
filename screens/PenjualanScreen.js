@@ -9,6 +9,7 @@ import {
     TouchableOpacity,
     TextInput,
     Modal,
+    Alert,
 } from 'react-native';
 
 const STORAGE_KEY = 'penjualan_showroom';
@@ -107,6 +108,37 @@ export default function PenjualanScreen() {
         setModalVisible(false);
     };
 
+    const hapusPenjualan = (id) => {
+
+        Alert.alert(
+            'Hapus Penjualan',
+            'Yakin ingin menghapus data ini?',
+            [
+                {
+                    text: 'Batal',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Hapus',
+                    style: 'destructive',
+                    onPress: async () => {
+
+                        const dataBaru =
+                            dataPenjualan.filter(
+                                (item) => item.id !== id
+                            );
+
+                        setDataPenjualan(dataBaru);
+
+                        await simpanDataPenjualan(
+                            dataBaru
+                        );
+                    },
+                },
+            ]
+        );
+    };
+
     const pilihTanggal = (event, date) => {
         setShowDatePicker(false);
 
@@ -199,6 +231,15 @@ export default function PenjualanScreen() {
                     >
                         ● {item.status}
                     </Text>
+
+                    <TouchableOpacity
+                        style={styles.btnHapus}
+                        onPress={() => hapusPenjualan(item.id)}
+                    >
+                        <Text style={styles.btnHapusText}>
+                            Hapus
+                        </Text>
+                    </TouchableOpacity>
 
                 </View>
             ))}
@@ -475,6 +516,19 @@ const styles = StyleSheet.create({
 
     btnSimpanText: {
         color: '#fff',
+        fontWeight: 'bold',
+    },
+
+    btnHapus: {
+        backgroundColor: '#dc2626',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 10,
+        alignItems: 'center',
+    },
+
+    btnHapusText: {
+        color: '#ffffff',
         fontWeight: 'bold',
     },
 });
