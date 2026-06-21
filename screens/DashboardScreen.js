@@ -15,6 +15,30 @@ const STORAGE_KEY_PIUTANG = 'piutang_showroom';
 const formatRupiah = (angka) => {
     return 'Rp ' + angka.toLocaleString('id-ID');
 };
+const formatSingkat = (angka) => {
+
+    if (angka >= 1000000000000) {
+        return (
+            'Rp ' +
+            (angka / 1000000000000)
+                .toFixed(1)
+                .replace('.', ',') +
+            ' T'
+        );
+    }
+
+    if (angka >= 1000000000) {
+        return (
+            'Rp ' +
+            (angka / 1000000000)
+                .toFixed(1)
+                .replace('.', ',') +
+            ' M'
+        );
+    }
+
+    return formatRupiah(angka);
+};
 
 export default function DashboardScreen({ setActiveTab }) {
 
@@ -22,6 +46,7 @@ export default function DashboardScreen({ setActiveTab }) {
     const [totalTerjual, setTotalTerjual] = useState(0);
     const [totalOmset, setTotalOmset] = useState(0);
     const [totalPiutang, setTotalPiutang] = useState(0);
+    const [nilaiPiutang, setNilaiPiutang] = useState(0);
     const [aktivitas, setAktivitas] = useState([]);
 
     useEffect(() => {
@@ -74,6 +99,24 @@ export default function DashboardScreen({ setActiveTab }) {
 
                 setTotalPiutang(piutang.length);
 
+                console.log(
+                    'DATA PIUTANG DASHBOARD:',
+                    piutang
+                );
+
+                const totalNilaiPiutang =
+                    piutang.reduce(
+                        (total, item) =>
+                            total + Number(item.sisa || 0),
+                        0
+                    );
+
+                console.log(
+                    'TOTAL NILAI PIUTANG PRABOWO + JOKOWI:',
+                    totalNilaiPiutang
+                );
+                setNilaiPiutang(totalNilaiPiutang);
+
                 aktivitasPiutang = piutang.map(item => ({
                     id: item.id,
                     teks: `Piutang ${item.nama} ditambahkan`,
@@ -108,6 +151,19 @@ export default function DashboardScreen({ setActiveTab }) {
                 </Text>
             </View>
 
+            {/* Hero Omset */}
+            <View style={styles.omsetCard}>
+
+                <Text style={styles.omsetLabel}>
+                    Total Omset
+                </Text>
+
+                <Text style={styles.omsetValue}>
+                    {formatRupiah(totalOmset)}
+                </Text>
+
+            </View>
+
             {/* Statistik */}
             <View style={styles.statsContainer}>
 
@@ -139,13 +195,40 @@ export default function DashboardScreen({ setActiveTab }) {
 
                 <View style={styles.card}>
                     <Text style={styles.cardNumber}>
-                        {formatRupiah(totalOmset)}
+                        {formatSingkat(
+                            nilaiPiutang
+                        )}
                     </Text>
 
                     <Text style={styles.cardLabel}>
-                        Total Omset
+                        Nilai Piutang
                     </Text>
                 </View>
+
+
+            </View>
+
+            {/* Aktivitas Terbaru */}
+            <Text style={styles.sectionTitle}>
+                Aktivitas Terbaru
+            </Text>
+
+            <View style={styles.activityCard}>
+
+                {aktivitas.length === 0 ? (
+                    <Text style={styles.activityItem}>
+                        Belum ada aktivitas
+                    </Text>
+                ) : (
+                    aktivitas.map((item) => (
+                        <Text
+                            key={item.id}
+                            style={styles.activityItem}
+                        >
+                            • {item.teks}
+                        </Text>
+                    ))
+                )}
 
             </View>
 
@@ -181,34 +264,11 @@ export default function DashboardScreen({ setActiveTab }) {
                     style={styles.menuButton}
                     disabled={true}
                 >
-                    <Text>Pengaturan (Segaera)</Text>
+                    <Text>Pengaturan (Segera)</Text>
                 </TouchableOpacity>
 
             </View>
 
-            {/* Aktivitas Terbaru */}
-            <Text style={styles.sectionTitle}>
-                Aktivitas Terbaru
-            </Text>
-
-            <View style={styles.activityCard}>
-
-                {aktivitas.length === 0 ? (
-                    <Text style={styles.activityItem}>
-                        Belum ada aktivitas
-                    </Text>
-                ) : (
-                    aktivitas.map((item) => (
-                        <Text
-                            key={item.id}
-                            style={styles.activityItem}
-                        >
-                            • {item.teks}
-                        </Text>
-                    ))
-                )}
-
-            </View>
 
         </ScrollView>
     );
@@ -259,6 +319,26 @@ const styles = StyleSheet.create({
     cardLabel: {
         marginTop: 5,
         color: '#666',
+    },
+
+    omsetCard: {
+        backgroundColor: '#2563eb',
+        borderRadius: 16,
+        padding: 20,
+        marginTop: 5,
+        marginBottom: 10,
+    },
+
+    omsetLabel: {
+        color: '#bfdbfe',
+        fontSize: 14,
+    },
+
+    omsetValue: {
+        color: '#ffffff',
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginTop: 6,
     },
 
     sectionTitle: {
