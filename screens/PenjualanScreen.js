@@ -38,6 +38,8 @@ const formatRupiah = (angka) => {
 export default function PenjualanScreen() {
 
     const [modalVisible, setModalVisible] = useState(false);
+    const [modeEdit, setModeEdit] = useState(false);
+    const [idEdit, setIdEdit] = useState(null);
     const [namaMobil, setNamaMobil] = useState('');
     const [hargaJual, setHargaJual] = useState('');
     const [tanggalJual, setTanggalJual] = useState('');
@@ -83,18 +85,39 @@ export default function PenjualanScreen() {
             return;
         }
 
-        const transaksiBaru = {
-            id: Date.now(),
-            mobil: namaMobil,
-            harga: parseInt(hargaJual),
-            tanggal: tanggalJual,
-            status: 'Lunas',
-        };
+        let dataBaru = [];
 
-        const dataBaru = [
-            transaksiBaru,
-            ...dataPenjualan,
-        ];
+        if (modeEdit) {
+
+            dataBaru = dataPenjualan.map(
+                (item) =>
+                    item.id === idEdit
+                        ? {
+                            ...item,
+                            mobil: namaMobil,
+                            harga: parseInt(
+                                hargaJual
+                            ),
+                            tanggal: tanggalJual,
+                        }
+                        : item
+            );
+
+        } else {
+
+            const transaksiBaru = {
+                id: Date.now(),
+                mobil: namaMobil,
+                harga: parseInt(hargaJual),
+                tanggal: tanggalJual,
+                status: 'Lunas',
+            };
+
+            dataBaru = [
+                transaksiBaru,
+                ...dataPenjualan,
+            ];
+        }
 
         setDataPenjualan(dataBaru);
 
@@ -103,6 +126,10 @@ export default function PenjualanScreen() {
         setNamaMobil('');
         setHargaJual('');
         setTanggalJual('');
+
+        setModeEdit(false);
+        setIdEdit(null);
+
         setSelectedDate(new Date());
 
         setModalVisible(false);
@@ -233,6 +260,27 @@ export default function PenjualanScreen() {
                     </Text>
 
                     <TouchableOpacity
+                        style={styles.btnEdit}
+                        onPress={() => {
+
+                            setModeEdit(true);
+                            setIdEdit(item.id);
+
+                            setNamaMobil(item.mobil);
+                            setHargaJual(
+                                item.harga.toString()
+                            );
+                            setTanggalJual(item.tanggal);
+
+                            setModalVisible(true);
+                        }}
+                    >
+                        <Text style={styles.btnEditText}>
+                            Edit
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
                         style={styles.btnHapus}
                         onPress={() => hapusPenjualan(item.id)}
                     >
@@ -246,7 +294,18 @@ export default function PenjualanScreen() {
 
             <TouchableOpacity
                 style={styles.tombolTambah}
-                onPress={() => setModalVisible(true)}
+                onPress={() => {
+
+                    setModeEdit(false);
+                    setIdEdit(null);
+
+                    setNamaMobil('');
+                    setHargaJual('');
+                    setTanggalJual('');
+                    setSelectedDate(new Date());
+
+                    setModalVisible(true);
+                }}
             >
                 <Text style={styles.tombolTambahTeks}>
                     + Tambah Penjualan
@@ -263,7 +322,9 @@ export default function PenjualanScreen() {
                     <View style={styles.modalContainer}>
 
                         <Text style={styles.modalTitle}>
-                            Tambah Penjualan
+                            {modeEdit
+                                ? 'Edit Penjualan'
+                                : 'Tambah Penjualan'}
                         </Text>
 
                         <TextInput
@@ -308,6 +369,10 @@ export default function PenjualanScreen() {
                             <TouchableOpacity
                                 style={styles.btnBatal}
                                 onPress={() => {
+
+                                    setModeEdit(false);
+                                    setIdEdit(null);
+
                                     setNamaMobil('');
                                     setHargaJual('');
                                     setTanggalJual('');
@@ -324,7 +389,9 @@ export default function PenjualanScreen() {
                                 onPress={simpanPenjualan}
                             >
                                 <Text style={styles.btnSimpanText}>
-                                    Simpan
+                                    {modeEdit
+                                        ? 'Update'
+                                        : 'Simpan'}
                                 </Text>
                             </TouchableOpacity>
 
@@ -528,6 +595,19 @@ const styles = StyleSheet.create({
     },
 
     btnHapusText: {
+        color: '#ffffff',
+        fontWeight: 'bold',
+    },
+
+    btnEdit: {
+        backgroundColor: '#f59e0b',
+        padding: 10,
+        borderRadius: 8,
+        marginTop: 10,
+        alignItems: 'center',
+    },
+
+    btnEditText: {
         color: '#ffffff',
         fontWeight: 'bold',
     },
