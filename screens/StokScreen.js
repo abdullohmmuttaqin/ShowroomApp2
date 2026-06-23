@@ -24,7 +24,6 @@ export default function StokScreen() {
     const [stok, setStok] = useState([]);
     const [cari, setCari] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
-
     const [formMerk, setFormMerk] = useState('');
     const [formTipe, setFormTipe] = useState('');
     const [formTahun, setFormTahun] = useState('');
@@ -111,18 +110,46 @@ export default function StokScreen() {
         setModalVisible(true);
     };
     const tambahStok = async () => {
-        if (!formMerk || !formTipe || !formTahun || !formHarga) return;
 
-        const baru = {
-            id: Date.now(),
-            merk: formMerk,
-            tipe: formTipe,
-            tahun: parseInt(formTahun),
-            harga: parseInt(formHarga),
-            status: 'tersedia',
-        };
+        if (
+            !formMerk ||
+            !formTipe ||
+            !formTahun ||
+            !formHarga
+        ) {
+            return;
+        }
 
-        const dataBaru = [...stok, baru];
+        let dataBaru = [];
+
+        if (editId !== null) {
+
+            dataBaru = stok.map((mobil) =>
+                mobil.id === editId
+                    ? {
+                        ...mobil,
+                        merk: formMerk,
+                        tipe: formTipe,
+                        tahun: parseInt(formTahun),
+                        harga: parseInt(formHarga),
+                    }
+                    : mobil
+            );
+
+        } else {
+
+            const baru = {
+                id: Date.now(),
+                merk: formMerk,
+                tipe: formTipe,
+                tahun: parseInt(formTahun),
+                harga: parseInt(formHarga),
+                status: 'tersedia',
+            };
+
+            dataBaru = [...stok, baru];
+        }
+
         setStok(dataBaru);
         await simpanData(dataBaru);
 
@@ -130,6 +157,9 @@ export default function StokScreen() {
         setFormTipe('');
         setFormTahun('');
         setFormHarga('');
+
+        setEditId(null);
+
         setModalVisible(false);
     };
 
@@ -204,6 +234,15 @@ export default function StokScreen() {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
+                                    style={styles.tombolEdit}
+                                    onPress={() => editStok(mobil)}
+                                >
+                                    <Text style={styles.tombolEditTeks}>
+                                        Edit
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
                                     style={styles.tombolHapus}
                                     onPress={() => hapusStok(mobil.id)}
                                 >
@@ -223,7 +262,17 @@ export default function StokScreen() {
             {/* Tombol tambah stok */}
             <TouchableOpacity
                 style={styles.tombolTambah}
-                onPress={() => setModalVisible(true)}
+                onPress={() => {
+
+                    setEditId(null);
+
+                    setFormMerk('');
+                    setFormTipe('');
+                    setFormTahun('');
+                    setFormHarga('');
+
+                    setModalVisible(true);
+                }}
             >
                 <Text style={styles.tombolTambahTeks}>+ Tambah Stok</Text>
             </TouchableOpacity>
@@ -232,7 +281,11 @@ export default function StokScreen() {
             <Modal visible={modalVisible} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalKonten}>
-                        <Text style={styles.modalJudul}>Tambah Stok Mobil</Text>
+                        <Text style={styles.modalJudul}>
+                            {editId !== null
+                                ? 'Edit Stok Mobil'
+                                : 'Tambah Stok Mobil'}
+                        </Text>
 
                         <Text style={styles.inputLabel}>Merk</Text>
                         <TextInput
@@ -271,7 +324,17 @@ export default function StokScreen() {
                         <View style={styles.modalTombol}>
                             <TouchableOpacity
                                 style={styles.tombolBatal}
-                                onPress={() => setModalVisible(false)}
+                                onPress={() => {
+
+                                    setFormMerk('');
+                                    setFormTipe('');
+                                    setFormTahun('');
+                                    setFormHarga('');
+
+                                    setEditId(null);
+
+                                    setModalVisible(false);
+                                }}
                             >
                                 <Text style={styles.tombolBatalTeks}>Batal</Text>
                             </TouchableOpacity>
@@ -279,7 +342,11 @@ export default function StokScreen() {
                                 style={styles.tombolSimpan}
                                 onPress={tambahStok}
                             >
-                                <Text style={styles.tombolSimpanTeks}>Simpan</Text>
+                                <Text style={styles.tombolSimpanTeks}>
+                                    {editId !== null
+                                        ? 'Update'
+                                        : 'Simpan'}
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -382,5 +449,18 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
         marginTop: 4,
+    },
+
+    tombolEdit: {
+        backgroundColor: '#2563eb',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
+        marginRight: 8,
+    },
+
+    tombolEditTeks: {
+        color: '#fff',
+        fontWeight: '600',
     },
 });
