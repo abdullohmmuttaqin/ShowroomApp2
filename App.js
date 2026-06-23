@@ -14,7 +14,12 @@ export default function App() {
   // Fungsi untuk menentukan halaman mana yang ditampilkan
   const renderScreen = () => {
     if (activeTab === 'Dashboard')
-      return <DashboardScreen setActiveTab={setActiveTab} />;
+      return (
+        <DashboardScreen
+          setActiveTab={setActiveTab}
+          activeTab={activeTab}
+        />
+      );
     if (activeTab === 'Stok') return <StokScreen />;
     if (activeTab === 'Penjualan') return <PenjualanScreen />;
     if (activeTab === 'Laporan') return <LaporanScreen />;

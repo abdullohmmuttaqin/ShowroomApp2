@@ -40,7 +40,10 @@ const formatSingkat = (angka) => {
     return formatRupiah(angka);
 };
 
-export default function DashboardScreen({ setActiveTab }) {
+export default function DashboardScreen({
+    setActiveTab,
+    activeTab,
+}) {
 
     const [totalStok, setTotalStok] = useState(0);
     const [totalTerjual, setTotalTerjual] = useState(0);
@@ -50,8 +53,10 @@ export default function DashboardScreen({ setActiveTab }) {
     const [aktivitas, setAktivitas] = useState([]);
 
     useEffect(() => {
-        loadDashboardData();
-    }, []);
+        if (activeTab === 'Dashboard') {
+            loadDashboardData();
+        }
+    }, [activeTab]);
 
     const loadDashboardData = async () => {
         try {
