@@ -61,6 +61,7 @@ export default function DashboardScreen({
     const loadDashboardData = async () => {
         try {
 
+            let aktivitasStok = [];
             let aktivitasPenjualan = [];
             let aktivitasPiutang = [];
 
@@ -77,6 +78,10 @@ export default function DashboardScreen({
                 const stok = JSON.parse(stokData);
 
                 setTotalStok(stok.length);
+                aktivitasStok = stok.map(item => ({
+                    id: item.id,
+                    teks: `${item.merk} ${item.tipe} ditambahkan ke stok`,
+                }));
             }
 
             if (penjualanData) {
@@ -129,9 +134,10 @@ export default function DashboardScreen({
             }
 
             const semuaAktivitas = [
+                ...aktivitasStok,
                 ...aktivitasPenjualan,
                 ...aktivitasPiutang,
-            ];
+            ].reverse();
 
             setAktivitas(
                 semuaAktivitas.slice(0, 3)
