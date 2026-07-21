@@ -15,6 +15,9 @@ const STORAGE_KEY_PIUTANG = 'piutang_showroom';
 const formatRupiah = (angka) => {
     return 'Rp ' + angka.toLocaleString('id-ID');
 };
+const STORAGE_KEY_AKTIVITAS =
+    'aktivitas_showroom';
+
 const formatSingkat = (angka) => {
 
     if (angka >= 1000000000000) {
@@ -58,12 +61,35 @@ export default function DashboardScreen({
         }
     }, [activeTab]);
 
-    const loadDashboardData = async () => {
+    const loadAktivitas = async () => {
         try {
 
-            let aktivitasStok = [];
-            let aktivitasPenjualan = [];
-            let aktivitasPiutang = [];
+            const aktivitasData =
+                await AsyncStorage.getItem(
+                    STORAGE_KEY_AKTIVITAS
+                );
+
+            if (aktivitasData) {
+
+                const aktivitas =
+                    JSON.parse(aktivitasData);
+
+                setAktivitas(
+                    aktivitas.slice(0, 5)
+                );
+            }
+
+        } catch (error) {
+
+            console.log(
+                'Error load aktivitas:',
+                error
+            );
+        }
+    };
+
+    const loadDashboardData = async () => {
+        try {
 
             const stokData =
                 await AsyncStorage.getItem(STORAGE_KEY_STOK);
@@ -78,10 +104,6 @@ export default function DashboardScreen({
                 const stok = JSON.parse(stokData);
 
                 setTotalStok(stok.length);
-                aktivitasStok = stok.map(item => ({
-                    id: item.id,
-                    teks: `${item.merk} ${item.tipe} ditambahkan ke stok`,
-                }));
             }
 
             if (penjualanData) {
@@ -95,11 +117,6 @@ export default function DashboardScreen({
                 );
 
                 setTotalOmset(omset);
-
-                aktivitasPenjualan = penjualan.map(item => ({
-                    id: item.id,
-                    teks: `${item.mobil} terjual`,
-                }));
             }
 
             if (piutangData) {
@@ -126,22 +143,9 @@ export default function DashboardScreen({
                     totalNilaiPiutang
                 );
                 setNilaiPiutang(totalNilaiPiutang);
-
-                aktivitasPiutang = piutang.map(item => ({
-                    id: item.id,
-                    teks: `Piutang ${item.nama} ditambahkan`,
-                }));
             }
 
-            const semuaAktivitas = [
-                ...aktivitasStok,
-                ...aktivitasPenjualan,
-                ...aktivitasPiutang,
-            ].reverse();
-
-            setAktivitas(
-                semuaAktivitas.slice(0, 3)
-            );
+            await loadAktivitas();
 
         } catch (error) {
             console.log('Error dashboard:', error);

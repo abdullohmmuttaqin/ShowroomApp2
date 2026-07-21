@@ -1,3 +1,4 @@
+import { tambahAktivitas } from '../utils/aktivitas';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -57,6 +58,12 @@ export default function PenjualanScreen() {
 
             if (dataTersimpan !== null) {
                 setDataPenjualan(JSON.parse(dataTersimpan));
+            } else {
+                setDataPenjualan(dataAwal);
+                await AsyncStorage.setItem(
+                    STORAGE_KEY,
+                    JSON.stringify(dataAwal)
+                );
             }
         } catch (error) {
             console.log('Error baca penjualan:', error);
@@ -79,7 +86,7 @@ export default function PenjualanScreen() {
         0
     );
 
-    const simpanPenjualan = () => {
+    const simpanPenjualan = async () => {
 
         if (!namaMobil || !hargaJual || !tanggalJual) {
             return;
@@ -102,6 +109,13 @@ export default function PenjualanScreen() {
                         }
                         : item
             );
+            setDataPenjualan(dataBaru);
+
+            await simpanDataPenjualan(dataBaru);
+
+            await tambahAktivitas(
+                `✏️ Penjualan ${namaMobil} diperbarui`
+            );
 
         } else {
 
@@ -117,11 +131,15 @@ export default function PenjualanScreen() {
                 transaksiBaru,
                 ...dataPenjualan,
             ];
+
+            setDataPenjualan(dataBaru);
+
+            await simpanDataPenjualan(dataBaru);
+
+            await tambahAktivitas(
+                `💰 ${namaMobil} berhasil terjual`
+            );
         }
-
-        setDataPenjualan(dataBaru);
-
-        simpanDataPenjualan(dataBaru);
 
         setNamaMobil('');
         setHargaJual('');

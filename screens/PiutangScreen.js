@@ -11,6 +11,7 @@ import {
 import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { tambahAktivitas } from '../utils/aktivitas';
 
 const dataAwal = [
     {
@@ -32,7 +33,10 @@ const dataAwal = [
 const STORAGE_KEY = 'piutang_showroom';
 const HISTORY_STORAGE_KEY = 'riwayat_pembayaran_showroom';
 const formatRupiah = (value) => {
-    const angka = value.replace(/[^0-9]/g, '');
+    if (!value && value !== 0) return '';
+
+    const str = String(value);
+    const angka = str.replace(/[^0-9]/g, '');
 
     if (!angka) {
         return '';
@@ -58,8 +62,11 @@ export default function PiutangScreen() {
     const [nominalBayar, setNominalBayar] = useState('');
     const [riwayatPembayaran, setRiwayatPembayaran] = useState([]);
     const nominalBayarRef = useRef(null);
+    const skipRiwayatSaveRef = useRef(true);
     const [modeEdit, setModeEdit] = useState(false);
     const [idEdit, setIdEdit] = useState(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
     useEffect(() => {
         bacaDataPiutang();
@@ -67,12 +74,7 @@ export default function PiutangScreen() {
     }, []);
 
     useEffect(() => {
-        if (!isLoading) {
-            simpanDataPiutang();
-        }
-    }, [dataPiutang, isLoading]);
-
-    useEffect(() => {
+        if (skipRiwayatSaveRef.current) return;
         simpanRiwayatPembayaran();
     }, [riwayatPembayaran]);
 
@@ -108,6 +110,8 @@ export default function PiutangScreen() {
                     JSON.stringify(dataAwal)
                 );
 
+                setDataPiutang(dataAwal);
+
                 setIsLoading(false);
             }
         } catch (error) {
@@ -118,11 +122,11 @@ export default function PiutangScreen() {
         }
     };
 
-    const simpanDataPiutang = async () => {
+    const simpanDataPiutang = async (dataBaru) => {
         try {
             await AsyncStorage.setItem(
                 STORAGE_KEY,
-                JSON.stringify(dataPiutang)
+                JSON.stringify(dataBaru)
             );
         } catch (error) {
             console.log(
@@ -163,6 +167,9 @@ export default function PiutangScreen() {
                 'Error baca riwayat pembayaran:',
                 error
             );
+        } finally {
+            // allow subsequent riwayatPembayaran changes to be persisted
+            skipRiwayatSaveRef.current = false;
         }
     };
 
@@ -191,13 +198,16 @@ export default function PiutangScreen() {
         setJatuhTempo(tanggalFormat);
     };
 
-    const simpanPiutang = () => {
+    const simpanPiutang = async () => {
+        if (isSaving) return;
+        setIsSaving(true);
 
         if (!namaPelanggan.trim()) {
             Alert.alert(
                 'Peringatan',
                 'Nama pelanggan wajib diisi.'
             );
+            setIsSaving(false);
             return;
         }
 
@@ -206,14 +216,20 @@ export default function PiutangScreen() {
                 'Peringatan',
                 'Nama mobil wajib diisi.'
             );
+            setIsSaving(false);
             return;
         }
 
-        if (!sisaPiutang || parseInt(sisaPiutang, 10) <= 0) {
-            Alert.alert(
-                'Peringatan',
-                'Sisa piutang harus lebih dari 0.'
-            );
+        // sanitize sisaPiutang (might contain formatted characters)
+        const sisaSanitized = Number(
+            sisaPiutang
+                .toString()
+                .replace(/[^0-9]/g, '')
+        );
+
+        if (!sisaSanitized || sisaSanitized <= 0) {
+            Alert.alert('Peringatan', 'Sisa piutang harus lebih dari 0.');
+            setIsSaving(false);
             return;
         }
 
@@ -222,6 +238,7 @@ export default function PiutangScreen() {
                 'Peringatan',
                 'Pilih tanggal jatuh tempo.'
             );
+            setIsSaving(false);
             return;
         }
 
@@ -229,9 +246,11 @@ export default function PiutangScreen() {
             id: modeEdit ? idEdit : Date.now(),
             nama: namaPelanggan.trim(),
             mobil: namaMobil.trim(),
-            sisa: parseInt(sisaPiutang, 10),
+            sisa: sisaSanitized,
             jatuhTempo: jatuhTempo,
         };
+
+        console.log('simpanPiutang prepared', { dataPiutangBaru, modeEdit });
 
         if (modeEdit) {
 
@@ -252,8 +271,16 @@ export default function PiutangScreen() {
                     },
                     {
                         text: 'Update',
-                        onPress: () => {
+                        onPress: async () => {
+                            if (isSaving) return;
+                            setIsSaving(true);
                             setDataPiutang(dataUpdate);
+
+                            await simpanDataPiutang(dataUpdate);
+
+                            await tambahAktivitas(
+                                `✏️ Piutang ${namaPelanggan} diperbarui`
+                            );
 
                             setNamaPelanggan('');
                             setNamaMobil('');
@@ -266,6 +293,8 @@ export default function PiutangScreen() {
 
                             setModalVisible(false);
 
+                            setIsSaving(false);
+
                             Alert.alert(
                                 'Berhasil',
                                 'Data piutang berhasil diperbarui.'
@@ -277,12 +306,22 @@ export default function PiutangScreen() {
 
             return;
         } else {
+            try {
+                // mencegah duplikat ketika tombol ditekan berkali-kali
+                const dataBaru = [
+                    dataPiutangBaru,
+                    ...dataPiutang,
+                ];
+                setDataPiutang(dataBaru);
 
-            setDataPiutang([
-                dataPiutangBaru,
-                ...dataPiutang,
-            ]);
+                await simpanDataPiutang(dataBaru);
 
+                await tambahAktivitas(
+                    `📝 Piutang ${namaPelanggan} ditambahkan`
+                );
+            } finally {
+                setIsSaving(false);
+            }
         }
 
         setNamaPelanggan('');
@@ -297,46 +336,66 @@ export default function PiutangScreen() {
         setModalVisible(false);
     };
 
-    const prosesPembayaran = () => {
 
-        if (!nominalBayar.trim()) {
-            Alert.alert(
-                'Peringatan',
-                'Masukkan nominal pembayaran.'
-            );
+    const prosesPembayaran = () => {
+        console.log('prosesPembayaran start', {
+            piutangDipilih,
+            nominalBayar,
+            dataPiutang,
+        });
+
+        if (isProcessingPayment) return;
+
+        if (!nominalBayar || !nominalBayar.toString().trim()) {
+            console.log('prosesPembayaran: nominal kosong');
+            Alert.alert('Peringatan', 'Masukkan nominal pembayaran.');
             return;
         }
 
-        const bayar = parseInt(nominalBayar, 10);
+        const bayar = Number(nominalBayar);
+
+        if (isNaN(bayar)) {
+            console.log('prosesPembayaran: nominal bukan angka', nominalBayar);
+            Alert.alert('Peringatan', 'Nominal pembayaran tidak valid.');
+            return;
+        }
 
         if (bayar <= 0) {
-            Alert.alert(
-                'Peringatan',
-                'Nominal pembayaran harus lebih dari 0.'
-            );
+            Alert.alert('Peringatan', 'Nominal pembayaran harus lebih dari 0.');
             return;
         }
 
-        if (bayar > piutangDipilih.sisa) {
-            Alert.alert(
-                'Peringatan',
-                'Nominal pembayaran melebihi sisa piutang.'
-            );
+        if (!piutangDipilih) {
+            console.log('prosesPembayaran: tidak ada piutang dipilih');
+            Alert.alert('Peringatan', 'Pilih piutang terlebih dahulu.');
             return;
         }
 
-        const dataBaru = dataPiutang
-            .map((item) => {
-                if (item.id === piutangDipilih.id) {
-                    return {
-                        ...item,
-                        sisa: item.sisa - bayar,
-                    };
-                }
+        if (bayar > Number(piutangDipilih.sisa)) {
+            Alert.alert('Peringatan', 'Nominal pembayaran melebihi sisa piutang.');
+            return;
+        }
 
-                return item;
-            })
-            .filter((item) => item.sisa > 0);
+        // buat salinan dengan tipe numeric yang aman
+        const sumBefore = dataPiutang.reduce((t, it) => t + Number(it.sisa), 0);
+
+        const updated = dataPiutang.map((item) => {
+            if (item.id === piutangDipilih.id) {
+                const newSisa = Number(item.sisa) - bayar;
+                return {
+                    ...item,
+                    sisa: newSisa,
+                };
+            }
+
+            return item;
+        });
+
+        const dataBaru = updated.filter((item) => Number(item.sisa) > 0);
+
+        const sumAfter = dataBaru.reduce((t, it) => t + Number(it.sisa), 0);
+
+        console.log('prosesPembayaran prepare', { bayar, sumBefore, sumAfter, dataBaru });
 
         Alert.alert(
             'Konfirmasi Pembayaran',
@@ -348,28 +407,43 @@ export default function PiutangScreen() {
                 },
                 {
                     text: 'Ya, Bayar',
-                    onPress: () => {
-                        setDataPiutang(dataBaru);
+                    onPress: async () => {
+                        if (isProcessingPayment) return;
+                        setIsProcessingPayment(true);
 
-                        setRiwayatPembayaran((prev) => [
-                            {
-                                id: Date.now(),
-                                nama: piutangDipilih.nama,
-                                mobil: piutangDipilih.mobil,
-                                nominal: bayar,
-                                tanggal: new Date().toLocaleString('id-ID'),
-                            },
-                            ...prev,
-                        ]);
+                        try {
+                            console.log('prosesPembayaran executing setDataPiutang', { dataBaru });
+                            setDataPiutang(dataBaru);
 
-                        setNominalBayar('');
-                        setPiutangDipilih(null);
-                        setModalBayarVisible(false);
+                            await simpanDataPiutang(dataBaru);
 
-                        Alert.alert(
-                            'Berhasil',
-                            'Pembayaran piutang berhasil disimpan.'
-                        );
+                            setRiwayatPembayaran((prev) => [
+                                {
+                                    id: Date.now(),
+                                    nama: piutangDipilih.nama,
+                                    mobil: piutangDipilih.mobil,
+                                    nominal: bayar,
+                                    tanggal: new Date().toLocaleString('id-ID'),
+                                },
+                                ...prev,
+                            ]);
+
+                            await tambahAktivitas(`💰 Pembayaran piutang ${piutangDipilih.nama}`);
+
+                            console.log('prosesPembayaran success', { dataBaru });
+
+                            // tutup modal dan bersihkan input
+                            setModalBayarVisible(false);
+                            setNominalBayar('');
+                            setPiutangDipilih(null);
+
+                            Alert.alert('Berhasil', 'Pembayaran piutang berhasil disimpan.');
+                        } catch (e) {
+                            console.error('prosesPembayaran error', e);
+                            throw e;
+                        } finally {
+                            setIsProcessingPayment(false);
+                        }
                     },
                 },
             ]
@@ -513,13 +587,17 @@ export default function PiutangScreen() {
                                     {
                                         text: 'Hapus',
                                         style: 'destructive',
-                                        onPress: () => {
+                                        onPress: async () => {
                                             const dataBaru = dataPiutang.filter(
                                                 (piutang) => piutang.id !== item.id
                                             );
 
                                             setDataPiutang(dataBaru);
+                                            await simpanDataPiutang(dataBaru);
 
+                                            await tambahAktivitas(
+                                                `🗑️ Piutang ${item.nama} dihapus`
+                                            );
                                             setModeEdit(false);
                                             setIdEdit(null);
 
@@ -673,6 +751,9 @@ export default function PiutangScreen() {
                                     setJatuhTempo('');
                                     setSelectedDate(new Date());
 
+                                    setModeEdit(false);
+                                    setIdEdit(null);
+
                                     setModalVisible(false);
                                 }}
                             >
@@ -684,9 +765,10 @@ export default function PiutangScreen() {
                             <TouchableOpacity
                                 style={[
                                     styles.btnSimpan,
-                                    !formValid && styles.btnDisabled,
+                                    (isSaving || !formValid) && styles.btnDisabled,
                                 ]}
                                 onPress={simpanPiutang}
+                                disabled={isSaving || !formValid}
                             >
                                 <Text style={styles.btnSimpanText}>
                                     {modeEdit ? 'Update' : 'Simpan'}
@@ -773,9 +855,10 @@ export default function PiutangScreen() {
                             <TouchableOpacity
                                 style={[
                                     styles.btnSimpan,
-                                    nominalBayar.trim() === '' && styles.btnDisabled,
+                                    (isProcessingPayment || nominalBayar.trim() === '') && styles.btnDisabled,
                                 ]}
                                 onPress={prosesPembayaran}
+                                disabled={isProcessingPayment || nominalBayar.trim() === ''}
                             >
                                 <Text style={styles.btnSimpanText}>
                                     Bayar

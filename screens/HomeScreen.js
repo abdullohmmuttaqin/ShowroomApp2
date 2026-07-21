@@ -102,32 +102,109 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5' },
-    header: { backgroundColor: '#2563eb', padding: 24, paddingTop: 48 },
-    headerJudul: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-    headerSub: { fontSize: 14, color: '#bfdbfe', marginTop: 4 },
-    kartuWrapper: { flexDirection: 'row', padding: 16, gap: 12 },
-    kartu: { flex: 1, borderRadius: 12, padding: 16 },
-    kartuHijau: { backgroundColor: '#dcfce7' },
-    kartuMerah: { backgroundColor: '#fee2e2' },
-    kartuLabel: { fontSize: 12, color: '#555' },
-    kartuNilai: { fontSize: 14, fontWeight: 'bold', marginTop: 4 },
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    header: {
+        backgroundColor: '#2563eb',
+        padding: 24,
+        paddingTop: 48,
+    },
+    headerJudul: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    headerSub: {
+        fontSize: 14,
+        color: '#bfdbfe',
+        marginTop: 4,
+    },
+    kartuWrapper: {
+        flexDirection: 'row',
+        padding: 16,
+        gap: 12,
+    },
+    kartu: {
+        flex: 1,
+        borderRadius: 12,
+        padding: 16,
+    },
+    kartuHijau: {
+        backgroundColor: '#dcfce7',
+    },
+    kartuMerah: {
+        backgroundColor: '#fee2e2',
+    },
+    kartuLabel: {
+        fontSize: 12,
+        color: '#555',
+    },
+    kartuNilai: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginTop: 4,
+    },
     kartuStok: {
-        backgroundColor: '#eff6ff', marginHorizontal: 16,
-        borderRadius: 12, padding: 16, marginBottom: 4,
+        backgroundColor: '#eff6ff',
+        marginHorizontal: 16,
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 4,
     },
-    stokLabel: { fontSize: 12, color: '#555' },
-    stokNilai: { fontSize: 20, fontWeight: 'bold', color: '#2563eb', marginTop: 4 },
-    seksi: { backgroundColor: '#fff', margin: 16, borderRadius: 12, padding: 16 },
-    seksiJudul: { fontSize: 16, fontWeight: 'bold', marginBottom: 12 },
+    stokLabel: {
+        fontSize: 12,
+        color: '#555',
+    },
+    stokNilai: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#2563eb',
+        marginTop: 4,
+    },
+    seksi: {
+        backgroundColor: '#fff',
+        margin: 16,
+        borderRadius: 12,
+        padding: 16,
+    },
+    seksiJudul: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 12,
+    },
     itemTransaksi: {
-        flexDirection: 'row', justifyContent: 'space-between',
-        alignItems: 'center', paddingVertical: 10,
-        borderBottomWidth: 1, borderBottomColor: '#f0f0f0',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f0f0f0',
     },
-    namaMobil: { fontSize: 14, fontWeight: '500' },
-    labelJual: { fontSize: 12, color: '#16a34a', marginTop: 2 },
-    labelBeli: { fontSize: 12, color: '#dc2626', marginTop: 2 },
-    harga: { fontSize: 13, fontWeight: 'bold', color: '#333' },
-    kosong: { fontSize: 13, color: '#888', textAlign: 'center', paddingVertical: 12 },
+    namaMobil: {
+        fontSize: 14,
+        fontWeight: '500',
+    },
+    labelJual: {
+        fontSize: 12,
+        color: '#16a34a',
+        marginTop: 2,
+    },
+    labelBeli: {
+        fontSize: 12,
+        color: '#dc2626',
+        marginTop: 2,
+    },
+    harga: {
+        fontSize: 13,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    kosong: {
+        fontSize: 13,
+        color: '#888',
+        textAlign: 'center',
+        paddingVertical: 12,
+    },
 });

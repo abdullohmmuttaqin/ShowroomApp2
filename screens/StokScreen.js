@@ -1,3 +1,4 @@
+import { tambahAktivitas } from '../utils/aktivitas';
 import { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView,
@@ -75,6 +76,11 @@ export default function StokScreen() {
 
     // Fungsi hapus stok — tampilkan konfirmasi dulu
     const hapusStok = (id) => {
+
+        const mobil = stok.find(
+            item => item.id === id
+        );
+
         Alert.alert(
             'Hapus Stok',
             'Yakin ingin menghapus mobil ini dari stok?',
@@ -84,9 +90,18 @@ export default function StokScreen() {
                     text: 'Hapus',
                     style: 'destructive',
                     onPress: async () => {
-                        const dataBaru = stok.filter((mobil) => mobil.id !== id);
+
+                        const dataBaru = stok.filter(
+                            item => item.id !== id
+                        );
+
                         setStok(dataBaru);
+
                         await simpanData(dataBaru);
+
+                        await tambahAktivitas(
+                            `🗑️ ${mobil.merk} ${mobil.tipe} dihapus dari stok`
+                        );
                     },
                 },
             ]
@@ -109,6 +124,7 @@ export default function StokScreen() {
 
         setModalVisible(true);
     };
+
     const tambahStok = async () => {
 
         if (
@@ -136,6 +152,13 @@ export default function StokScreen() {
                     : mobil
             );
 
+            setStok(dataBaru);
+            await simpanData(dataBaru);
+
+            await tambahAktivitas(
+                `✏️ ${formMerk} ${formTipe} diperbarui`
+            );
+
         } else {
 
             const baru = {
@@ -148,10 +171,14 @@ export default function StokScreen() {
             };
 
             dataBaru = [...stok, baru];
-        }
 
-        setStok(dataBaru);
-        await simpanData(dataBaru);
+            setStok(dataBaru);
+            await simpanData(dataBaru);
+
+            await tambahAktivitas(
+                `🚗 ${formMerk} ${formTipe} ditambahkan ke stok`
+            );
+        }
 
         setFormMerk('');
         setFormTipe('');
@@ -357,10 +384,25 @@ export default function StokScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5' },
-    header: { backgroundColor: '#2563eb', padding: 24, paddingTop: 48 },
-    headerJudul: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-    headerSub: { fontSize: 14, color: '#bfdbfe', marginTop: 4 },
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    header: {
+        backgroundColor: '#2563eb',
+        padding: 24,
+        paddingTop: 48,
+    },
+    headerJudul: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    headerSub: {
+        fontSize: 14,
+        color: '#bfdbfe',
+        marginTop: 4,
+    },
     searchWrapper: {
         paddingHorizontal: 16,
         paddingTop: 12,
@@ -385,33 +427,154 @@ const styles = StyleSheet.create({
 
         elevation: 1,
     },
-    list: { flex: 1, padding: 16 },
-    kartu: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    kartuKiri: { flex: 1 },
-    namaMobil: { fontSize: 15, fontWeight: 'bold' },
-    tahun: { fontSize: 12, color: '#888', marginTop: 2 },
-    harga: { fontSize: 13, fontWeight: '600', color: '#2563eb', marginTop: 4 },
-    tombolWrapper: { flexDirection: 'row', gap: 8, marginTop: 8 },
-    tombolTerjual: { backgroundColor: '#fee2e2', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-    tombolTersedia: { backgroundColor: '#dcfce7', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-    tombolStatusTeks: { fontSize: 11, fontWeight: '600', color: '#333' },
-    tombolHapus: { backgroundColor: '#f5f5f5', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-    tombolHapusTeks: { fontSize: 11, fontWeight: '600', color: '#dc2626' },
-    badgeHijau: { backgroundColor: '#dcfce7', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-    badgeMerah: { backgroundColor: '#fee2e2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-    badgeTeks: { fontSize: 11, fontWeight: '600', textTransform: 'capitalize' },
-    tombolTambah: { backgroundColor: '#2563eb', margin: 16, borderRadius: 12, padding: 16, alignItems: 'center' },
-    tombolTambahTeks: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalKonten: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24 },
-    modalJudul: { fontSize: 18, fontWeight: 'bold', marginBottom: 16 },
-    inputLabel: { fontSize: 13, color: '#555', marginBottom: 6, marginTop: 12 },
-    input: { backgroundColor: '#f5f5f5', borderRadius: 8, padding: 12, fontSize: 14 },
-    modalTombol: { flexDirection: 'row', gap: 12, marginTop: 24 },
-    tombolBatal: { flex: 1, backgroundColor: '#f5f5f5', borderRadius: 8, padding: 14, alignItems: 'center' },
-    tombolBatalTeks: { color: '#555', fontWeight: 'bold' },
-    tombolSimpan: { flex: 1, backgroundColor: '#2563eb', borderRadius: 8, padding: 14, alignItems: 'center' },
-    tombolSimpanTeks: { color: '#fff', fontWeight: 'bold' },
+    list: {
+        flex: 1,
+        padding: 16,
+    },
+    kartu: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    kartuKiri: {
+        flex: 1,
+    },
+    namaMobil: {
+        fontSize: 15,
+        fontWeight: 'bold',
+    },
+    tahun: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 2,
+    },
+    harga: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#2563eb',
+        marginTop: 4,
+    },
+    tombolWrapper: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 8,
+    },
+    tombolTerjual: {
+        backgroundColor: '#fee2e2',
+        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    tombolTersedia: {
+        backgroundColor: '#dcfce7',
+        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    tombolStatusTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#333',
+    },
+    tombolHapus: {
+        backgroundColor: '#f5f5f5',
+        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    tombolHapusTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#dc2626',
+    },
+    badgeHijau: {
+        backgroundColor: '#dcfce7',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+    },
+    badgeMerah: {
+        backgroundColor: '#fee2e2',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+    },
+    badgeTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        textTransform: 'capitalize',
+    },
+    tombolTambah: {
+        backgroundColor: '#2563eb',
+        margin: 16,
+        borderRadius: 12,
+        padding: 16,
+        alignItems: 'center',
+    },
+    tombolTambahTeks: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalKonten: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 24,
+    },
+    modalJudul: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    inputLabel: {
+        fontSize: 13,
+        color: '#555',
+        marginBottom: 6,
+        marginTop: 12,
+    },
+    input: {
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 14,
+    },
+    modalTombol: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 24,
+    },
+    tombolBatal: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        padding: 14,
+        alignItems: 'center',
+    },
+    tombolBatalTeks: {
+        color: '#555',
+        fontWeight: 'bold',
+    },
+    tombolSimpan: {
+        flex: 1,
+        backgroundColor: '#2563eb',
+        borderRadius: 8,
+        padding: 14,
+        alignItems: 'center',
+    },
+    tombolSimpanTeks: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
     statistikContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
