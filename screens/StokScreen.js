@@ -137,6 +137,11 @@ export default function StokScreen() {
             return;
         }
 
+        if (!/^\d+$/.test(formTahun) || !/^\d+$/.test(formHarga)) {
+            Alert.alert('Peringatan', 'Tahun dan harga hanya boleh berisi angka.');
+            return;
+        }
+
         const tahunBaru = parseInt(formTahun, 10);
         const hargaBaru = parseInt(formHarga, 10);
 

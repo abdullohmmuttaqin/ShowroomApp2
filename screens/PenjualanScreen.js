@@ -93,6 +93,11 @@ export default function PenjualanScreen() {
             return;
         }
 
+        if (!/^\d+$/.test(hargaJual)) {
+            Alert.alert('Peringatan', 'Harga jual hanya boleh berisi angka.');
+            return;
+        }
+
         const hargaBaru = parseInt(hargaJual, 10);
 
         if (!Number.isFinite(hargaBaru) || hargaBaru <= 0) {
