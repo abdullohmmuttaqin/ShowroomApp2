@@ -8,22 +8,11 @@ import {
     TouchableOpacity,
     ScrollView,
 } from 'react-native';
+import { PIUTANG_DEFAULT } from '../utils/defaultData';
 
 const STORAGE_KEY_STOK = 'stok_showroom';
 const STORAGE_KEY_PENJUALAN = 'penjualan_showroom';
 const STORAGE_KEY_PIUTANG = 'piutang_showroom';
-const dataPiutangAwal = [
-    {
-        nama: 'Budi Santoso',
-        mobil: 'Toyota Avanza',
-        sisa: 50000000,
-    },
-    {
-        nama: 'Andi Pratama',
-        mobil: 'Honda Jazz',
-        sisa: 25000000,
-    },
-];
 const formatRupiah = (angka) => {
     return 'Rp ' + angka.toLocaleString('id-ID');
 };
@@ -156,9 +145,9 @@ export default function DashboardScreen({
                 );
                 setNilaiPiutang(totalNilaiPiutang);
             } else {
-                setTotalPiutang(dataPiutangAwal.length);
+                setTotalPiutang(PIUTANG_DEFAULT.length);
 
-                const totalNilaiPiutangAwal = dataPiutangAwal.reduce(
+                const totalNilaiPiutangAwal = PIUTANG_DEFAULT.reduce(
                     (total, item) => total + Number(item.sisa || 0),
                     0
                 );

@@ -12,23 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { tambahAktivitas } from '../utils/aktivitas';
-
-const dataAwal = [
-    {
-        id: 1,
-        nama: 'Budi Santoso',
-        mobil: 'Toyota Avanza',
-        sisa: 50000000,
-        jatuhTempo: '15 Juni 2026',
-    },
-    {
-        id: 2,
-        nama: 'Andi Pratama',
-        mobil: 'Honda Jazz',
-        sisa: 25000000,
-        jatuhTempo: '20 Juni 2026',
-    },
-];
+import { PIUTANG_DEFAULT } from '../utils/defaultData';
 
 const STORAGE_KEY = 'piutang_showroom';
 const HISTORY_STORAGE_KEY = 'riwayat_pembayaran_showroom';
@@ -47,8 +31,7 @@ const formatRupiah = (value) => {
 
 export default function PiutangScreen() {
 
-    const [dataPiutang, setDataPiutang] = useState(dataAwal);
-    const [isLoading, setIsLoading] = useState(true);
+    const [dataPiutang, setDataPiutang] = useState(PIUTANG_DEFAULT);
     const [jumlahJatuhTempo, setJumlahJatuhTempo] = useState(0);
     const [modalVisible, setModalVisible] = useState(false);
     const [namaPelanggan, setNamaPelanggan] = useState('');
@@ -103,16 +86,13 @@ export default function PiutangScreen() {
                 );
 
                 setDataPiutang(dataBersih);
-                setIsLoading(false);
             } else {
                 await AsyncStorage.setItem(
                     STORAGE_KEY,
-                    JSON.stringify(dataAwal)
+                    JSON.stringify(PIUTANG_DEFAULT)
                 );
 
-                setDataPiutang(dataAwal);
-
-                setIsLoading(false);
+                setDataPiutang(PIUTANG_DEFAULT);
             }
         } catch (error) {
             console.log(
@@ -268,6 +248,9 @@ export default function PiutangScreen() {
                     {
                         text: 'Batal',
                         style: 'cancel',
+                        onPress: () => {
+                            setIsSaving(false);
+                        },
                     },
                     {
                         text: 'Update',
@@ -303,8 +286,6 @@ export default function PiutangScreen() {
                     },
                 ]
             );
-
-            setIsSaving(false);
             return;
         } else {
             try {
