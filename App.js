@@ -1,21 +1,33 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Import semua halaman
-import HomeScreen from './screens/HomeScreen';
-import TransaksiScreen from './screens/TransaksiScreen';
+import DashboardScreen from './screens/DashboardScreen';
 import StokScreen from './screens/StokScreen';
+import PenjualanScreen from './screens/PenjualanScreen';
 import LaporanScreen from './screens/LaporanScreen';
+import PiutangScreen from './screens/PiutangScreen';
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('Home');
+function MainApp() {
+  const [activeTab, setActiveTab] = useState('Dashboard');
+  const insets = useSafeAreaInsets();
 
   // Fungsi untuk menentukan halaman mana yang ditampilkan
   const renderScreen = () => {
-    if (activeTab === 'Home') return <HomeScreen />;
-    if (activeTab === 'Transaksi') return <TransaksiScreen />;
+    if (activeTab === 'Dashboard')
+      return (
+        <DashboardScreen
+          setActiveTab={setActiveTab}
+          activeTab={activeTab}
+        />
+      );
     if (activeTab === 'Stok') return <StokScreen />;
+    if (activeTab === 'Penjualan') return <PenjualanScreen />;
     if (activeTab === 'Laporan') return <LaporanScreen />;
+    if (activeTab === 'Piutang') return <PiutangScreen />;
   };
 
   return (
@@ -24,14 +36,27 @@ export default function App() {
       <View style={styles.content}>{renderScreen()}</View>
 
       {/* Tab bar bawah */}
-      <View style={styles.tabBar}>
-        {['Home', 'Transaksi', 'Stok', 'Laporan'].map((tab) => (
+      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
+        {['Dashboard', 'Stok', 'Penjualan', 'Laporan'].map((tab) => (
           <TouchableOpacity
             key={tab}
             style={styles.tabItem}
             onPress={() => setActiveTab(tab)}
           >
-            <Text style={activeTab === tab ? styles.tabAktif : styles.tabNormal}>
+            <MaterialCommunityIcons
+              name={
+                tab === 'Dashboard'
+                  ? 'view-dashboard-outline'
+                  : tab === 'Stok'
+                    ? 'car-outline'
+                    : tab === 'Penjualan'
+                      ? 'cash-register'
+                      : 'file-document-outline'
+              }
+              size={22}
+              color={activeTab === tab ? '#2563eb' : '#888'}
+            />
+            <Text style={activeTab === tab ? styles.tabLabelAktif : styles.tabLabelNormal}>
               {tab}
             </Text>
           </TouchableOpacity>
@@ -49,10 +74,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#ddd',
-    paddingBottom: 50,
     paddingTop: 10,
   },
-  tabItem: { flex: 1, alignItems: 'center' },
-  tabAktif: { color: '#2563eb', fontWeight: 'bold', fontSize: 12 },
-  tabNormal: { color: '#888', fontSize: 12 },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  tabLabelAktif: {
+    color: '#2563eb',
+    fontWeight: 'bold',
+    fontSize: 10,
+  },
+  tabLabelNormal: {
+    color: '#888',
+    fontSize: 10,
+  },
 });
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <MainApp />
+    </SafeAreaProvider>
+  );
+}

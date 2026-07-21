@@ -1,3 +1,4 @@
+import { tambahAktivitas } from '../utils/aktivitas';
 import { useState, useEffect } from 'react';
 import {
     View, Text, StyleSheet, ScrollView,
@@ -28,6 +29,9 @@ export default function StokScreen() {
     const [formTipe, setFormTipe] = useState('');
     const [formTahun, setFormTahun] = useState('');
     const [formHarga, setFormHarga] = useState('');
+
+    // Menyimpan ID mobil yang sedang diedit
+    const [editId, setEditId] = useState(null);
 
     useEffect(() => {
         bacaData();
@@ -72,6 +76,11 @@ export default function StokScreen() {
 
     // Fungsi hapus stok — tampilkan konfirmasi dulu
     const hapusStok = (id) => {
+
+        const mobil = stok.find(
+            item => item.id === id
+        );
+
         Alert.alert(
             'Hapus Stok',
             'Yakin ingin menghapus mobil ini dari stok?',
@@ -81,9 +90,18 @@ export default function StokScreen() {
                     text: 'Hapus',
                     style: 'destructive',
                     onPress: async () => {
-                        const dataBaru = stok.filter((mobil) => mobil.id !== id);
+
+                        const dataBaru = stok.filter(
+                            item => item.id !== id
+                        );
+
                         setStok(dataBaru);
+
                         await simpanData(dataBaru);
+
+                        await tambahAktivitas(
+                            `🗑️ ${mobil.merk} ${mobil.tipe} dihapus dari stok`
+                        );
                     },
                 },
             ]
@@ -96,26 +114,98 @@ export default function StokScreen() {
             mobil.tipe.toLowerCase().includes(cari.toLowerCase())
     );
 
+    const editStok = (mobil) => {
+        setFormMerk(mobil.merk);
+        setFormTipe(mobil.tipe);
+        setFormTahun(mobil.tahun.toString());
+        setFormHarga(mobil.harga.toString());
+
+        setEditId(mobil.id);
+
+        setModalVisible(true);
+    };
+
     const tambahStok = async () => {
-        if (!formMerk || !formTipe || !formTahun || !formHarga) return;
 
-        const baru = {
-            id: Date.now(),
-            merk: formMerk,
-            tipe: formTipe,
-            tahun: parseInt(formTahun),
-            harga: parseInt(formHarga),
-            status: 'tersedia',
-        };
+        if (
+            !formMerk ||
+            !formTipe ||
+            !formTahun ||
+            !formHarga
+        ) {
+            Alert.alert('Peringatan', 'Semua field wajib diisi.');
+            return;
+        }
 
-        const dataBaru = [...stok, baru];
-        setStok(dataBaru);
-        await simpanData(dataBaru);
+        if (!/^\d+$/.test(formTahun) || !/^\d+$/.test(formHarga)) {
+            Alert.alert('Peringatan', 'Tahun dan harga hanya boleh berisi angka.');
+            return;
+        }
+
+        const tahunBaru = parseInt(formTahun, 10);
+        const hargaBaru = parseInt(formHarga, 10);
+
+        if (!Number.isFinite(tahunBaru) || !Number.isFinite(hargaBaru)) {
+            Alert.alert('Peringatan', 'Tahun dan harga harus berupa angka yang valid.');
+            return;
+        }
+
+        if (tahunBaru <= 0 || hargaBaru <= 0) {
+            Alert.alert('Peringatan', 'Tahun dan harga harus lebih dari 0.');
+            return;
+        }
+
+        let dataBaru = [];
+
+        if (editId !== null) {
+
+            dataBaru = stok.map((mobil) =>
+                mobil.id === editId
+                    ? {
+                        ...mobil,
+                        merk: formMerk,
+                        tipe: formTipe,
+                        tahun: tahunBaru,
+                        harga: hargaBaru,
+                    }
+                    : mobil
+            );
+
+            setStok(dataBaru);
+            await simpanData(dataBaru);
+
+            await tambahAktivitas(
+                `✏️ ${formMerk} ${formTipe} diperbarui`
+            );
+
+        } else {
+
+            const baru = {
+                id: Date.now(),
+                merk: formMerk,
+                tipe: formTipe,
+                tahun: tahunBaru,
+                harga: hargaBaru,
+                status: 'tersedia',
+            };
+
+            dataBaru = [...stok, baru];
+
+            setStok(dataBaru);
+            await simpanData(dataBaru);
+
+            await tambahAktivitas(
+                `🚗 ${formMerk} ${formTipe} ditambahkan ke stok`
+            );
+        }
 
         setFormMerk('');
         setFormTipe('');
         setFormTahun('');
         setFormHarga('');
+
+        setEditId(null);
+
         setModalVisible(false);
     };
 
@@ -125,6 +215,38 @@ export default function StokScreen() {
             <View style={styles.header}>
                 <Text style={styles.headerJudul}>Stok Mobil</Text>
                 <Text style={styles.headerSub}>{stok.length} unit terdaftar</Text>
+            </View>
+
+            {/* Ringkasan Statistik */}
+            <View style={styles.statistikContainer}>
+
+                <View style={styles.statistikCard}>
+                    <Text style={styles.statistikAngka}>
+                        {stok.length}
+                    </Text>
+                    <Text style={styles.statistikLabel}>
+                        Total
+                    </Text>
+                </View>
+
+                <View style={styles.statistikCard}>
+                    <Text style={styles.statistikAngka}>
+                        {stok.filter(mobil => mobil.status === 'tersedia').length}
+                    </Text>
+                    <Text style={styles.statistikLabel}>
+                        Tersedia
+                    </Text>
+                </View>
+
+                <View style={styles.statistikCard}>
+                    <Text style={styles.statistikAngka}>
+                        {stok.filter(mobil => mobil.status === 'terjual').length}
+                    </Text>
+                    <Text style={styles.statistikLabel}>
+                        Terjual
+                    </Text>
+                </View>
+
             </View>
 
             {/* Search bar */}
@@ -158,6 +280,15 @@ export default function StokScreen() {
                                 </TouchableOpacity>
 
                                 <TouchableOpacity
+                                    style={styles.tombolEdit}
+                                    onPress={() => editStok(mobil)}
+                                >
+                                    <Text style={styles.tombolEditTeks}>
+                                        Edit
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
                                     style={styles.tombolHapus}
                                     onPress={() => hapusStok(mobil.id)}
                                 >
@@ -177,7 +308,17 @@ export default function StokScreen() {
             {/* Tombol tambah stok */}
             <TouchableOpacity
                 style={styles.tombolTambah}
-                onPress={() => setModalVisible(true)}
+                onPress={() => {
+
+                    setEditId(null);
+
+                    setFormMerk('');
+                    setFormTipe('');
+                    setFormTahun('');
+                    setFormHarga('');
+
+                    setModalVisible(true);
+                }}
             >
                 <Text style={styles.tombolTambahTeks}>+ Tambah Stok</Text>
             </TouchableOpacity>
@@ -186,7 +327,11 @@ export default function StokScreen() {
             <Modal visible={modalVisible} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalKonten}>
-                        <Text style={styles.modalJudul}>Tambah Stok Mobil</Text>
+                        <Text style={styles.modalJudul}>
+                            {editId !== null
+                                ? 'Edit Stok Mobil'
+                                : 'Tambah Stok Mobil'}
+                        </Text>
 
                         <Text style={styles.inputLabel}>Merk</Text>
                         <TextInput
@@ -225,7 +370,17 @@ export default function StokScreen() {
                         <View style={styles.modalTombol}>
                             <TouchableOpacity
                                 style={styles.tombolBatal}
-                                onPress={() => setModalVisible(false)}
+                                onPress={() => {
+
+                                    setFormMerk('');
+                                    setFormTipe('');
+                                    setFormTahun('');
+                                    setFormHarga('');
+
+                                    setEditId(null);
+
+                                    setModalVisible(false);
+                                }}
                             >
                                 <Text style={styles.tombolBatalTeks}>Batal</Text>
                             </TouchableOpacity>
@@ -233,7 +388,11 @@ export default function StokScreen() {
                                 style={styles.tombolSimpan}
                                 onPress={tambahStok}
                             >
-                                <Text style={styles.tombolSimpanTeks}>Simpan</Text>
+                                <Text style={styles.tombolSimpanTeks}>
+                                    {editId !== null
+                                        ? 'Update'
+                                        : 'Simpan'}
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -244,37 +403,246 @@ export default function StokScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5' },
-    header: { backgroundColor: '#2563eb', padding: 24, paddingTop: 48 },
-    headerJudul: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-    headerSub: { fontSize: 14, color: '#bfdbfe', marginTop: 4 },
-    searchWrapper: { padding: 16, backgroundColor: '#fff' },
-    searchInput: { backgroundColor: '#f5f5f5', borderRadius: 8, padding: 10, fontSize: 14 },
-    list: { flex: 1, padding: 16 },
-    kartu: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-    kartuKiri: { flex: 1 },
-    namaMobil: { fontSize: 15, fontWeight: 'bold' },
-    tahun: { fontSize: 12, color: '#888', marginTop: 2 },
-    harga: { fontSize: 13, fontWeight: '600', color: '#2563eb', marginTop: 4 },
-    tombolWrapper: { flexDirection: 'row', gap: 8, marginTop: 8 },
-    tombolTerjual: { backgroundColor: '#fee2e2', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-    tombolTersedia: { backgroundColor: '#dcfce7', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-    tombolStatusTeks: { fontSize: 11, fontWeight: '600', color: '#333' },
-    tombolHapus: { backgroundColor: '#f5f5f5', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-    tombolHapusTeks: { fontSize: 11, fontWeight: '600', color: '#dc2626' },
-    badgeHijau: { backgroundColor: '#dcfce7', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-    badgeMerah: { backgroundColor: '#fee2e2', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
-    badgeTeks: { fontSize: 11, fontWeight: '600', textTransform: 'capitalize' },
-    tombolTambah: { backgroundColor: '#2563eb', margin: 16, borderRadius: 12, padding: 16, alignItems: 'center' },
-    tombolTambahTeks: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-    modalKonten: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24 },
-    modalJudul: { fontSize: 18, fontWeight: 'bold', marginBottom: 16 },
-    inputLabel: { fontSize: 13, color: '#555', marginBottom: 6, marginTop: 12 },
-    input: { backgroundColor: '#f5f5f5', borderRadius: 8, padding: 12, fontSize: 14 },
-    modalTombol: { flexDirection: 'row', gap: 12, marginTop: 24 },
-    tombolBatal: { flex: 1, backgroundColor: '#f5f5f5', borderRadius: 8, padding: 14, alignItems: 'center' },
-    tombolBatalTeks: { color: '#555', fontWeight: 'bold' },
-    tombolSimpan: { flex: 1, backgroundColor: '#2563eb', borderRadius: 8, padding: 14, alignItems: 'center' },
-    tombolSimpanTeks: { color: '#fff', fontWeight: 'bold' },
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    header: {
+        backgroundColor: '#2563eb',
+        padding: 24,
+        paddingTop: 48,
+    },
+    headerJudul: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    headerSub: {
+        fontSize: 14,
+        color: '#bfdbfe',
+        marginTop: 4,
+    },
+    searchWrapper: {
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: 16,
+    },
+    searchInput: {
+        backgroundColor: '#ffffff',
+        borderRadius: 12,
+        padding: 12,
+        fontSize: 14,
+
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 2,
+
+        elevation: 1,
+    },
+    list: {
+        flex: 1,
+        padding: 16,
+    },
+    kartu: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 12,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    kartuKiri: {
+        flex: 1,
+    },
+    namaMobil: {
+        fontSize: 15,
+        fontWeight: 'bold',
+    },
+    tahun: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 2,
+    },
+    harga: {
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#2563eb',
+        marginTop: 4,
+    },
+    tombolWrapper: {
+        flexDirection: 'row',
+        gap: 8,
+        marginTop: 8,
+    },
+    tombolTerjual: {
+        backgroundColor: '#fee2e2',
+        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    tombolTersedia: {
+        backgroundColor: '#dcfce7',
+        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    tombolStatusTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#333',
+    },
+    tombolHapus: {
+        backgroundColor: '#f5f5f5',
+        borderRadius: 6,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+    },
+    tombolHapusTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#dc2626',
+    },
+    badgeHijau: {
+        backgroundColor: '#dcfce7',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+    },
+    badgeMerah: {
+        backgroundColor: '#fee2e2',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+    },
+    badgeTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        textTransform: 'capitalize',
+    },
+    tombolTambah: {
+        backgroundColor: '#2563eb',
+        margin: 16,
+        borderRadius: 12,
+        padding: 16,
+        alignItems: 'center',
+    },
+    tombolTambahTeks: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 15,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'flex-end',
+    },
+    modalKonten: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        padding: 24,
+    },
+    modalJudul: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 16,
+    },
+    inputLabel: {
+        fontSize: 13,
+        color: '#555',
+        marginBottom: 6,
+        marginTop: 12,
+    },
+    input: {
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 14,
+    },
+    modalTombol: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 24,
+    },
+    tombolBatal: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+        padding: 14,
+        alignItems: 'center',
+    },
+    tombolBatalTeks: {
+        color: '#555',
+        fontWeight: 'bold',
+    },
+    tombolSimpan: {
+        flex: 1,
+        backgroundColor: '#2563eb',
+        borderRadius: 8,
+        padding: 14,
+        alignItems: 'center',
+    },
+    tombolSimpanTeks: {
+        color: '#fff',
+        fontWeight: 'bold',
+    },
+    statistikContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 8,
+    },
+
+    statistikCard: {
+        flex: 1,
+        backgroundColor: '#ffffff',
+        marginHorizontal: 4,
+        borderRadius: 12,
+        padding: 12,
+        alignItems: 'center',
+
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+
+        elevation: 2,
+    },
+
+    statistikAngka: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#2563eb',
+    },
+
+    statistikLabel: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 4,
+    },
+
+    tombolEdit: {
+        backgroundColor: '#2563eb',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
+        marginRight: 8,
+    },
+
+    tombolEditTeks: {
+        color: '#fff',
+        fontWeight: '600',
+    },
 });

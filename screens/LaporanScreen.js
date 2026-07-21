@@ -78,35 +78,108 @@ export default function LaporanScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#f5f5f5' },
-    header: { backgroundColor: '#2563eb', padding: 24, paddingTop: 48 },
-    headerJudul: { fontSize: 24, fontWeight: 'bold', color: '#fff' },
-    headerSub: { fontSize: 14, color: '#bfdbfe', marginTop: 4 },
-    kartuWrapper: { flexDirection: 'row', padding: 16, gap: 12 },
-    kartu: { flex: 1, borderRadius: 12, padding: 16 },
-    kartuHijau: { backgroundColor: '#dcfce7' },
-    kartuMerah: { backgroundColor: '#fee2e2' },
-    kartuLabel: { fontSize: 11, color: '#555' },
-    kartuNilai: { fontSize: 13, fontWeight: 'bold', marginTop: 4 },
-    kartuKeuntungan: {
-        backgroundColor: '#2563eb', marginHorizontal: 16,
-        borderRadius: 12, padding: 16, marginBottom: 16
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
     },
-    keuntunganLabel: { fontSize: 13, color: '#bfdbfe' },
-    keuntunganNilai: { fontSize: 20, fontWeight: 'bold', color: '#fff', marginTop: 4 },
-    tabelWrapper: { backgroundColor: '#fff', margin: 16, borderRadius: 12, padding: 16 },
-    tabelJudul: { fontSize: 16, fontWeight: 'bold', marginBottom: 12 },
+    header: {
+        backgroundColor: '#2563eb',
+        padding: 24,
+        paddingTop: 48,
+    },
+    headerJudul: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    headerSub: {
+        fontSize: 14,
+        color: '#bfdbfe',
+        marginTop: 4,
+    },
+    kartuWrapper: {
+        flexDirection: 'row',
+        padding: 16,
+        gap: 12,
+    },
+    kartu: {
+        flex: 1,
+        borderRadius: 12,
+        padding: 16,
+    },
+    kartuHijau: {
+        backgroundColor: '#dcfce7',
+    },
+    kartuMerah: {
+        backgroundColor: '#fee2e2',
+    },
+    kartuLabel: {
+        fontSize: 11,
+        color: '#555',
+    },
+    kartuNilai: {
+        fontSize: 13,
+        fontWeight: 'bold',
+        marginTop: 4,
+    },
+    kartuKeuntungan: {
+        backgroundColor: '#2563eb',
+        marginHorizontal: 16,
+        borderRadius: 12,
+        padding: 16,
+        marginBottom: 16,
+    },
+    keuntunganLabel: {
+        fontSize: 13,
+        color: '#bfdbfe',
+    },
+    keuntunganNilai: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginTop: 4,
+    },
+    tabelWrapper: {
+        backgroundColor: '#fff',
+        margin: 16,
+        borderRadius: 12,
+        padding: 16,
+    },
+    tabelJudul: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 12,
+    },
 
-    teksHijau: { color: '#16a34a' },
-    teksMerah: { color: '#dc2626' },
-    teksBiru: { color: '#2563eb', fontWeight: 'bold' },
+    teksHijau: {
+        color: '#16a34a',
+    },
+    teksMerah: {
+        color: '#dc2626',
+    },
+    teksBiru: {
+        color: '#2563eb',
+        fontWeight: 'bold',
+    },
 
     kartuBulan: {
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
         paddingVertical: 12,
     },
-    namaBulan: { fontSize: 14, fontWeight: 'bold', marginBottom: 8, color: '#333' },
-    barisBulan: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-    labelBulan: { fontSize: 13, color: '#888' },
+    namaBulan: {
+        fontSize: 14,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#333',
+    },
+    barisBulan: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+    },
+    labelBulan: {
+        fontSize: 13,
+        color: '#888',
+    },
 });
