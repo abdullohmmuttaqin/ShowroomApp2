@@ -133,6 +133,20 @@ export default function StokScreen() {
             !formTahun ||
             !formHarga
         ) {
+            Alert.alert('Peringatan', 'Semua field wajib diisi.');
+            return;
+        }
+
+        const tahunBaru = parseInt(formTahun, 10);
+        const hargaBaru = parseInt(formHarga, 10);
+
+        if (!Number.isFinite(tahunBaru) || !Number.isFinite(hargaBaru)) {
+            Alert.alert('Peringatan', 'Tahun dan harga harus berupa angka yang valid.');
+            return;
+        }
+
+        if (tahunBaru <= 0 || hargaBaru <= 0) {
+            Alert.alert('Peringatan', 'Tahun dan harga harus lebih dari 0.');
             return;
         }
 
@@ -146,8 +160,8 @@ export default function StokScreen() {
                         ...mobil,
                         merk: formMerk,
                         tipe: formTipe,
-                        tahun: parseInt(formTahun),
-                        harga: parseInt(formHarga),
+                        tahun: tahunBaru,
+                        harga: hargaBaru,
                     }
                     : mobil
             );
@@ -165,8 +179,8 @@ export default function StokScreen() {
                 id: Date.now(),
                 merk: formMerk,
                 tipe: formTipe,
-                tahun: parseInt(formTahun),
-                harga: parseInt(formHarga),
+                tahun: tahunBaru,
+                harga: hargaBaru,
                 status: 'tersedia',
             };
 

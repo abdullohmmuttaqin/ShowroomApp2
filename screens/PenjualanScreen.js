@@ -89,6 +89,14 @@ export default function PenjualanScreen() {
     const simpanPenjualan = async () => {
 
         if (!namaMobil || !hargaJual || !tanggalJual) {
+            Alert.alert('Peringatan', 'Semua field wajib diisi.');
+            return;
+        }
+
+        const hargaBaru = parseInt(hargaJual, 10);
+
+        if (!Number.isFinite(hargaBaru) || hargaBaru <= 0) {
+            Alert.alert('Peringatan', 'Harga jual harus berupa angka lebih dari 0.');
             return;
         }
 
@@ -102,9 +110,7 @@ export default function PenjualanScreen() {
                         ? {
                             ...item,
                             mobil: namaMobil,
-                            harga: parseInt(
-                                hargaJual
-                            ),
+                            harga: hargaBaru,
                             tanggal: tanggalJual,
                         }
                         : item
@@ -122,7 +128,7 @@ export default function PenjualanScreen() {
             const transaksiBaru = {
                 id: Date.now(),
                 mobil: namaMobil,
-                harga: parseInt(hargaJual),
+                harga: hargaBaru,
                 tanggal: tanggalJual,
                 status: 'Lunas',
             };

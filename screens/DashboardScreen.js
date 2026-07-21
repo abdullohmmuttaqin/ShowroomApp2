@@ -12,6 +12,18 @@ import {
 const STORAGE_KEY_STOK = 'stok_showroom';
 const STORAGE_KEY_PENJUALAN = 'penjualan_showroom';
 const STORAGE_KEY_PIUTANG = 'piutang_showroom';
+const dataPiutangAwal = [
+    {
+        nama: 'Budi Santoso',
+        mobil: 'Toyota Avanza',
+        sisa: 50000000,
+    },
+    {
+        nama: 'Andi Pratama',
+        mobil: 'Honda Jazz',
+        sisa: 25000000,
+    },
+];
 const formatRupiah = (angka) => {
     return 'Rp ' + angka.toLocaleString('id-ID');
 };
@@ -143,6 +155,15 @@ export default function DashboardScreen({
                     totalNilaiPiutang
                 );
                 setNilaiPiutang(totalNilaiPiutang);
+            } else {
+                setTotalPiutang(dataPiutangAwal.length);
+
+                const totalNilaiPiutangAwal = dataPiutangAwal.reduce(
+                    (total, item) => total + Number(item.sisa || 0),
+                    0
+                );
+
+                setNilaiPiutang(totalNilaiPiutangAwal);
             }
 
             await loadAktivitas();

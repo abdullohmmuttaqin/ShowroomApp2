@@ -304,6 +304,7 @@ export default function PiutangScreen() {
                 ]
             );
 
+            setIsSaving(false);
             return;
         } else {
             try {
