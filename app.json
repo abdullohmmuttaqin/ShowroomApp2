@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "ShowroomApp2",
-    "slug": "ShowroomApp2",
+    "name": "ShowroomApp",
+    "slug": "ShowroomApp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon-v2.png",
