@@ -127,11 +127,6 @@ export default function DashboardScreen({
 
                 setTotalPiutang(piutang.length);
 
-                console.log(
-                    'DATA PIUTANG DASHBOARD:',
-                    piutang
-                );
-
                 const totalNilaiPiutang =
                     piutang.reduce(
                         (total, item) =>
@@ -139,10 +134,6 @@ export default function DashboardScreen({
                         0
                     );
 
-                console.log(
-                    'TOTAL NILAI PIUTANG PRABOWO + JOKOWI:',
-                    totalNilaiPiutang
-                );
                 setNilaiPiutang(totalNilaiPiutang);
             } else {
                 setTotalPiutang(PIUTANG_DEFAULT.length);
@@ -250,7 +241,7 @@ export default function DashboardScreen({
                             key={item.id}
                             style={styles.activityItem}
                         >
-                            • {item.teks}
+                            ● {item.teks}
                         </Text>
                     ))
                 )}
