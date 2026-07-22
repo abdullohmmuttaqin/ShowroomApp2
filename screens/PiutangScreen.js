@@ -454,226 +454,183 @@ export default function PiutangScreen() {
         jatuhTempo !== '';
 
     return (
-        <ScrollView style={styles.container}>
-
+        <View style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.title}>
-                    Piutang
-                </Text>
-
-                <Text style={styles.subtitle}>
-                    Kelola tagihan pelanggan
-                </Text>
+                <Text style={styles.title}>Piutang</Text>
+                <Text style={styles.subtitle}>Kelola tagihan pelanggan</Text>
             </View>
 
-            <View style={styles.heroCard}>
-                <Text style={styles.heroTitle}>
-                    Total Piutang
-                </Text>
-
-                <Text style={styles.heroAmount}>
-                    Rp {totalPiutang.toLocaleString('id-ID')}
-                </Text>
-
-                <Text style={styles.heroSubtitle}>
-                    {dataPiutang.length} piutang aktif
-                </Text>
-            </View>
-
-            <View style={styles.statsContainer}>
-                <View style={styles.card}>
-                    <Text style={styles.cardNumber}>
-                        {dataPiutang.length}
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                {/* Hero total piutang */}
+                <View style={styles.heroCard}>
+                    <Text style={styles.heroTitle}>Total Piutang</Text>
+                    <Text style={styles.heroAmount}>
+                        Rp {totalPiutang.toLocaleString('id-ID')}
                     </Text>
-                    <Text style={styles.cardLabel}>
-                        Piutang Aktif
+                    <Text style={styles.heroSubtitle}>
+                        {dataPiutang.length} piutang aktif
                     </Text>
                 </View>
 
-                <View style={styles.card}>
-                    <Text style={styles.cardNumber}>
-                        {jumlahJatuhTempo}
-                    </Text>
-                    <Text style={styles.cardLabel}>
-                        Jatuh Tempo
-                    </Text>
-                </View>
-            </View>
-
-            <Text style={styles.sectionTitle}>
-                Daftar Piutang
-            </Text>
-
-            {dataPiutang.map((item) => (
-                <View key={item.id} style={styles.piutangCard}>
-
-                    <Text style={styles.namaCustomer}>
-                        {item.nama}
-                    </Text>
-
-                    <Text style={styles.namaMobil}>
-                        {item.mobil}
-                    </Text>
-
-                    <Text style={styles.nominalPiutang}>
-                        Rp {item.sisa.toLocaleString('id-ID')}
-                    </Text>
-
-                    <Text style={styles.jatuhTempo}>
-                        Jatuh Tempo: {item.jatuhTempo}
-                    </Text>
-
-                    <TouchableOpacity
-                        style={styles.btnEdit}
-                        onPress={() => {
-                            setModeEdit(true);
-                            setIdEdit(item.id);
-
-                            setNamaPelanggan(item.nama);
-                            setNamaMobil(item.mobil);
-                            setSisaPiutang(item.sisa.toString());
-                            setJatuhTempo(item.jatuhTempo);
-
-                            setModalVisible(true);
-                        }}
-                    >
-                        <Text style={styles.btnEditText}>
-                            Edit
-                        </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.btnBayar}
-                        onPress={() => {
-                            setPiutangDipilih(item);
-                            setNominalBayar('');
-                            setModalBayarVisible(true);
-                        }}
-                    >
-                        <Text style={styles.btnBayarText}>
-                            Bayar
-                        </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.btnHapus}
-                        onPress={() => {
-                            Alert.alert(
-                                'Konfirmasi Hapus',
-                                `Hapus piutang ${item.nama}?`,
-                                [
-                                    {
-                                        text: 'Batal',
-                                        style: 'cancel',
-                                    },
-                                    {
-                                        text: 'Hapus',
-                                        style: 'destructive',
-                                        onPress: async () => {
-                                            const dataBaru = dataPiutang.filter(
-                                                (piutang) => piutang.id !== item.id
-                                            );
-
-                                            setDataPiutang(dataBaru);
-                                            await simpanDataPiutang(dataBaru);
-
-                                            await tambahAktivitas(
-                                                `🗑️ Piutang ${item.nama} dihapus`
-                                            );
-                                            setModeEdit(false);
-                                            setIdEdit(null);
-
-                                            Alert.alert(
-                                                'Berhasil',
-                                                'Piutang berhasil dihapus.'
-                                            );
-                                        },
-                                    },
-                                ]
-                            );
-                        }}
-                    >
-                        <Text style={styles.btnHapusText}>
-                            Hapus
-                        </Text>
-                    </TouchableOpacity>
-
-                </View>
-            ))}
-
-            <Text style={styles.sectionTitle}>
-                Riwayat Pembayaran
-            </Text>
-
-            <View style={styles.totalRiwayatCard}>
-                <Text style={styles.totalRiwayatLabel}>
-                    Total Pembayaran
-                </Text>
-
-                <Text style={styles.totalRiwayatNominal}>
-                    Rp {totalPembayaran.toLocaleString('id-ID')}
-                </Text>
-            </View>
-
-            {riwayatPembayaran.length === 0 ? (
-                <View style={styles.emptyCard}>
-                    <Text style={styles.emptyText}>
-                        Belum ada riwayat pembayaran
-                    </Text>
-                </View>
-            ) : (
-                riwayatPembayaran.map((item) => (
-                    <View
-                        key={item.id}
-                        style={styles.riwayatCard}
-                    >
-                        <Text style={styles.namaCustomer}>
-                            {item.nama}
-                        </Text>
-
-                        <Text style={styles.namaMobil}>
-                            {item.mobil}
-                        </Text>
-
-                        <Text style={styles.nominalBayarHistory}>
-                            Rp {item.nominal.toLocaleString('id-ID')}
-                        </Text>
-
-                        <Text style={styles.jatuhTempo}>
-                            {item.tanggal}
-                        </Text>
+                {/* Statistik */}
+                <View style={styles.statsContainer}>
+                    <View style={styles.card}>
+                        <Text style={styles.cardNumber}>{dataPiutang.length}</Text>
+                        <Text style={styles.cardLabel}>Piutang Aktif</Text>
                     </View>
-                ))
-            )}
+                    <View style={styles.card}>
+                        <Text style={styles.cardNumber}>{jumlahJatuhTempo}</Text>
+                        <Text style={styles.cardLabel}>Jatuh Tempo</Text>
+                    </View>
+                </View>
 
+                {/* Daftar piutang */}
+                <Text style={styles.sectionTitle}>Daftar Piutang</Text>
+
+                {dataPiutang.length === 0 ? (
+                    <View style={styles.emptyCard}>
+                        <Text style={styles.emptyText}>Belum ada piutang</Text>
+                    </View>
+                ) : (
+                    dataPiutang.map((item) => (
+                        <View key={item.id} style={styles.piutangCard}>
+                            {/* Baris atas: nama + nominal */}
+                            <View style={styles.piutangCardHeader}>
+                                <Text style={styles.namaCustomer}>{item.nama}</Text>
+                                <Text style={styles.nominalPiutang}>
+                                    Rp {item.sisa.toLocaleString('id-ID')}
+                                </Text>
+                            </View>
+
+                            <Text style={styles.namaMobil}>{item.mobil}</Text>
+                            <Text style={styles.jatuhTempo}>
+                                Jatuh Tempo: {item.jatuhTempo}
+                            </Text>
+
+                            {/* Divider */}
+                            <View style={styles.divider} />
+
+                            {/* Tombol aksi */}
+                            <View style={styles.tombolWrapper}>
+                                <TouchableOpacity
+                                    style={styles.btnEdit}
+                                    onPress={() => {
+                                        setModeEdit(true);
+                                        setIdEdit(item.id);
+                                        setNamaPelanggan(item.nama);
+                                        setNamaMobil(item.mobil);
+                                        setSisaPiutang(item.sisa.toString());
+                                        setJatuhTempo(item.jatuhTempo);
+                                        setModalVisible(true);
+                                    }}
+                                >
+                                    <Text style={styles.btnEditText}>Edit</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={styles.btnBayar}
+                                    onPress={() => {
+                                        setPiutangDipilih(item);
+                                        setNominalBayar('');
+                                        setModalBayarVisible(true);
+                                    }}
+                                >
+                                    <Text style={styles.btnBayarText}>Bayar</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={styles.btnHapus}
+                                    onPress={() => {
+                                        Alert.alert(
+                                            'Konfirmasi Hapus',
+                                            `Hapus piutang ${item.nama}?`,
+                                            [
+                                                { text: 'Batal', style: 'cancel' },
+                                                {
+                                                    text: 'Hapus',
+                                                    style: 'destructive',
+                                                    onPress: async () => {
+                                                        const dataBaru = dataPiutang.filter(
+                                                            (piutang) => piutang.id !== item.id
+                                                        );
+                                                        setDataPiutang(dataBaru);
+                                                        await simpanDataPiutang(dataBaru);
+                                                        await tambahAktivitas(
+                                                            `🗑️ Piutang ${item.nama} dihapus`
+                                                        );
+                                                        setModeEdit(false);
+                                                        setIdEdit(null);
+                                                        Alert.alert('Berhasil', 'Piutang berhasil dihapus.');
+                                                    },
+                                                },
+                                            ]
+                                        );
+                                    }}
+                                >
+                                    <Text style={styles.btnHapusText}>Hapus</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ))
+                )}
+
+                {/* Riwayat pembayaran */}
+                <Text style={styles.sectionTitle}>Riwayat Pembayaran</Text>
+
+                <View style={styles.totalRiwayatCard}>
+                    <Text style={styles.totalRiwayatLabel}>Total Pembayaran</Text>
+                    <Text style={styles.totalRiwayatNominal}>
+                        Rp {totalPembayaran.toLocaleString('id-ID')}
+                    </Text>
+                </View>
+
+                {riwayatPembayaran.length === 0 ? (
+                    <View style={styles.emptyCard}>
+                        <Text style={styles.emptyText}>Belum ada riwayat pembayaran</Text>
+                    </View>
+                ) : (
+                    riwayatPembayaran.map((item) => (
+                        <View key={item.id} style={styles.riwayatCard}>
+                            <View style={styles.riwayatHeader}>
+                                <Text style={styles.namaCustomer}>{item.nama}</Text>
+                                <Text style={styles.nominalBayarHistory}>
+                                    Rp {item.nominal.toLocaleString('id-ID')}
+                                </Text>
+                            </View>
+                            <Text style={styles.namaMobil}>{item.mobil}</Text>
+                            <Text style={styles.jatuhTempo}>{item.tanggal}</Text>
+                        </View>
+                    ))
+                )}
+
+                <View style={{ height: 20 }} />
+            </ScrollView>
+
+            {/* Tombol tambah */}
             <TouchableOpacity
                 style={styles.tombolTambah}
                 onPress={() => {
                     setModeEdit(false);
                     setIdEdit(null);
-
                     setNamaPelanggan('');
                     setNamaMobil('');
                     setSisaPiutang('');
                     setJatuhTempo('');
                     setSelectedDate(new Date());
-
                     setModalVisible(true);
                 }}
             >
-                <Text style={styles.tombolTambahText}>
-                    + Tambah Piutang
-                </Text>
+                <Text style={styles.tombolTambahText}>+ Tambah Piutang</Text>
             </TouchableOpacity>
 
-            <Modal
-                visible={modalVisible}
-                animationType="slide"
-                transparent
-            >
+            {/* Modal tambah/edit piutang */}
+            <Modal visible={modalVisible} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContainer}>
-
                         <Text style={styles.modalTitle}>
                             {modeEdit ? 'Edit Piutang' : 'Tambah Piutang'}
                         </Text>
@@ -704,11 +661,7 @@ export default function PiutangScreen() {
                             style={styles.input}
                             onPress={() => setShowDatePicker(true)}
                         >
-                            <Text
-                                style={{
-                                    color: jatuhTempo ? '#111827' : '#9ca3af',
-                                }}
-                            >
+                            <Text style={{ color: jatuhTempo ? '#111827' : '#9ca3af' }}>
                                 📅 {jatuhTempo || 'Pilih Jatuh Tempo'}
                             </Text>
                         </TouchableOpacity>
@@ -723,7 +676,6 @@ export default function PiutangScreen() {
                         )}
 
                         <View style={styles.modalButtonContainer}>
-
                             <TouchableOpacity
                                 style={styles.btnTutup}
                                 onPress={() => {
@@ -732,16 +684,12 @@ export default function PiutangScreen() {
                                     setSisaPiutang('');
                                     setJatuhTempo('');
                                     setSelectedDate(new Date());
-
                                     setModeEdit(false);
                                     setIdEdit(null);
-
                                     setModalVisible(false);
                                 }}
                             >
-                                <Text style={styles.btnTutupText}>
-                                    Tutup
-                                </Text>
+                                <Text style={styles.btnTutupText}>Tutup</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -756,54 +704,27 @@ export default function PiutangScreen() {
                                     {modeEdit ? 'Update' : 'Simpan'}
                                 </Text>
                             </TouchableOpacity>
-
                         </View>
-
                     </View>
                 </View>
             </Modal>
 
-            <Modal
-                visible={modalBayarVisible}
-                transparent
-                animationType="slide"
-            >
+            {/* Modal bayar piutang */}
+            <Modal visible={modalBayarVisible} transparent animationType="slide">
                 <View style={styles.modalOverlay}>
-
                     <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>Pembayaran Piutang</Text>
 
-                        <Text style={styles.modalTitle}>
-                            Pembayaran Piutang
-                        </Text>
+                        <Text style={styles.detailLabel}>Nama Pelanggan</Text>
+                        <Text style={styles.detailValue}>{piutangDipilih?.nama}</Text>
 
-                        <Text style={styles.detailLabel}>
-                            Nama Pelanggan
-                        </Text>
+                        <Text style={styles.detailLabel}>Mobil</Text>
+                        <Text style={styles.detailValue}>{piutangDipilih?.mobil}</Text>
 
-                        <Text style={styles.detailValue}>
-                            {piutangDipilih?.nama}
-                        </Text>
+                        <Text style={styles.detailLabel}>Jatuh Tempo</Text>
+                        <Text style={styles.detailValue}>{piutangDipilih?.jatuhTempo}</Text>
 
-                        <Text style={styles.detailLabel}>
-                            Mobil
-                        </Text>
-
-                        <Text style={styles.detailValue}>
-                            {piutangDipilih?.mobil}
-                        </Text>
-
-                        <Text style={styles.detailLabel}>
-                            Jatuh Tempo
-                        </Text>
-
-                        <Text style={styles.detailValue}>
-                            {piutangDipilih?.jatuhTempo}
-                        </Text>
-
-                        <Text style={styles.detailLabel}>
-                            Sisa Piutang
-                        </Text>
-
+                        <Text style={styles.detailLabel}>Sisa Piutang</Text>
                         <Text style={styles.detailNominal}>
                             Rp {piutangDipilih?.sisa?.toLocaleString('id-ID')}
                         </Text>
@@ -820,7 +741,6 @@ export default function PiutangScreen() {
                         />
 
                         <View style={styles.modalButtonContainer}>
-
                             <TouchableOpacity
                                 style={styles.btnTutup}
                                 onPress={() => {
@@ -829,9 +749,7 @@ export default function PiutangScreen() {
                                     setModalBayarVisible(false);
                                 }}
                             >
-                                <Text style={styles.btnTutupText}>
-                                    Tutup
-                                </Text>
+                                <Text style={styles.btnTutupText}>Tutup</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -842,19 +760,13 @@ export default function PiutangScreen() {
                                 onPress={prosesPembayaran}
                                 disabled={isProcessingPayment || nominalBayar.trim() === ''}
                             >
-                                <Text style={styles.btnSimpanText}>
-                                    Bayar
-                                </Text>
+                                <Text style={styles.btnSimpanText}>Bayar</Text>
                             </TouchableOpacity>
-
                         </View>
-
                     </View>
-
                 </View>
             </Modal>
-
-        </ScrollView>
+        </View>
     );
 }
 
@@ -862,158 +774,260 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f7fb',
-        padding: 20,
     },
-
     header: {
-        marginTop: 50,
-        marginBottom: 20,
+        backgroundColor: '#7c3aed',
+        paddingHorizontal: 20,
+        paddingTop: 52,
+        paddingBottom: 20,
     },
-
     title: {
-        fontSize: 28,
+        fontSize: 26,
         fontWeight: 'bold',
+        color: '#fff',
     },
-
     subtitle: {
-        color: '#666',
+        color: '#ddd6fe',
         marginTop: 4,
+        fontSize: 13,
     },
-
+    scrollContent: {
+        padding: 16,
+    },
     heroCard: {
-        backgroundColor: '#2563eb',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 20,
+        backgroundColor: '#7c3aed',
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 16,
     },
-
     heroTitle: {
-        color: '#bfdbfe',
-        fontSize: 14,
+        color: '#ddd6fe',
+        fontSize: 13,
     },
-
     heroAmount: {
         color: '#fff',
         fontSize: 28,
         fontWeight: 'bold',
-        marginTop: 8,
-    },
-
-    heroSubtitle: {
-        color: '#dbeafe',
         marginTop: 4,
     },
-
+    heroSubtitle: {
+        color: '#c4b5fd',
+        marginTop: 6,
+        fontSize: 12,
+    },
     statsContainer: {
         flexDirection: 'row',
         gap: 10,
         marginBottom: 20,
     },
-
     card: {
         flex: 1,
         backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 15,
+        borderRadius: 14,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 2,
     },
-
     cardNumber: {
-        fontSize: 18,
+        fontSize: 22,
         fontWeight: 'bold',
-        color: '#2563eb',
+        color: '#7c3aed',
     },
-
     cardLabel: {
-        marginTop: 5,
-        color: '#666',
+        marginTop: 4,
+        color: '#6b7280',
+        fontSize: 12,
     },
-
     sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 12,
-    },
-
-    emptyCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 20,
-        alignItems: 'center',
-    },
-
-    emptyText: {
-        color: '#666',
-    },
-
-    piutangCard: {
-        backgroundColor: '#ffffff',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 10,
-    },
-
-    namaCustomer: {
         fontSize: 16,
         fontWeight: 'bold',
+        marginBottom: 12,
+        color: '#111827',
     },
-
+    emptyCard: {
+        backgroundColor: '#fff',
+        borderRadius: 14,
+        padding: 20,
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    emptyText: {
+        color: '#9ca3af',
+        fontSize: 13,
+    },
+    piutangCard: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    piutangCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    namaCustomer: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#111827',
+        flex: 1,
+    },
     namaMobil: {
-        color: '#666',
-        marginTop: 4,
+        color: '#6b7280',
+        marginTop: 2,
+        fontSize: 13,
     },
-
     nominalPiutang: {
         color: '#dc2626',
         fontWeight: 'bold',
-        marginTop: 8,
+        fontSize: 14,
     },
-
     jatuhTempo: {
-        color: '#777',
+        color: '#9ca3af',
         marginTop: 4,
         fontSize: 12,
     },
-
+    divider: {
+        height: 1,
+        backgroundColor: '#f3f4f6',
+        marginVertical: 12,
+    },
+    tombolWrapper: {
+        flexDirection: 'row',
+        gap: 6,
+    },
+    btnEdit: {
+        backgroundColor: '#eff6ff',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    btnEditText: {
+        color: '#2563eb',
+        fontWeight: '600',
+        fontSize: 11,
+    },
+    btnBayar: {
+        backgroundColor: '#f0fdf4',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    btnBayarText: {
+        color: '#16a34a',
+        fontWeight: '600',
+        fontSize: 11,
+    },
+    btnHapus: {
+        backgroundColor: '#fef2f2',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    btnHapusText: {
+        color: '#dc2626',
+        fontWeight: '600',
+        fontSize: 11,
+    },
     tombolTambah: {
-        backgroundColor: '#2563eb',
+        backgroundColor: '#7c3aed',
+        margin: 16,
+        borderRadius: 14,
         padding: 16,
-        borderRadius: 12,
         alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 30,
     },
-
     tombolTambahText: {
-        color: '#ffffff',
+        color: '#fff',
         fontWeight: 'bold',
+        fontSize: 15,
     },
-
+    totalRiwayatCard: {
+        backgroundColor: '#f0fdf4',
+        padding: 16,
+        borderRadius: 14,
+        marginBottom: 12,
+    },
+    totalRiwayatLabel: {
+        color: '#166534',
+        fontSize: 13,
+    },
+    totalRiwayatNominal: {
+        color: '#16a34a',
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginTop: 4,
+    },
+    riwayatCard: {
+        backgroundColor: '#fff',
+        borderRadius: 14,
+        padding: 16,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    riwayatHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    nominalBayarHistory: {
+        color: '#16a34a',
+        fontWeight: 'bold',
+        fontSize: 14,
+    },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.4)',
+        backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
     },
-
     modalContainer: {
         backgroundColor: '#fff',
-        padding: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        padding: 24,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
     },
-
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 20,
+        color: '#111827',
     },
-
     input: {
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f9fafb',
         padding: 12,
         borderRadius: 10,
         marginBottom: 12,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+        fontSize: 14,
     },
-
+    modalButtonContainer: {
+        flexDirection: 'row',
+        gap: 10,
+        marginTop: 10,
+    },
     btnTutup: {
         flex: 1,
         backgroundColor: '#f3f4f6',
@@ -1021,77 +1035,30 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-
     btnTutupText: {
-        color: '#111827',
+        color: '#6b7280',
         fontWeight: '600',
     },
-
-    modalButtonContainer: {
-        flexDirection: 'row',
-        gap: 10,
-        marginTop: 10,
-    },
-
     btnSimpan: {
         flex: 1,
-        backgroundColor: '#2563eb',
+        backgroundColor: '#7c3aed',
         padding: 14,
         borderRadius: 10,
         alignItems: 'center',
     },
-
-    btnBayar: {
-        backgroundColor: '#16a34a',
-        padding: 10,
-        borderRadius: 8,
-        marginTop: 10,
-        alignItems: 'center',
-    },
-
-    btnEdit: {
-        backgroundColor: '#f59e0b',
-        padding: 10,
-        borderRadius: 8,
-        marginTop: 10,
-        alignItems: 'center',
-    },
-
-    btnEditText: {
-        color: '#ffffff',
-        fontWeight: 'bold',
-    },
-
-    btnBayarText: {
-        color: '#ffffff',
-        fontWeight: 'bold',
-    },
-
-    btnTutupBayar: {
-        backgroundColor: '#f3f4f6',
-        padding: 14,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginTop: 15,
-    },
-
-    btnTutupBayarText: {
-        color: '#111827',
-        fontWeight: '600',
-    },
-
     btnSimpanText: {
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 14,
     },
-
+    btnDisabled: {
+        backgroundColor: '#9ca3af',
+    },
     detailLabel: {
         fontSize: 13,
         color: '#6b7280',
         marginTop: 10,
     },
-
     detailValue: {
         fontSize: 16,
         fontWeight: '600',
@@ -1099,61 +1066,11 @@ const styles = StyleSheet.create({
         marginTop: 2,
         marginBottom: 8,
     },
-
     detailNominal: {
         fontSize: 22,
         fontWeight: 'bold',
         color: '#dc2626',
         marginTop: 2,
         marginBottom: 16,
-    },
-
-    btnDisabled: {
-        backgroundColor: '#9ca3af',
-    },
-
-    riwayatCard: {
-        backgroundColor: '#ffffff',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 10,
-    },
-
-    nominalBayarHistory: {
-        color: '#16a34a',
-        fontWeight: 'bold',
-        marginTop: 8,
-    },
-
-    totalRiwayatCard: {
-        backgroundColor: '#ecfdf5',
-        padding: 15,
-        borderRadius: 12,
-        marginBottom: 12,
-    },
-
-    totalRiwayatLabel: {
-        color: '#166534',
-        fontSize: 13,
-    },
-
-    totalRiwayatNominal: {
-        color: '#16a34a',
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginTop: 4,
-    },
-
-    btnHapus: {
-        backgroundColor: '#dc2626',
-        padding: 10,
-        borderRadius: 8,
-        marginTop: 10,
-        alignItems: 'center',
-    },
-
-    btnHapusText: {
-        color: '#ffffff',
-        fontWeight: 'bold',
     },
 });

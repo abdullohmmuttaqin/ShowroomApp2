@@ -217,8 +217,8 @@ export default function PenjualanScreen() {
     };
 
     return (
-        <ScrollView style={styles.container}>
-
+        <View style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
                 <Text style={styles.title}>Penjualan</Text>
                 <Text style={styles.subtitle}>
@@ -226,134 +226,109 @@ export default function PenjualanScreen() {
                 </Text>
             </View>
 
-            <View style={styles.heroCard}>
-                <Text style={styles.heroTitle}>
-                    Omset Bulan Ini
-                </Text>
-
-                <Text style={styles.heroAmount}>
-                    {formatRupiah(totalOmset)}
-                </Text>
-
-                <Text style={styles.heroSubtitle}>
-                    Dari {dataPenjualan.length} transaksi
-                </Text>
-            </View>
-
-            <View style={styles.statsContainer}>
-                <View style={styles.card}>
-                    <Text style={styles.cardNumber}>
-                        {dataPenjualan.length}
-                    </Text>
-                    <Text style={styles.cardLabel}>
-                        🚗 Unit Terjual
-                    </Text>
-                </View>
-
-                <View style={styles.card}>
-                    <Text style={styles.cardNumber}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+            >
+                {/* Hero omset */}
+                <View style={styles.heroCard}>
+                    <Text style={styles.heroTitle}>Omset Bulan Ini</Text>
+                    <Text style={styles.heroAmount}>
                         {formatRupiah(totalOmset)}
                     </Text>
-                    <Text style={styles.cardLabel}>
-                        💰 Total Omset
+                    <Text style={styles.heroSubtitle}>
+                        Dari {dataPenjualan.length} transaksi
                     </Text>
                 </View>
-            </View>
 
-            <Text style={styles.sectionTitle}>
-                Riwayat Penjualan
-            </Text>
-
-            {dataPenjualan.map((item) => (
-                <View key={item.id} style={styles.saleCard}>
-                    <Text style={styles.carName}>
-                        {item.mobil}
-                    </Text>
-
-                    <Text style={styles.price}>
-                        {formatRupiah(item.harga)}
-                    </Text>
-
-                    <Text style={styles.date}>
-                        {item.tanggal}
-                    </Text>
-
-                    <Text
-                        style={
-                            item.status === 'Lunas'
-                                ? styles.statusLunas
-                                : styles.statusDP
-                        }
-                    >
-                        ● {item.status}
-                    </Text>
-
-                    <TouchableOpacity
-                        style={styles.btnEdit}
-                        onPress={() => {
-
-                            setModeEdit(true);
-                            setIdEdit(item.id);
-
-                            setNamaMobil(item.mobil);
-                            setHargaJual(
-                                item.harga.toString()
-                            );
-                            setTanggalJual(item.tanggal);
-
-                            setModalVisible(true);
-                        }}
-                    >
-                        <Text style={styles.btnEditText}>
-                            Edit
+                {/* Statistik */}
+                <View style={styles.statsContainer}>
+                    <View style={styles.card}>
+                        <Text style={styles.cardNumber}>
+                            {dataPenjualan.length}
                         </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.btnHapus}
-                        onPress={() => hapusPenjualan(item.id)}
-                    >
-                        <Text style={styles.btnHapusText}>
-                            Hapus
+                        <Text style={styles.cardLabel}>Unit Terjual</Text>
+                    </View>
+                    <View style={styles.card}>
+                        <Text style={styles.cardNumber}>
+                            {formatRupiah(totalOmset)}
                         </Text>
-                    </TouchableOpacity>
-
+                        <Text style={styles.cardLabel}>Total Omset</Text>
+                    </View>
                 </View>
-            ))}
 
+                {/* Riwayat penjualan */}
+                <Text style={styles.sectionTitle}>Riwayat Penjualan</Text>
+
+                {dataPenjualan.map((item) => (
+                    <View key={item.id} style={styles.saleCard}>
+                        {/* Baris atas: nama + badge status */}
+                        <View style={styles.saleCardHeader}>
+                            <Text style={styles.carName}>{item.mobil}</Text>
+                            <View style={item.status === 'Lunas' ? styles.badgeLunas : styles.badgeDP}>
+                                <Text style={item.status === 'Lunas' ? styles.badgeLunasTeks : styles.badgeDPTeks}>
+                                    {item.status}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <Text style={styles.price}>{formatRupiah(item.harga)}</Text>
+                        <Text style={styles.date}>{item.tanggal}</Text>
+
+                        {/* Divider */}
+                        <View style={styles.divider} />
+
+                        {/* Tombol aksi */}
+                        <View style={styles.tombolWrapper}>
+                            <TouchableOpacity
+                                style={styles.btnEdit}
+                                onPress={() => {
+                                    setModeEdit(true);
+                                    setIdEdit(item.id);
+                                    setNamaMobil(item.mobil);
+                                    setHargaJual(item.harga.toString());
+                                    setTanggalJual(item.tanggal);
+                                    setModalVisible(true);
+                                }}
+                            >
+                                <Text style={styles.btnEditText}>Edit</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.btnHapus}
+                                onPress={() => hapusPenjualan(item.id)}
+                            >
+                                <Text style={styles.btnHapusText}>Hapus</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                ))}
+
+                <View style={{ height: 20 }} />
+            </ScrollView>
+
+            {/* Tombol tambah */}
             <TouchableOpacity
                 style={styles.tombolTambah}
                 onPress={() => {
-
                     setModeEdit(false);
                     setIdEdit(null);
-
                     setNamaMobil('');
                     setHargaJual('');
                     setTanggalJual('');
                     setSelectedDate(new Date());
-
                     setModalVisible(true);
                 }}
             >
-                <Text style={styles.tombolTambahTeks}>
-                    + Tambah Penjualan
-                </Text>
+                <Text style={styles.tombolTambahTeks}>+ Tambah Penjualan</Text>
             </TouchableOpacity>
 
-            <Modal
-                visible={modalVisible}
-                animationType="slide"
-                transparent
-            >
+            {/* Modal */}
+            <Modal visible={modalVisible} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
-
                     <View style={styles.modalContainer}>
-
                         <Text style={styles.modalTitle}>
-                            {modeEdit
-                                ? 'Edit Penjualan'
-                                : 'Tambah Penjualan'}
+                            {modeEdit ? 'Edit Penjualan' : 'Tambah Penjualan'}
                         </Text>
 
                         <TextInput
@@ -375,11 +350,7 @@ export default function PenjualanScreen() {
                             style={styles.input}
                             onPress={() => setShowDatePicker(true)}
                         >
-                            <Text
-                                style={{
-                                    color: tanggalJual ? '#111827' : '#9ca3af',
-                                }}
-                            >
+                            <Text style={{ color: tanggalJual ? '#111827' : '#9ca3af' }}>
                                 {tanggalJual || 'Pilih Tanggal'}
                             </Text>
                         </TouchableOpacity>
@@ -394,23 +365,19 @@ export default function PenjualanScreen() {
                         )}
 
                         <View style={styles.modalButtonContainer}>
-
                             <TouchableOpacity
                                 style={styles.btnBatal}
                                 onPress={() => {
-
                                     setModeEdit(false);
                                     setIdEdit(null);
-
                                     setNamaMobil('');
                                     setHargaJual('');
                                     setTanggalJual('');
                                     setSelectedDate(new Date());
-
                                     setModalVisible(false);
                                 }}
                             >
-                                <Text>Batal</Text>
+                                <Text style={styles.btnBatalText}>Batal</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -418,20 +385,14 @@ export default function PenjualanScreen() {
                                 onPress={simpanPenjualan}
                             >
                                 <Text style={styles.btnSimpanText}>
-                                    {modeEdit
-                                        ? 'Update'
-                                        : 'Simpan'}
+                                    {modeEdit ? 'Update' : 'Simpan'}
                                 </Text>
                             </TouchableOpacity>
-
                         </View>
-
                     </View>
-
                 </View>
             </Modal>
-
-        </ScrollView>
+        </View>
     );
 }
 
@@ -439,161 +400,215 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f7fb',
-        padding: 20,
     },
-
     header: {
-        marginTop: 50,
-        marginBottom: 20,
+        backgroundColor: '#2563eb',
+        paddingHorizontal: 20,
+        paddingTop: 52,
+        paddingBottom: 20,
     },
-
     title: {
+        fontSize: 26,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    subtitle: {
+        color: '#bfdbfe',
+        marginTop: 4,
+        fontSize: 13,
+    },
+    scrollContent: {
+        padding: 16,
+    },
+    heroCard: {
+        backgroundColor: '#2563eb',
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 16,
+    },
+    heroTitle: {
+        color: '#bfdbfe',
+        fontSize: 13,
+    },
+    heroAmount: {
+        color: '#fff',
         fontSize: 28,
         fontWeight: 'bold',
-    },
-
-    subtitle: {
-        color: '#666',
         marginTop: 4,
     },
-
+    heroSubtitle: {
+        color: '#93c5fd',
+        marginTop: 6,
+        fontSize: 12,
+    },
     statsContainer: {
         flexDirection: 'row',
         gap: 10,
         marginBottom: 20,
     },
-
     card: {
         flex: 1,
         backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 15,
+        borderRadius: 14,
+        padding: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 2,
     },
-
     cardNumber: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#2563eb',
-    },
-
-    cardLabel: {
-        marginTop: 5,
-        color: '#666',
-    },
-
-    sectionTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 12,
-    },
-
-    saleCard: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 15,
-        marginBottom: 10,
-    },
-
-    carName: {
         fontSize: 16,
         fontWeight: 'bold',
-    },
-
-    price: {
         color: '#2563eb',
-        marginTop: 5,
-        fontWeight: '600',
     },
-
-    date: {
-        color: '#777',
-        marginTop: 5,
+    cardLabel: {
+        marginTop: 4,
+        color: '#6b7280',
         fontSize: 12,
     },
-
-    heroCard: {
-        backgroundColor: '#2563eb',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 20,
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 12,
+        color: '#111827',
     },
-
-    heroTitle: {
-        color: '#bfdbfe',
+    saleCard: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    saleCardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    carName: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: '#111827',
+        flex: 1,
+    },
+    price: {
+        color: '#2563eb',
+        marginTop: 4,
+        fontWeight: '700',
         fontSize: 14,
     },
-
-    heroAmount: {
-        color: '#fff',
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginTop: 8,
-    },
-
-    heroSubtitle: {
-        color: '#dbeafe',
+    date: {
+        color: '#6b7280',
         marginTop: 4,
+        fontSize: 12,
     },
-
-    statusLunas: {
+    badgeLunas: {
+        backgroundColor: '#dcfce7',
+        borderRadius: 20,
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+    },
+    badgeLunasTeks: {
+        fontSize: 11,
+        fontWeight: '600',
         color: '#16a34a',
-        marginTop: 8,
-        fontWeight: '600',
     },
-
-    statusDP: {
-        color: '#f59e0b',
-        marginTop: 8,
-        fontWeight: '600',
+    badgeDP: {
+        backgroundColor: '#fef3c7',
+        borderRadius: 20,
+        paddingHorizontal: 10,
+        paddingVertical: 3,
     },
-
+    badgeDPTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#d97706',
+    },
+    divider: {
+        height: 1,
+        backgroundColor: '#f3f4f6',
+        marginVertical: 12,
+    },
+    tombolWrapper: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    btnEdit: {
+        backgroundColor: '#eff6ff',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    btnEditText: {
+        color: '#2563eb',
+        fontWeight: '600',
+        fontSize: 11,
+    },
+    btnHapus: {
+        backgroundColor: '#fef2f2',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 8,
+    },
+    btnHapusText: {
+        color: '#dc2626',
+        fontWeight: '600',
+        fontSize: 11,
+    },
     tombolTambah: {
         backgroundColor: '#2563eb',
-        marginTop: 20,
-        marginBottom: 30,
-        borderRadius: 12,
+        margin: 16,
+        borderRadius: 14,
         padding: 16,
         alignItems: 'center',
     },
-
     tombolTambahTeks: {
-        color: '#ffffff',
+        color: '#fff',
         fontWeight: 'bold',
         fontSize: 15,
     },
-
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.4)',
+        backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
     },
-
     modalContainer: {
         backgroundColor: '#fff',
-        padding: 20,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        padding: 24,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
     },
-
     modalTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 20,
+        color: '#111827',
     },
-
     input: {
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f9fafb',
         padding: 12,
         borderRadius: 10,
         marginBottom: 12,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+        fontSize: 14,
     },
-
     modalButtonContainer: {
         flexDirection: 'row',
         gap: 10,
         marginTop: 10,
     },
-
     btnBatal: {
         flex: 1,
         backgroundColor: '#f3f4f6',
@@ -601,7 +616,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-
+    btnBatalText: {
+        color: '#6b7280',
+        fontWeight: '600',
+    },
     btnSimpan: {
         flex: 1,
         backgroundColor: '#2563eb',
@@ -609,35 +627,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-
     btnSimpanText: {
         color: '#fff',
-        fontWeight: 'bold',
-    },
-
-    btnHapus: {
-        backgroundColor: '#dc2626',
-        padding: 10,
-        borderRadius: 8,
-        marginTop: 10,
-        alignItems: 'center',
-    },
-
-    btnHapusText: {
-        color: '#ffffff',
-        fontWeight: 'bold',
-    },
-
-    btnEdit: {
-        backgroundColor: '#f59e0b',
-        padding: 10,
-        borderRadius: 8,
-        marginTop: 10,
-        alignItems: 'center',
-    },
-
-    btnEditText: {
-        color: '#ffffff',
         fontWeight: 'bold',
     },
 });
