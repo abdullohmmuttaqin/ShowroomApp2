@@ -217,36 +217,24 @@ export default function StokScreen() {
                 <Text style={styles.headerSub}>{stok.length} unit terdaftar</Text>
             </View>
 
-            {/* Ringkasan Statistik */}
+            {/* Statistik */}
             <View style={styles.statistikContainer}>
-
                 <View style={styles.statistikCard}>
-                    <Text style={styles.statistikAngka}>
-                        {stok.length}
-                    </Text>
-                    <Text style={styles.statistikLabel}>
-                        Total
-                    </Text>
+                    <Text style={styles.statistikAngka}>{stok.length}</Text>
+                    <Text style={styles.statistikLabel}>Total</Text>
                 </View>
-
                 <View style={styles.statistikCard}>
-                    <Text style={styles.statistikAngka}>
-                        {stok.filter(mobil => mobil.status === 'tersedia').length}
+                    <Text style={[styles.statistikAngka, { color: '#16a34a' }]}>
+                        {stok.filter(m => m.status === 'tersedia').length}
                     </Text>
-                    <Text style={styles.statistikLabel}>
-                        Tersedia
-                    </Text>
+                    <Text style={styles.statistikLabel}>Tersedia</Text>
                 </View>
-
                 <View style={styles.statistikCard}>
-                    <Text style={styles.statistikAngka}>
-                        {stok.filter(mobil => mobil.status === 'terjual').length}
+                    <Text style={[styles.statistikAngka, { color: '#dc2626' }]}>
+                        {stok.filter(m => m.status === 'terjual').length}
                     </Text>
-                    <Text style={styles.statistikLabel}>
-                        Terjual
-                    </Text>
+                    <Text style={styles.statistikLabel}>Terjual</Text>
                 </View>
-
             </View>
 
             {/* Search bar */}
@@ -259,78 +247,83 @@ export default function StokScreen() {
                 />
             </View>
 
-            {/* List stok mobil */}
-            <ScrollView style={styles.list}>
+            {/* List stok */}
+            <ScrollView
+                style={styles.list}
+                showsVerticalScrollIndicator={false}
+            >
                 {stokFiltered.map((mobil) => (
                     <View key={mobil.id} style={styles.kartu}>
-                        <View style={styles.kartuKiri}>
-                            <Text style={styles.namaMobil}>{mobil.merk} {mobil.tipe}</Text>
-                            <Text style={styles.tahun}>Tahun {mobil.tahun}</Text>
-                            <Text style={styles.harga}>{formatRupiah(mobil.harga)}</Text>
-
-                            {/* Tombol ubah status dan hapus */}
-                            <View style={styles.tombolWrapper}>
-                                <TouchableOpacity
-                                    style={mobil.status === 'tersedia' ? styles.tombolTerjual : styles.tombolTersedia}
-                                    onPress={() => ubahStatus(mobil.id)}
-                                >
-                                    <Text style={styles.tombolStatusTeks}>
-                                        {mobil.status === 'tersedia' ? 'Tandai Terjual' : 'Tandai Tersedia'}
-                                    </Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={styles.tombolEdit}
-                                    onPress={() => editStok(mobil)}
-                                >
-                                    <Text style={styles.tombolEditTeks}>
-                                        Edit
-                                    </Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity
-                                    style={styles.tombolHapus}
-                                    onPress={() => hapusStok(mobil.id)}
-                                >
-                                    <Text style={styles.tombolHapusTeks}>Hapus</Text>
-                                </TouchableOpacity>
+                        {/* Baris atas: nama + badge */}
+                        <View style={styles.kartuHeader}>
+                            <Text style={styles.namaMobil}>
+                                {mobil.merk} {mobil.tipe}
+                            </Text>
+                            <View style={mobil.status === 'tersedia' ? styles.badgeHijau : styles.badgeMerah}>
+                                <Text style={mobil.status === 'tersedia' ? styles.badgeTeksHijau : styles.badgeTeksMerah}>
+                                    {mobil.status}
+                                </Text>
                             </View>
                         </View>
 
-                        {/* Badge status */}
-                        <View style={mobil.status === 'tersedia' ? styles.badgeHijau : styles.badgeMerah}>
-                            <Text style={styles.badgeTeks}>{mobil.status}</Text>
+                        {/* Info tahun & harga */}
+                        <Text style={styles.tahun}>Tahun {mobil.tahun}</Text>
+                        <Text style={styles.harga}>{formatRupiah(mobil.harga)}</Text>
+
+                        {/* Divider */}
+                        <View style={styles.divider} />
+
+                        {/* Tombol aksi */}
+                        <View style={styles.tombolWrapper}>
+                            <TouchableOpacity
+                                style={mobil.status === 'tersedia' ? styles.tombolTerjual : styles.tombolTersedia}
+                                onPress={() => ubahStatus(mobil.id)}
+                            >
+                                <Text style={styles.tombolStatusTeks}>
+                                    {mobil.status === 'tersedia' ? 'Terjual' : 'Tersedia'}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.tombolEdit}
+                                onPress={() => editStok(mobil)}
+                            >
+                                <Text style={styles.tombolEditTeks}>Edit</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.tombolHapus}
+                                onPress={() => hapusStok(mobil.id)}
+                            >
+                                <Text style={styles.tombolHapusTeks}>Hapus</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 ))}
+                <View style={{ height: 8 }} />
             </ScrollView>
 
-            {/* Tombol tambah stok */}
+            {/* Tombol tambah */}
             <TouchableOpacity
                 style={styles.tombolTambah}
                 onPress={() => {
-
                     setEditId(null);
-
                     setFormMerk('');
                     setFormTipe('');
                     setFormTahun('');
                     setFormHarga('');
-
                     setModalVisible(true);
                 }}
             >
                 <Text style={styles.tombolTambahTeks}>+ Tambah Stok</Text>
             </TouchableOpacity>
 
-            {/* Modal form tambah stok */}
+            {/* Modal */}
             <Modal visible={modalVisible} animationType="slide" transparent>
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalKonten}>
                         <Text style={styles.modalJudul}>
-                            {editId !== null
-                                ? 'Edit Stok Mobil'
-                                : 'Tambah Stok Mobil'}
+                            {editId !== null ? 'Edit Stok Mobil' : 'Tambah Stok Mobil'}
                         </Text>
 
                         <Text style={styles.inputLabel}>Merk</Text>
@@ -371,14 +364,11 @@ export default function StokScreen() {
                             <TouchableOpacity
                                 style={styles.tombolBatal}
                                 onPress={() => {
-
                                     setFormMerk('');
                                     setFormTipe('');
                                     setFormTahun('');
                                     setFormHarga('');
-
                                     setEditId(null);
-
                                     setModalVisible(false);
                                 }}
                             >
@@ -389,9 +379,7 @@ export default function StokScreen() {
                                 onPress={tambahStok}
                             >
                                 <Text style={styles.tombolSimpanTeks}>
-                                    {editId !== null
-                                        ? 'Update'
-                                        : 'Simpan'}
+                                    {editId !== null ? 'Update' : 'Simpan'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -405,105 +393,153 @@ export default function StokScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f5f7fb',
     },
     header: {
         backgroundColor: '#2563eb',
-        padding: 24,
-        paddingTop: 48,
+        paddingHorizontal: 20,
+        paddingTop: 52,
+        paddingBottom: 20,
     },
     headerJudul: {
-        fontSize: 24,
+        fontSize: 26,
         fontWeight: 'bold',
         color: '#fff',
     },
     headerSub: {
-        fontSize: 14,
+        fontSize: 13,
         color: '#bfdbfe',
         marginTop: 4,
     },
-    searchWrapper: {
+    statistikContainer: {
+        flexDirection: 'row',
         paddingHorizontal: 16,
-        paddingTop: 12,
-        paddingBottom: 16,
+        paddingTop: 16,
+        paddingBottom: 8,
+        gap: 8,
     },
-    searchInput: {
-        backgroundColor: '#ffffff',
-        borderRadius: 12,
-        padding: 12,
-        fontSize: 14,
-
-        borderWidth: 1,
-        borderColor: '#e5e7eb',
-
+    statistikCard: {
+        flex: 1,
+        backgroundColor: '#fff',
+        borderRadius: 14,
+        padding: 14,
+        alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 1,
         },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    statistikAngka: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#2563eb',
+    },
+    statistikLabel: {
+        fontSize: 11,
+        color: '#6b7280',
+        marginTop: 4,
+    },
+    searchWrapper: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+    },
+    searchInput: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 12,
+        fontSize: 14,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
         elevation: 1,
     },
     list: {
         flex: 1,
-        padding: 16,
+        paddingHorizontal: 16,
+        paddingTop: 4,
     },
     kartu: {
         backgroundColor: '#fff',
-        borderRadius: 12,
+        borderRadius: 16,
         padding: 16,
-        marginBottom: 12,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.06,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    kartuHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-    },
-    kartuKiri: {
-        flex: 1,
+        marginBottom: 4,
     },
     namaMobil: {
         fontSize: 15,
         fontWeight: 'bold',
+        color: '#111827',
+        flex: 1,
     },
     tahun: {
         fontSize: 12,
-        color: '#888',
+        color: '#6b7280',
         marginTop: 2,
     },
     harga: {
-        fontSize: 13,
-        fontWeight: '600',
+        fontSize: 14,
+        fontWeight: '700',
         color: '#2563eb',
         marginTop: 4,
     },
+    divider: {
+        height: 1,
+        backgroundColor: '#f3f4f6',
+        marginVertical: 12,
+    },
     tombolWrapper: {
         flexDirection: 'row',
-        gap: 8,
-        marginTop: 8,
+        gap: 6,
     },
     tombolTerjual: {
         backgroundColor: '#fee2e2',
-        borderRadius: 6,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
     },
     tombolTersedia: {
         backgroundColor: '#dcfce7',
-        borderRadius: 6,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
     },
     tombolStatusTeks: {
         fontSize: 11,
         fontWeight: '600',
-        color: '#333',
+        color: '#374151',
+    },
+    tombolEdit: {
+        backgroundColor: '#eff6ff',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+    },
+    tombolEditTeks: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#2563eb',
     },
     tombolHapus: {
-        backgroundColor: '#f5f5f5',
-        borderRadius: 6,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        backgroundColor: '#fef2f2',
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
     },
     tombolHapusTeks: {
         fontSize: 11,
@@ -512,25 +548,32 @@ const styles = StyleSheet.create({
     },
     badgeHijau: {
         backgroundColor: '#dcfce7',
-        borderRadius: 8,
+        borderRadius: 20,
         paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingVertical: 3,
     },
     badgeMerah: {
         backgroundColor: '#fee2e2',
-        borderRadius: 8,
+        borderRadius: 20,
         paddingHorizontal: 10,
-        paddingVertical: 4,
+        paddingVertical: 3,
     },
-    badgeTeks: {
+    badgeTeksHijau: {
         fontSize: 11,
         fontWeight: '600',
+        color: '#16a34a',
+        textTransform: 'capitalize',
+    },
+    badgeTeksMerah: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#dc2626',
         textTransform: 'capitalize',
     },
     tombolTambah: {
         backgroundColor: '#2563eb',
         margin: 16,
-        borderRadius: 12,
+        borderRadius: 14,
         padding: 16,
         alignItems: 'center',
     },
@@ -546,26 +589,29 @@ const styles = StyleSheet.create({
     },
     modalKonten: {
         backgroundColor: '#fff',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         padding: 24,
     },
     modalJudul: {
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 16,
+        color: '#111827',
     },
     inputLabel: {
         fontSize: 13,
-        color: '#555',
+        color: '#6b7280',
         marginBottom: 6,
         marginTop: 12,
     },
     input: {
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
+        backgroundColor: '#f9fafb',
+        borderRadius: 10,
         padding: 12,
         fontSize: 14,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
     },
     modalTombol: {
         flexDirection: 'row',
@@ -575,74 +621,23 @@ const styles = StyleSheet.create({
     tombolBatal: {
         flex: 1,
         backgroundColor: '#f5f5f5',
-        borderRadius: 8,
+        borderRadius: 10,
         padding: 14,
         alignItems: 'center',
     },
     tombolBatalTeks: {
-        color: '#555',
-        fontWeight: 'bold',
+        color: '#6b7280',
+        fontWeight: '600',
     },
     tombolSimpan: {
         flex: 1,
         backgroundColor: '#2563eb',
-        borderRadius: 8,
+        borderRadius: 10,
         padding: 14,
         alignItems: 'center',
     },
     tombolSimpanTeks: {
         color: '#fff',
         fontWeight: 'bold',
-    },
-    statistikContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        paddingBottom: 8,
-    },
-
-    statistikCard: {
-        flex: 1,
-        backgroundColor: '#ffffff',
-        marginHorizontal: 4,
-        borderRadius: 12,
-        padding: 12,
-        alignItems: 'center',
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-
-        elevation: 2,
-    },
-
-    statistikAngka: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#2563eb',
-    },
-
-    statistikLabel: {
-        fontSize: 12,
-        color: '#666',
-        marginTop: 4,
-    },
-
-    tombolEdit: {
-        backgroundColor: '#2563eb',
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 8,
-        marginRight: 8,
-    },
-
-    tombolEditTeks: {
-        color: '#fff',
-        fontWeight: '600',
     },
 });
