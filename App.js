@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,6 +17,15 @@ function MainApp({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("Dashboard");
   const insets = useSafeAreaInsets();
   const tabsUntukRole = TAB_ACCESS[user.role] || [];
+
+  // Penjaga: kalau activeTab ternyata bukan tab yang diizinkan untuk role ini,
+  // otomatis kembalikan ke Dashboard. Ini nutup semua "jalan pintas" yang mungkin
+  // ada sekarang atau nanti (misal tombol baru yang lupa dicek role-nya).
+  useEffect(() => {
+    if (!tabsUntukRole.includes(activeTab)) {
+      setActiveTab("Dashboard");
+    }
+  }, [activeTab]);
 
   // Fungsi untuk menentukan halaman mana yang ditampilkan
   const renderScreen = () => {

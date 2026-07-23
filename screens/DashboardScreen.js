@@ -144,25 +144,31 @@ export default function DashboardScreen({ setActiveTab, activeTab, user }) {
           <Text style={styles.statLabel}>Terjual</Text>
         </View>
 
-        <View style={styles.statCard}>
-          <MaterialCommunityIcons
-            name="account-clock"
-            size={20}
-            color="#f59e0b"
-          />
-          <Text style={styles.statAngka}>{totalPiutang}</Text>
-          <Text style={styles.statLabel}>Piutang</Text>
-        </View>
+        {tabsUntukRole.includes("Piutang") && (
+          <>
+            <View style={styles.statCard}>
+              <MaterialCommunityIcons
+                name="account-clock"
+                size={20}
+                color="#f59e0b"
+              />
+              <Text style={styles.statAngka}>{totalPiutang}</Text>
+              <Text style={styles.statLabel}>Piutang</Text>
+            </View>
 
-        <View style={styles.statCard}>
-          <MaterialCommunityIcons
-            name="currency-usd"
-            size={20}
-            color="#dc2626"
-          />
-          <Text style={styles.statAngka}>{formatSingkat(nilaiPiutang)}</Text>
-          <Text style={styles.statLabel}>Nilai Piutang</Text>
-        </View>
+            <View style={styles.statCard}>
+              <MaterialCommunityIcons
+                name="currency-usd"
+                size={20}
+                color="#dc2626"
+              />
+              <Text style={styles.statAngka}>
+                {formatSingkat(nilaiPiutang)}
+              </Text>
+              <Text style={styles.statLabel}>Nilai Piutang</Text>
+            </View>
+          </>
+        )}
       </View>
 
       {/* Menu Cepat */}
