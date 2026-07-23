@@ -17,7 +17,7 @@ export function login(username, password) {
 
 // Daftar tab yang boleh diakses tiap role
 export const TAB_ACCESS = {
-  Owner: ["Dashboard", "Stok", "Penjualan", "Laporan"],
-  Admin: ["Dashboard", "Stok", "Penjualan", "Laporan"],
+  Owner: ["Dashboard", "Stok", "Penjualan", "Laporan", "Piutang"],
+  Admin: ["Dashboard", "Stok", "Penjualan", "Laporan", "Piutang"],
   Sales: ["Dashboard", "Stok", "Penjualan"],
 };
