@@ -1,4 +1,6 @@
 import { tambahAktivitas } from "../utils/aktivitas";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -270,6 +272,68 @@ export default function PenjualanScreen() {
     );
   };
 
+  const cetakKwitansi = async (item) => {
+    const html = `
+            <html>
+                <body style="font-family: Helvetica; padding: 24px;">
+                    <h2 style="text-align:center; margin-bottom: 4px;">KWITANSI PENJUALAN</h2>
+                    <p style="text-align:center; color:#666; margin-top:0;">AutoShowroom</p>
+                    <hr />
+                    <table style="width:100%; margin-top:16px; font-size:14px;">
+                        <tr>
+                            <td style="padding:6px 0;">Nama Mobil</td>
+                            <td style="padding:6px 0; text-align:right;"><b>${item.mobil}</b></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;">Tanggal Transaksi</td>
+                            <td style="padding:6px 0; text-align:right;">${item.tanggal}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;">Harga Jual</td>
+                            <td style="padding:6px 0; text-align:right;">${formatRupiah(item.harga)}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px 0;">Status</td>
+                            <td style="padding:6px 0; text-align:right;"><b>${item.status}</b></td>
+                        </tr>
+                        ${
+                          item.status === "DP"
+                            ? `
+                        <tr>
+                            <td style="padding:6px 0;">Sisa Pembayaran</td>
+                            <td style="padding:6px 0; text-align:right; color:#dc2626;">${formatRupiah(item.sisa || 0)}</td>
+                        </tr>
+                        `
+                            : ""
+                        }
+                    </table>
+                    <hr style="margin-top:24px;" />
+                    <p style="text-align:center; color:#999; font-size:12px; margin-top:24px;">
+                        Kwitansi ini dicetak otomatis oleh AutoShowroom
+                    </p>
+                </body>
+            </html>
+        `;
+
+    try {
+      const { uri } = await Print.printToFileAsync({ html });
+
+      const bisaShare = await Sharing.isAvailableAsync();
+
+      if (bisaShare) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "application/pdf",
+          dialogTitle: `Kwitansi - ${item.mobil}`,
+        });
+      } else {
+        Alert.alert("Info", "Fitur berbagi tidak tersedia di perangkat ini.");
+      }
+    } catch (error) {
+      console.log("Error cetak kwitansi:", error);
+      Alert.alert("Gagal", "Terjadi kesalahan saat membuat kwitansi.");
+    }
+  };
+
   const pilihTanggal = (event, date) => {
     setShowDatePicker(false);
 
@@ -387,6 +451,13 @@ export default function PenjualanScreen() {
                   <Text style={styles.btnLunasiText}>Lunasi</Text>
                 </TouchableOpacity>
               )}
+
+              <TouchableOpacity
+                style={styles.btnKwitansi}
+                onPress={() => cetakKwitansi(item)}
+              >
+                <Text style={styles.btnKwitansiText}>Kwitansi</Text>
+              </TouchableOpacity>
             </View>
           </View>
         ))}
@@ -881,5 +952,16 @@ const styles = StyleSheet.create({
     color: "#dc2626",
     marginTop: 2,
     marginBottom: 16,
+  },
+  btnKwitansi: {
+    backgroundColor: "#eef2ff",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  btnKwitansiText: {
+    color: "#4f46e5",
+    fontWeight: "600",
+    fontSize: 11,
   },
 });
