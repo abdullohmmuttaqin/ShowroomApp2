@@ -1,33 +1,37 @@
-import { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useState } from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // Import semua halaman
-import DashboardScreen from './screens/DashboardScreen';
-import StokScreen from './screens/StokScreen';
-import PenjualanScreen from './screens/PenjualanScreen';
-import LaporanScreen from './screens/LaporanScreen';
-import PiutangScreen from './screens/PiutangScreen';
+import DashboardScreen from "./screens/DashboardScreen";
+import StokScreen from "./screens/StokScreen";
+import PenjualanScreen from "./screens/PenjualanScreen";
+import LaporanScreen from "./screens/LaporanScreen";
+import PiutangScreen from "./screens/PiutangScreen";
+import LoginScreen from "./screens/LoginScreen";
+import { TAB_ACCESS } from "./utils/auth";
 
-function MainApp() {
-  const [activeTab, setActiveTab] = useState('Dashboard');
+function MainApp({ user, onLogout }) {
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const insets = useSafeAreaInsets();
+  const tabsUntukRole = TAB_ACCESS[user.role] || [];
 
   // Fungsi untuk menentukan halaman mana yang ditampilkan
   const renderScreen = () => {
-    if (activeTab === 'Dashboard')
+    if (activeTab === "Dashboard")
       return (
         <DashboardScreen
           setActiveTab={setActiveTab}
           activeTab={activeTab}
+          user={user}
         />
       );
-    if (activeTab === 'Stok') return <StokScreen />;
-    if (activeTab === 'Penjualan') return <PenjualanScreen />;
-    if (activeTab === 'Laporan') return <LaporanScreen />;
-    if (activeTab === 'Piutang') return <PiutangScreen />;
+    if (activeTab === "Stok") return <StokScreen />;
+    if (activeTab === "Penjualan") return <PenjualanScreen />;
+    if (activeTab === "Laporan") return <LaporanScreen />;
+    if (activeTab === "Piutang") return <PiutangScreen />;
   };
 
   return (
@@ -36,8 +40,10 @@ function MainApp() {
       <View style={styles.content}>{renderScreen()}</View>
 
       {/* Tab bar bawah */}
-      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-        {['Dashboard', 'Stok', 'Penjualan', 'Laporan'].map((tab) => (
+      <View
+        style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}
+      >
+        {tabsUntukRole.map((tab) => (
           <TouchableOpacity
             key={tab}
             style={styles.tabItem}
@@ -45,23 +51,35 @@ function MainApp() {
           >
             <MaterialCommunityIcons
               name={
-                tab === 'Dashboard'
-                  ? 'view-dashboard-outline'
-                  : tab === 'Stok'
-                    ? 'car-outline'
-                    : tab === 'Penjualan'
-                      ? 'cash-register'
-                      : 'file-document-outline'
+                tab === "Dashboard"
+                  ? "view-dashboard-outline"
+                  : tab === "Stok"
+                    ? "car-outline"
+                    : tab === "Penjualan"
+                      ? "cash-register"
+                      : "file-document-outline"
               }
               size={22}
-              color={activeTab === tab ? '#2563eb' : '#888'}
+              color={activeTab === tab ? "#2563eb" : "#888"}
             />
-            <Text style={activeTab === tab ? styles.tabLabelAktif : styles.tabLabelNormal}>
+            <Text
+              style={
+                activeTab === tab ? styles.tabLabelAktif : styles.tabLabelNormal
+              }
+            >
               {tab}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
+
+      {/* Tombol logout kecil, pojok kanan atas */}
+      <TouchableOpacity
+        style={[styles.logoutButton, { top: insets.top + 10 }]}
+        onPress={onLogout}
+      >
+        <Text style={styles.logoutText}>Keluar</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -70,33 +88,56 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { flex: 1 },
   tabBar: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    backgroundColor: "#fff",
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: "#ddd",
     paddingTop: 10,
   },
   tabItem: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     gap: 2,
   },
   tabLabelAktif: {
-    color: '#2563eb',
-    fontWeight: 'bold',
+    color: "#2563eb",
+    fontWeight: "bold",
     fontSize: 10,
   },
   tabLabelNormal: {
-    color: '#888',
+    color: "#888",
     fontSize: 10,
+  },
+  logoutButton: {
+    position: "absolute",
+    right: 16,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  logoutText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });
 
 export default function App() {
+  const [user, setUser] = useState(null);
+
+  if (!user) {
+    return (
+      <SafeAreaProvider>
+        <LoginScreen onLoginSuccess={setUser} />
+      </SafeAreaProvider>
+    );
+  }
+
   return (
     <SafeAreaProvider>
-      <MainApp />
+      <MainApp user={user} onLogout={() => setUser(null)} />
     </SafeAreaProvider>
   );
 }
