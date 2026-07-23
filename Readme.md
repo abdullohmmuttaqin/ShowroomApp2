@@ -14,6 +14,7 @@ Aplikasi mobile pembukuan showroom mobil berbasis **React Native & Expo**, diban
 
 - **Dashboard** — Ringkasan pemasukan, pengeluaran, stok tersedia, dan 5 transaksi terakhir secara real-time
 - **Transaksi** — Catat transaksi jual/beli, filter berdasarkan jenis, hapus transaksi dengan konfirmasi, validasi input harga
+- **Autentikasi** — Login multi-role (Owner, Admin, Sales) dengan pembatasan akses tab sesuai role
 - **Stok Mobil** — Daftar stok kendaraan, pencarian, tambah stok baru, ubah status tersedia/terjual, hapus stok
 - **Laporan Keuangan** — Rekap pemasukan, pengeluaran, dan keuntungan bersih per bulan
 - **Penyimpanan Lokal** — Data tersimpan permanen di HP menggunakan AsyncStorage
@@ -22,12 +23,12 @@ Aplikasi mobile pembukuan showroom mobil berbasis **React Native & Expo**, diban
 
 ## Tech Stack
 
-| Teknologi | Versi | Fungsi |
-|-----------|-------|--------|
-| React Native | 0.81.5 | Framework utama mobile |
-| Expo | SDK 54 | Toolchain & development |
-| AsyncStorage | ~1.23.1 | Penyimpanan data lokal |
-| JavaScript | ES2021 | Bahasa pemrograman |
+| Teknologi    | Versi   | Fungsi                  |
+| ------------ | ------- | ----------------------- |
+| React Native | 0.81.5  | Framework utama mobile  |
+| Expo         | SDK 54  | Toolchain & development |
+| AsyncStorage | ~1.23.1 | Penyimpanan data lokal  |
+| JavaScript   | ES2021  | Bahasa pemrograman      |
 
 ---
 
@@ -97,10 +98,10 @@ npx expo start
 
 ### Fase 2 — Core Features (Dalam Pengembangan)
 
-- [ ] Autentikasi pengguna (Login/Logout)
-- [ ] Multi role pengguna (Owner, Admin, Sales)
-- [ ] Modul penjualan lengkap (DP, pelunasan, kwitansi)
-- [ ] Modul piutang
+- [x] Autentikasi pengguna (Login/Logout)
+- [x] Multi role pengguna (Owner, Admin, Sales)
+- [x] Modul penjualan lengkap (DP, pelunasan) — kwitansi belum
+- [x] Modul piutang
 - [ ] Pencarian kendaraan berdasarkan nopol
 
 ### Fase 3 — Advanced Features
