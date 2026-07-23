@@ -9,8 +9,10 @@ import {
   TextInput,
   Modal,
   Alert,
+  Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 
 const STORAGE_KEY = "stok_showroom";
 
@@ -23,6 +25,7 @@ const dataAwal = [
     harga: 180000000,
     status: "tersedia",
     nopol: "B 1234 ABC",
+    foto: null,
   },
   {
     id: 2,
@@ -32,6 +35,7 @@ const dataAwal = [
     harga: 150000000,
     status: "terjual",
     nopol: "B 5678 DEF",
+    foto: null,
   },
   {
     id: 3,
@@ -41,6 +45,7 @@ const dataAwal = [
     harga: 160000000,
     status: "tersedia",
     nopol: "B 9012 GHI",
+    foto: null,
   },
   {
     id: 4,
@@ -50,6 +55,7 @@ const dataAwal = [
     harga: 130000000,
     status: "tersedia",
     nopol: "B 3456 JKL",
+    foto: null,
   },
   {
     id: 5,
@@ -59,6 +65,7 @@ const dataAwal = [
     harga: 210000000,
     status: "terjual",
     nopol: "B 7890 MNO",
+    foto: null,
   },
   {
     id: 6,
@@ -68,6 +75,7 @@ const dataAwal = [
     harga: 450000000,
     status: "tersedia",
     nopol: "B 2468 PQR",
+    foto: null,
   },
 ];
 
@@ -84,6 +92,7 @@ export default function StokScreen() {
   const [formTahun, setFormTahun] = useState("");
   const [formHarga, setFormHarga] = useState("");
   const [formNopol, setFormNopol] = useState("");
+  const [formFoto, setFormFoto] = useState(null);
 
   // Menyimpan ID mobil yang sedang diedit
   const [editId, setEditId] = useState(null);
@@ -163,12 +172,36 @@ export default function StokScreen() {
         .includes(cari.toLowerCase().replace(/\s/g, "")),
   );
 
+  const pilihFoto = async () => {
+    const izin = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!izin.granted) {
+      Alert.alert(
+        "Izin Ditolak",
+        "Aplikasi butuh akses galeri untuk memilih foto.",
+      );
+      return;
+    }
+
+    const hasil = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.5,
+    });
+
+    if (!hasil.canceled) {
+      setFormFoto(hasil.assets[0].uri);
+    }
+  };
+
   const editStok = (mobil) => {
     setFormMerk(mobil.merk);
     setFormTipe(mobil.tipe);
     setFormTahun(mobil.tahun.toString());
     setFormHarga(mobil.harga.toString());
     setFormNopol(mobil.nopol || "");
+    setFormFoto(mobil.foto || null);
 
     setEditId(mobil.id);
 
@@ -214,6 +247,7 @@ export default function StokScreen() {
               tahun: tahunBaru,
               harga: hargaBaru,
               nopol: formNopol.trim().toUpperCase(),
+              foto: formFoto,
             }
           : mobil,
       );
@@ -231,6 +265,7 @@ export default function StokScreen() {
         harga: hargaBaru,
         status: "tersedia",
         nopol: formNopol.trim().toUpperCase(),
+        foto: formFoto,
       };
 
       dataBaru = [...stok, baru];
@@ -246,6 +281,7 @@ export default function StokScreen() {
     setFormTahun("");
     setFormHarga("");
     setFormNopol("");
+    setFormFoto(null);
 
     setEditId(null);
 
@@ -294,6 +330,13 @@ export default function StokScreen() {
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
         {stokFiltered.map((mobil) => (
           <View key={mobil.id} style={styles.kartu}>
+            {mobil.foto && (
+              <Image
+                source={{ uri: mobil.foto }}
+                style={styles.fotoThumbnail}
+              />
+            )}
+
             {/* Baris atas: nama + badge */}
             <View style={styles.kartuHeader}>
               <Text style={styles.namaMobil}>
@@ -370,6 +413,7 @@ export default function StokScreen() {
           setFormTahun("");
           setFormHarga("");
           setFormNopol("");
+          setFormFoto(null);
           setEditId(null);
           setModalVisible(true);
         }}
@@ -400,6 +444,18 @@ export default function StokScreen() {
               value={formTipe}
               onChangeText={setFormTipe}
             />
+
+            <Text style={styles.inputLabel}>Foto Mobil</Text>
+            <TouchableOpacity
+              style={styles.tombolPilihFoto}
+              onPress={pilihFoto}
+            >
+              {formFoto ? (
+                <Image source={{ uri: formFoto }} style={styles.previewFoto} />
+              ) : (
+                <Text style={styles.tombolPilihFotoTeks}>+ Pilih Foto</Text>
+              )}
+            </TouchableOpacity>
 
             <Text style={styles.inputLabel}>Nomor Polisi</Text>
             <TextInput
@@ -437,6 +493,7 @@ export default function StokScreen() {
                   setFormTahun("");
                   setFormHarga("");
                   setFormNopol("");
+                  setFormFoto(null);
                   setEditId(null);
                   setModalVisible(false);
                 }}
@@ -708,5 +765,31 @@ const styles = StyleSheet.create({
   tombolSimpanTeks: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  fotoThumbnail: {
+    width: "100%",
+    height: 140,
+    borderRadius: 12,
+    marginBottom: 10,
+    backgroundColor: "#f3f4f6",
+  },
+  tombolPilihFoto: {
+    backgroundColor: "#f9fafb",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    borderStyle: "dashed",
+    height: 100,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  tombolPilihFotoTeks: {
+    color: "#9ca3af",
+    fontSize: 13,
+  },
+  previewFoto: {
+    width: "100%",
+    height: "100%",
   },
 });
