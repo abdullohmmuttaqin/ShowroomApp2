@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "../utils/supabase";
 import {
   View,
   Text,
@@ -8,12 +9,8 @@ import {
   ScrollView,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { PIUTANG_DEFAULT } from "../utils/defaultData";
 import { TAB_ACCESS } from "../utils/auth";
 
-const STORAGE_KEY_STOK = "stok_showroom";
-const STORAGE_KEY_PENJUALAN = "penjualan_showroom";
-const STORAGE_KEY_PIUTANG = "piutang_showroom";
 const STORAGE_KEY_AKTIVITAS = "aktivitas_showroom";
 
 // Fungsi format angka jadi Rupiah penuh
@@ -52,42 +49,38 @@ export default function DashboardScreen({ setActiveTab, activeTab, user }) {
 
   const loadDashboardData = async () => {
     try {
-      const stokData = await AsyncStorage.getItem(STORAGE_KEY_STOK);
-      const penjualanData = await AsyncStorage.getItem(STORAGE_KEY_PENJUALAN);
-      const piutangData = await AsyncStorage.getItem(STORAGE_KEY_PIUTANG);
-      const aktivitasData = await AsyncStorage.getItem(STORAGE_KEY_AKTIVITAS);
+      const [stokRes, penjualanRes, piutangRes, aktivitasData] =
+        await Promise.all([
+          supabase.from("stok_mobil").select("id"),
+          supabase.from("penjualan").select("harga"),
+          supabase.from("piutang").select("sisa"),
+          AsyncStorage.getItem(STORAGE_KEY_AKTIVITAS),
+        ]);
 
-      if (stokData) {
-        setTotalStok(JSON.parse(stokData).length);
-      }
+      if (stokRes.error) throw stokRes.error;
+      if (penjualanRes.error) throw penjualanRes.error;
+      if (piutangRes.error) throw piutangRes.error;
 
-      if (penjualanData) {
-        const penjualan = JSON.parse(penjualanData);
-        setTotalTerjual(penjualan.length);
-        setTotalOmset(penjualan.reduce((total, item) => total + item.harga, 0));
-      }
+      setTotalStok(stokRes.data.length);
 
-      if (piutangData) {
-        const piutang = JSON.parse(piutangData);
-        setTotalPiutang(piutang.length);
-        setNilaiPiutang(
-          piutang.reduce((total, item) => total + Number(item.sisa || 0), 0),
-        );
-      } else {
-        setTotalPiutang(PIUTANG_DEFAULT.length);
-        setNilaiPiutang(
-          PIUTANG_DEFAULT.reduce(
-            (total, item) => total + Number(item.sisa || 0),
-            0,
-          ),
-        );
-      }
+      setTotalTerjual(penjualanRes.data.length);
+      setTotalOmset(
+        penjualanRes.data.reduce((total, item) => total + item.harga, 0),
+      );
+
+      setTotalPiutang(piutangRes.data.length);
+      setNilaiPiutang(
+        piutangRes.data.reduce(
+          (total, item) => total + Number(item.sisa || 0),
+          0,
+        ),
+      );
 
       if (aktivitasData) {
         setAktivitas(JSON.parse(aktivitasData).slice(0, 5));
       }
     } catch (error) {
-      console.log("Error dashboard:", error);
+      console.log("Error dashboard:", error.message);
     }
   };
 
