@@ -3,7 +3,7 @@ import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "../utils/supabase";
 import {
   View,
   Text,
@@ -14,27 +14,6 @@ import {
   Modal,
   Alert,
 } from "react-native";
-
-const STORAGE_KEY = "penjualan_showroom";
-
-const dataAwal = [
-  {
-    id: 1,
-    mobil: "Toyota Avanza",
-    harga: 180000000,
-    tanggal: "12 Mei 2026",
-    status: "Lunas",
-    sisa: 0,
-  },
-  {
-    id: 2,
-    mobil: "Honda Jazz",
-    harga: 150000000,
-    tanggal: "15 Mei 2026",
-    status: "DP",
-    sisa: 50000000,
-  },
-];
 
 const formatRupiah = (angka) => {
   return "Rp " + angka.toLocaleString("id-ID");
@@ -47,7 +26,7 @@ export default function PenjualanScreen() {
   const [namaMobil, setNamaMobil] = useState("");
   const [hargaJual, setHargaJual] = useState("");
   const [tanggalJual, setTanggalJual] = useState("");
-  const [dataPenjualan, setDataPenjualan] = useState(dataAwal);
+  const [dataPenjualan, setDataPenjualan] = useState([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statusTransaksi, setStatusTransaksi] = useState("Lunas");
@@ -63,24 +42,17 @@ export default function PenjualanScreen() {
 
   const bacaDataPenjualan = async () => {
     try {
-      const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY);
+      const { data, error } = await supabase
+        .from("penjualan")
+        .select("*")
+        .order("id", { ascending: false });
 
-      if (dataTersimpan !== null) {
-        setDataPenjualan(JSON.parse(dataTersimpan));
-      } else {
-        setDataPenjualan(dataAwal);
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataAwal));
-      }
-    } catch (error) {
-      console.log("Error baca penjualan:", error);
-    }
-  };
+      if (error) throw error;
 
-  const simpanDataPenjualan = async (dataBaru) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataBaru));
+      setDataPenjualan(data);
     } catch (error) {
-      console.log("Error simpan penjualan:", error);
+      console.log("Error baca penjualan:", error.message);
+      Alert.alert("Gagal", "Tidak bisa memuat data penjualan.");
     }
   };
 
@@ -109,64 +81,74 @@ export default function PenjualanScreen() {
 
     let dataBaru = [];
 
-    if (modeEdit) {
-      dataBaru = dataPenjualan.map((item) =>
-        item.id === idEdit
-          ? {
-              ...item,
-              mobil: namaMobil,
-              harga: hargaBaru,
-              tanggal: tanggalJual,
-            }
-          : item,
-      );
-      setDataPenjualan(dataBaru);
+    try {
+      if (modeEdit) {
+        const { data, error } = await supabase
+          .from("penjualan")
+          .update({
+            mobil: namaMobil,
+            harga: hargaBaru,
+            tanggal: tanggalJual,
+          })
+          .eq("id", idEdit)
+          .select()
+          .single();
 
-      await simpanDataPenjualan(dataBaru);
+        if (error) throw error;
 
-      await tambahAktivitas(`✏️ Penjualan ${namaMobil} diperbarui`);
-    } else {
-      let sisaBaru = 0;
+        setDataPenjualan((prev) =>
+          prev.map((item) => (item.id === idEdit ? data : item)),
+        );
 
-      if (statusTransaksi === "DP") {
-        if (!/^\d+$/.test(nominalDP)) {
-          Alert.alert("Peringatan", "Nominal DP hanya boleh berisi angka.");
-          return;
+        await tambahAktivitas(`✏️ Penjualan ${namaMobil} diperbarui`);
+      } else {
+        let sisaBaru = 0;
+
+        if (statusTransaksi === "DP") {
+          if (!/^\d+$/.test(nominalDP)) {
+            Alert.alert("Peringatan", "Nominal DP hanya boleh berisi angka.");
+            return;
+          }
+
+          const dpBaru = parseInt(nominalDP, 10);
+
+          if (!dpBaru || dpBaru <= 0 || dpBaru >= hargaBaru) {
+            Alert.alert(
+              "Peringatan",
+              "Nominal DP harus lebih dari 0 dan kurang dari harga jual.",
+            );
+            return;
+          }
+
+          sisaBaru = hargaBaru - dpBaru;
         }
 
-        const dpBaru = parseInt(nominalDP, 10);
+        const { data, error } = await supabase
+          .from("penjualan")
+          .insert({
+            mobil: namaMobil,
+            harga: hargaBaru,
+            tanggal: tanggalJual,
+            status: statusTransaksi,
+            sisa: sisaBaru,
+          })
+          .select()
+          .single();
 
-        if (!dpBaru || dpBaru <= 0 || dpBaru >= hargaBaru) {
-          Alert.alert(
-            "Peringatan",
-            "Nominal DP harus lebih dari 0 dan kurang dari harga jual.",
-          );
-          return;
-        }
+        if (error) throw error;
 
-        sisaBaru = hargaBaru - dpBaru;
+        setDataPenjualan((prev) => [data, ...prev]);
+
+        await tambahAktivitas(
+          statusTransaksi === "DP"
+            ? `📝 ${namaMobil} terjual dengan DP`
+            : `💰 ${namaMobil} berhasil terjual`,
+        );
       }
-
-      const transaksiBaru = {
-        id: Date.now(),
-        mobil: namaMobil,
-        harga: hargaBaru,
-        tanggal: tanggalJual,
-        status: statusTransaksi,
-        sisa: sisaBaru,
-      };
-
-      dataBaru = [transaksiBaru, ...dataPenjualan];
-
-      setDataPenjualan(dataBaru);
-
-      await simpanDataPenjualan(dataBaru);
-
-      await tambahAktivitas(
-        statusTransaksi === "DP"
-          ? `📝 ${namaMobil} terjual dengan DP`
-          : `💰 ${namaMobil} berhasil terjual`,
-      );
+    } catch (error) {
+      console.log("Error simpan penjualan:", error.message);
+      Alert.alert("Gagal", "Tidak bisa menyimpan data penjualan.");
+      return;
     }
 
     setNamaMobil("");
@@ -193,11 +175,19 @@ export default function PenjualanScreen() {
         text: "Hapus",
         style: "destructive",
         onPress: async () => {
-          const dataBaru = dataPenjualan.filter((item) => item.id !== id);
+          try {
+            const { error } = await supabase
+              .from("penjualan")
+              .delete()
+              .eq("id", id);
 
-          setDataPenjualan(dataBaru);
+            if (error) throw error;
 
-          await simpanDataPenjualan(dataBaru);
+            setDataPenjualan((prev) => prev.filter((item) => item.id !== id));
+          } catch (error) {
+            console.log("Error hapus penjualan:", error.message);
+            Alert.alert("Gagal", "Tidak bisa menghapus data.");
+          }
         },
       },
     ]);
@@ -242,24 +232,33 @@ export default function PenjualanScreen() {
             const sisaBaru = Number(penjualanDipilih.sisa) - bayar;
             const lunas = sisaBaru <= 0;
 
-            const dataBaru = dataPenjualan.map((item) =>
-              item.id === penjualanDipilih.id
-                ? {
-                    ...item,
-                    sisa: lunas ? 0 : sisaBaru,
-                    status: lunas ? "Lunas" : "DP",
-                  }
-                : item,
-            );
-
             try {
-              setDataPenjualan(dataBaru);
-              await simpanDataPenjualan(dataBaru);
+              const { data, error } = await supabase
+                .from("penjualan")
+                .update({
+                  sisa: lunas ? 0 : sisaBaru,
+                  status: lunas ? "Lunas" : "DP",
+                })
+                .eq("id", penjualanDipilih.id)
+                .select()
+                .single();
+
+              if (error) throw error;
+
+              setDataPenjualan((prev) =>
+                prev.map((item) =>
+                  item.id === penjualanDipilih.id ? data : item,
+                ),
+              );
+
               await tambahAktivitas(
                 lunas
                   ? `✅ ${penjualanDipilih.mobil} lunas terbayar`
                   : `💰 Pembayaran DP ${penjualanDipilih.mobil} diterima`,
               );
+            } catch (error) {
+              console.log("Error proses pembayaran:", error.message);
+              Alert.alert("Gagal", "Tidak bisa memproses pembayaran.");
             } finally {
               setIsProcessingPayment(false);
               setModalBayarVisible(false);
