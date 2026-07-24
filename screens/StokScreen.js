@@ -11,73 +11,8 @@ import {
   Alert,
   Image,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
-
-const STORAGE_KEY = "stok_showroom";
-
-const dataAwal = [
-  {
-    id: 1,
-    merk: "Toyota",
-    tipe: "Avanza",
-    tahun: 2021,
-    harga: 180000000,
-    status: "tersedia",
-    nopol: "B 1234 ABC",
-    foto: null,
-  },
-  {
-    id: 2,
-    merk: "Honda",
-    tipe: "Jazz",
-    tahun: 2020,
-    harga: 150000000,
-    status: "terjual",
-    nopol: "B 5678 DEF",
-    foto: null,
-  },
-  {
-    id: 3,
-    merk: "Suzuki",
-    tipe: "Ertiga",
-    tahun: 2022,
-    harga: 160000000,
-    status: "tersedia",
-    nopol: "B 9012 GHI",
-    foto: null,
-  },
-  {
-    id: 4,
-    merk: "Daihatsu",
-    tipe: "Xenia",
-    tahun: 2021,
-    harga: 130000000,
-    status: "tersedia",
-    nopol: "B 3456 JKL",
-    foto: null,
-  },
-  {
-    id: 5,
-    merk: "Mitsubishi",
-    tipe: "Xpander",
-    tahun: 2022,
-    harga: 210000000,
-    status: "terjual",
-    nopol: "B 7890 MNO",
-    foto: null,
-  },
-  {
-    id: 6,
-    merk: "Toyota",
-    tipe: "Fortuner",
-    tahun: 2021,
-    harga: 450000000,
-    status: "tersedia",
-    nopol: "B 2468 PQR",
-    foto: null,
-  },
-];
+import { supabase } from "../utils/supabase";
 
 const formatRupiah = (angka) => {
   return "Rp " + angka.toLocaleString("id-ID");
@@ -103,39 +38,45 @@ export default function StokScreen() {
 
   const bacaData = async () => {
     try {
-      const dataTersimpan = await AsyncStorage.getItem(STORAGE_KEY);
-      if (dataTersimpan !== null) {
-        setStok(JSON.parse(dataTersimpan));
-      } else {
-        setStok(dataAwal);
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataAwal));
-      }
-    } catch (e) {
-      console.log("Error baca data:", e);
-    }
-  };
+      const { data, error } = await supabase
+        .from("stok_mobil")
+        .select("*")
+        .order("id", { ascending: true });
 
-  const simpanData = async (dataBaru) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(dataBaru));
+      if (error) throw error;
+
+      setStok(data);
     } catch (e) {
-      console.log("Error simpan data:", e);
+      console.log("Error baca data:", e.message);
+      Alert.alert(
+        "Gagal",
+        "Tidak bisa memuat data stok. Periksa koneksi internet.",
+      );
     }
   };
 
   // Fungsi ubah status mobil — tersedia jadi terjual atau sebaliknya
   const ubahStatus = async (id) => {
-    const dataBaru = stok.map((mobil) => {
-      if (mobil.id === id) {
-        return {
-          ...mobil,
-          status: mobil.status === "tersedia" ? "terjual" : "tersedia",
-        };
-      }
-      return mobil;
-    });
-    setStok(dataBaru);
-    await simpanData(dataBaru);
+    const mobil = stok.find((item) => item.id === id);
+    const statusBaru = mobil.status === "tersedia" ? "terjual" : "tersedia";
+
+    try {
+      const { error } = await supabase
+        .from("stok_mobil")
+        .update({ status: statusBaru })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setStok((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, status: statusBaru } : item,
+        ),
+      );
+    } catch (e) {
+      console.log("Error ubah status:", e.message);
+      Alert.alert("Gagal", "Tidak bisa mengubah status.");
+    }
   };
 
   // Fungsi hapus stok — tampilkan konfirmasi dulu
@@ -148,15 +89,23 @@ export default function StokScreen() {
         text: "Hapus",
         style: "destructive",
         onPress: async () => {
-          const dataBaru = stok.filter((item) => item.id !== id);
+          try {
+            const { error } = await supabase
+              .from("stok_mobil")
+              .delete()
+              .eq("id", id);
 
-          setStok(dataBaru);
+            if (error) throw error;
 
-          await simpanData(dataBaru);
+            setStok((prev) => prev.filter((item) => item.id !== id));
 
-          await tambahAktivitas(
-            `🗑️ ${mobil.merk} ${mobil.tipe} dihapus dari stok`,
-          );
+            await tambahAktivitas(
+              `🗑️ ${mobil.merk} ${mobil.tipe} dihapus dari stok`,
+            );
+          } catch (e) {
+            console.log("Error hapus stok:", e.message);
+            Alert.alert("Gagal", "Tidak bisa menghapus data.");
+          }
         },
       },
     ]);
@@ -201,7 +150,7 @@ export default function StokScreen() {
     setFormTahun(mobil.tahun.toString());
     setFormHarga(mobil.harga.toString());
     setFormNopol(mobil.nopol || "");
-    setFormFoto(mobil.foto || null);
+    setFormFoto(mobil.foto_url || null);
 
     setEditId(mobil.id);
 
@@ -235,57 +184,65 @@ export default function StokScreen() {
       return;
     }
 
-    let dataBaru = [];
+    try {
+      if (editId !== null) {
+        const { data, error } = await supabase
+          .from("stok_mobil")
+          .update({
+            merk: formMerk,
+            tipe: formTipe,
+            tahun: tahunBaru,
+            harga: hargaBaru,
+            nopol: formNopol.trim().toUpperCase(),
+            foto_url: formFoto,
+          })
+          .eq("id", editId)
+          .select()
+          .single();
 
-    if (editId !== null) {
-      dataBaru = stok.map((mobil) =>
-        mobil.id === editId
-          ? {
-              ...mobil,
-              merk: formMerk,
-              tipe: formTipe,
-              tahun: tahunBaru,
-              harga: hargaBaru,
-              nopol: formNopol.trim().toUpperCase(),
-              foto: formFoto,
-            }
-          : mobil,
-      );
+        if (error) throw error;
 
-      setStok(dataBaru);
-      await simpanData(dataBaru);
+        setStok((prev) =>
+          prev.map((item) => (item.id === editId ? data : item)),
+        );
 
-      await tambahAktivitas(`✏️ ${formMerk} ${formTipe} diperbarui`);
-    } else {
-      const baru = {
-        id: Date.now(),
-        merk: formMerk,
-        tipe: formTipe,
-        tahun: tahunBaru,
-        harga: hargaBaru,
-        status: "tersedia",
-        nopol: formNopol.trim().toUpperCase(),
-        foto: formFoto,
-      };
+        await tambahAktivitas(`✏️ ${formMerk} ${formTipe} diperbarui`);
+      } else {
+        const { data, error } = await supabase
+          .from("stok_mobil")
+          .insert({
+            merk: formMerk,
+            tipe: formTipe,
+            tahun: tahunBaru,
+            harga: hargaBaru,
+            status: "tersedia",
+            nopol: formNopol.trim().toUpperCase(),
+            foto_url: formFoto,
+          })
+          .select()
+          .single();
 
-      dataBaru = [...stok, baru];
+        if (error) throw error;
 
-      setStok(dataBaru);
-      await simpanData(dataBaru);
+        setStok((prev) => [...prev, data]);
 
-      await tambahAktivitas(`🚗 ${formMerk} ${formTipe} ditambahkan ke stok`);
+        await tambahAktivitas(`🚗 ${formMerk} ${formTipe} ditambahkan ke stok`);
+      }
+
+      setFormMerk("");
+      setFormTipe("");
+      setFormTahun("");
+      setFormHarga("");
+      setFormNopol("");
+      setFormFoto(null);
+
+      setEditId(null);
+
+      setModalVisible(false);
+    } catch (e) {
+      console.log("Error simpan stok:", e.message);
+      Alert.alert("Gagal", "Tidak bisa menyimpan data.");
     }
-
-    setFormMerk("");
-    setFormTipe("");
-    setFormTahun("");
-    setFormHarga("");
-    setFormNopol("");
-    setFormFoto(null);
-
-    setEditId(null);
-
-    setModalVisible(false);
   };
 
   return (
@@ -330,9 +287,9 @@ export default function StokScreen() {
       <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
         {stokFiltered.map((mobil) => (
           <View key={mobil.id} style={styles.kartu}>
-            {mobil.foto && (
+            {mobil.foto_url && (
               <Image
-                source={{ uri: mobil.foto }}
+                source={{ uri: mobil.foto_url }}
                 style={styles.fotoThumbnail}
               />
             )}
