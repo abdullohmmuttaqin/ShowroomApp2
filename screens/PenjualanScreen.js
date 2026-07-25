@@ -4,6 +4,7 @@ import * as Sharing from "expo-sharing";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState, useEffect } from "react";
 import { supabase } from "../utils/supabase";
+import { COLORS, RADIUS } from "../utils/theme";
 import {
   View,
   Text,
@@ -665,10 +666,10 @@ export default function PenjualanScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f7fb",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingTop: 52,
     paddingBottom: 20,
@@ -679,7 +680,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   subtitle: {
-    color: "#bfdbfe",
+    color: "#e6fff7",
     marginTop: 4,
     fontSize: 13,
   },
@@ -687,13 +688,13 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   heroCard: {
-    backgroundColor: "#2563eb",
-    borderRadius: 20,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.card,
     padding: 24,
     marginBottom: 16,
   },
   heroTitle: {
-    color: "#bfdbfe",
+    color: "#e6fff7",
     fontSize: 13,
   },
   heroAmount: {
@@ -703,7 +704,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   heroSubtitle: {
-    color: "#93c5fd",
+    color: "#e6fff7",
     marginTop: 6,
     fontSize: 12,
   },
@@ -714,47 +715,41 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.card,
     padding: 16,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   cardNumber: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2563eb",
+    color: COLORS.textPrimary,
   },
   cardLabel: {
     marginTop: 4,
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     fontSize: 12,
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 12,
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   saleCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.card,
     padding: 16,
     marginBottom: 10,
-    shadowColor: "#7c3aed",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   saleCardHeader: {
     flexDirection: "row",
@@ -765,22 +760,22 @@ const styles = StyleSheet.create({
   carName: {
     fontSize: 15,
     fontWeight: "bold",
-    color: "#111827",
+    color: COLORS.textPrimary,
     flex: 1,
   },
   price: {
-    color: "#2563eb",
+    color: COLORS.primary,
     marginTop: 4,
     fontWeight: "700",
     fontSize: 14,
   },
   date: {
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     marginTop: 4,
     fontSize: 12,
   },
   badgeLunas: {
-    backgroundColor: "#dcfce7",
+    backgroundColor: COLORS.tagBackground,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 3,
@@ -803,7 +798,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: "#f3f4f6",
+    backgroundColor: "#f1f3f4",
     marginVertical: 12,
   },
   tombolWrapper: {
@@ -833,9 +828,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   tombolTambah: {
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
     margin: 16,
-    borderRadius: 14,
+    borderRadius: RADIUS.button,
     padding: 16,
     alignItems: "center",
   },
@@ -850,7 +845,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.card,
     padding: 24,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -859,16 +854,17 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 20,
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   input: {
-    backgroundColor: "#f9fafb",
+    backgroundColor: COLORS.background,
     padding: 12,
-    borderRadius: 10,
+    borderRadius: RADIUS.button,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: "#e5e7eb",
     fontSize: 14,
+    color: COLORS.textPrimary,
   },
   modalButtonContainer: {
     flexDirection: "row",
@@ -879,18 +875,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f3f4f6",
     padding: 14,
-    borderRadius: 10,
+    borderRadius: RADIUS.button,
     alignItems: "center",
   },
   btnBatalText: {
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     fontWeight: "600",
   },
   btnSimpan: {
     flex: 1,
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
     padding: 14,
-    borderRadius: 10,
+    borderRadius: RADIUS.button,
     alignItems: "center",
   },
   btnSimpanText: {
@@ -898,7 +894,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   btnLunasi: {
-    backgroundColor: "#f0fdf4",
+    backgroundColor: COLORS.tagBackground,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
@@ -916,15 +912,15 @@ const styles = StyleSheet.create({
   statusToggleBtn: {
     flex: 1,
     paddingVertical: 10,
-    borderRadius: 10,
+    borderRadius: RADIUS.button,
     alignItems: "center",
     backgroundColor: "#f3f4f6",
   },
   statusToggleBtnAktif: {
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
   },
   statusToggleText: {
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     fontWeight: "600",
     fontSize: 13,
   },
@@ -935,13 +931,13 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontSize: 13,
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     marginTop: 10,
   },
   detailValue: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginTop: 2,
     marginBottom: 8,
   },
