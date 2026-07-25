@@ -11,7 +11,8 @@ import PenjualanScreen from "./screens/PenjualanScreen";
 import LaporanScreen from "./screens/LaporanScreen";
 import PiutangScreen from "./screens/PiutangScreen";
 import LoginScreen from "./screens/LoginScreen";
-import { TAB_ACCESS } from "./utils/auth";
+import { TAB_ACCESS, logout } from "./utils/auth";
+import { supabase } from "./utils/supabase";
 
 function MainApp({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -135,6 +136,45 @@ const styles = StyleSheet.create({
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const cekSession = async () => {
+      const { data } = await supabase.auth.getSession();
+
+      if (data.session) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role, email")
+          .eq("id", data.session.user.id)
+          .single();
+
+        if (profile) {
+          setUser({
+            id: data.session.user.id,
+            email: profile.email,
+            role: profile.role,
+          });
+        }
+      }
+
+      setIsCheckingSession(false);
+    };
+
+    cekSession();
+  }, []);
+
+  if (isCheckingSession) {
+    return (
+      <SafeAreaProvider>
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <Text>Memuat...</Text>
+        </View>
+      </SafeAreaProvider>
+    );
+  }
 
   if (!user) {
     return (
@@ -146,7 +186,13 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <MainApp user={user} onLogout={() => setUser(null)} />
+      <MainApp
+        user={user}
+        onLogout={async () => {
+          await logout();
+          setUser(null);
+        }}
+      />
     </SafeAreaProvider>
   );
 }
