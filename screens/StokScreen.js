@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "../utils/supabase";
+import * as FileSystem from "expo-file-system/legacy";
+import { decode } from "base64-arraybuffer";
 import { COLORS, RADIUS } from "../utils/theme";
 
 const formatRupiah = (angka) => {
@@ -29,6 +31,7 @@ export default function StokScreen() {
   const [formHarga, setFormHarga] = useState("");
   const [formNopol, setFormNopol] = useState("");
   const [formFoto, setFormFoto] = useState(null);
+  const [isUploadingFoto, setIsUploadingFoto] = useState(false);
 
   // Menyimpan ID mobil yang sedang diedit
   const [editId, setEditId] = useState(null);
@@ -145,6 +148,42 @@ export default function StokScreen() {
     }
   };
 
+  // Upload foto ke Supabase Storage, kembalikan link publiknya.
+  // Kalau formFoto sudah berupa link Supabase (bukan foto baru dari galeri), tidak upload ulang.
+  const uploadFotoJikaAda = async (uriFoto) => {
+    if (!uriFoto) return null;
+
+    // Kalau uri sudah link http (foto lama yang belum diganti), pakai apa adanya
+    if (uriFoto.startsWith("http")) {
+      return uriFoto;
+    }
+
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uriFoto, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const namaFile = `${Date.now()}.jpg`;
+
+      const { error } = await supabase.storage
+        .from("foto-mobil")
+        .upload(namaFile, decode(base64), {
+          contentType: "image/jpeg",
+        });
+
+      if (error) throw error;
+
+      const { data } = supabase.storage
+        .from("foto-mobil")
+        .getPublicUrl(namaFile);
+
+      return data.publicUrl;
+    } catch (e) {
+      console.log("Error upload foto:", e.message);
+      throw new Error("Gagal upload foto ke server.");
+    }
+  };
+
   const editStok = (mobil) => {
     setFormMerk(mobil.merk);
     setFormTipe(mobil.tipe);
@@ -185,6 +224,18 @@ export default function StokScreen() {
       return;
     }
 
+    setIsUploadingFoto(true);
+
+    let fotoUrlFinal;
+    try {
+      fotoUrlFinal = await uploadFotoJikaAda(formFoto);
+    } catch (e) {
+      setIsUploadingFoto(false);
+      Alert.alert("Gagal", e.message);
+      return;
+    }
+    setIsUploadingFoto(false);
+
     try {
       if (editId !== null) {
         const { data, error } = await supabase
@@ -195,7 +246,7 @@ export default function StokScreen() {
             tahun: tahunBaru,
             harga: hargaBaru,
             nopol: formNopol.trim().toUpperCase(),
-            foto_url: formFoto,
+            foto_url: fotoUrlFinal,
           })
           .eq("id", editId)
           .select()
@@ -218,7 +269,7 @@ export default function StokScreen() {
             harga: hargaBaru,
             status: "tersedia",
             nopol: formNopol.trim().toUpperCase(),
-            foto_url: formFoto,
+            foto_url: fotoUrlFinal,
           })
           .select()
           .single();
@@ -461,9 +512,14 @@ export default function StokScreen() {
               <TouchableOpacity
                 style={styles.tombolSimpan}
                 onPress={tambahStok}
+                disabled={isUploadingFoto}
               >
                 <Text style={styles.tombolSimpanTeks}>
-                  {editId !== null ? "Update" : "Simpan"}
+                  {isUploadingFoto
+                    ? "Mengupload foto..."
+                    : editId !== null
+                      ? "Update"
+                      : "Simpan"}
                 </Text>
               </TouchableOpacity>
             </View>
