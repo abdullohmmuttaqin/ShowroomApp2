@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TAB_ACCESS } from "../utils/auth";
+import { COLORS, RADIUS } from "../utils/theme";
 
 const STORAGE_KEY_AKTIVITAS = "aktivitas_showroom";
 
@@ -198,12 +199,26 @@ export default function DashboardScreen({ setActiveTab, activeTab, user }) {
         {aktivitas.length === 0 ? (
           <Text style={styles.kosong}>Belum ada aktivitas</Text>
         ) : (
-          aktivitas.map((item) => (
-            <View key={item.id} style={styles.aktivitasItem}>
-              <View style={styles.aktivitasDot} />
-              <Text style={styles.aktivitasTeks}>{item.teks}</Text>
-            </View>
-          ))
+          aktivitas.map((item, index) => {
+            const [ikon, ...sisaKata] = item.teks.split(" ");
+            const teksTanpaIkon = sisaKata.join(" ");
+            const isTerakhir = index === aktivitas.length - 1;
+
+            return (
+              <View
+                key={item.id}
+                style={[
+                  styles.aktivitasItem,
+                  !isTerakhir && styles.aktivitasItemDivider,
+                ]}
+              >
+                <View style={styles.aktivitasIconWrap}>
+                  <Text style={styles.aktivitasIkon}>{ikon}</Text>
+                </View>
+                <Text style={styles.aktivitasTeks}>{teksTanpaIkon}</Text>
+              </View>
+            );
+          })
         )}
       </View>
 
@@ -215,7 +230,7 @@ export default function DashboardScreen({ setActiveTab, activeTab, user }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f7fb",
+    backgroundColor: COLORS.background,
   },
   header: {
     paddingHorizontal: 20,
@@ -225,22 +240,22 @@ const styles = StyleSheet.create({
   headerJudul: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   headerSub: {
     fontSize: 14,
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   omsetCard: {
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
     marginHorizontal: 20,
-    borderRadius: 20,
+    borderRadius: RADIUS.card,
     padding: 24,
     marginBottom: 16,
   },
   omsetLabel: {
-    color: "#bfdbfe",
+    color: "#e6fff7",
     fontSize: 13,
   },
   omsetValue: {
@@ -250,7 +265,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   omsetSub: {
-    color: "#93c5fd",
+    color: "#e6fff7",
     fontSize: 12,
     marginTop: 6,
   },
@@ -262,26 +277,31 @@ const styles = StyleSheet.create({
   },
   statCard: {
     width: "47%",
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.card,
     padding: 16,
     margin: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   statAngka: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginTop: 8,
   },
   statLabel: {
     fontSize: 12,
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   seksiJudul: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#111827",
+    color: COLORS.textPrimary,
     marginHorizontal: 20,
     marginTop: 16,
     marginBottom: 10,
@@ -291,12 +311,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   menuCard: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.card,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   menuIcon: {
     width: 40,
@@ -309,36 +334,44 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "600",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   aktivitasCard: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.card,
     marginHorizontal: 20,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: RADIUS.card,
+    paddingHorizontal: 16,
   },
   aktivitasItem: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-    marginBottom: 12,
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 12,
   },
-  aktivitasDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#2563eb",
-    marginTop: 5,
+  aktivitasItemDivider: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#f1f3f4",
+  },
+  aktivitasIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: COLORS.tagBackground,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  aktivitasIkon: {
+    fontSize: 15,
   },
   aktivitasTeks: {
     flex: 1,
     fontSize: 13,
-    color: "#374151",
-    lineHeight: 20,
+    color: COLORS.textPrimary,
+    lineHeight: 19,
   },
   kosong: {
     fontSize: 13,
-    color: "#9ca3af",
+    color: COLORS.textSecondary,
     textAlign: "center",
     paddingVertical: 8,
   },
