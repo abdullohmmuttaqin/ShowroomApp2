@@ -10,6 +10,7 @@ import {
   Platform,
 } from "react-native";
 import { login } from "../utils/auth";
+import { COLORS, RADIUS } from "../utils/theme";
 
 export default function LoginScreen({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -46,32 +47,32 @@ export default function LoginScreen({ onLoginSuccess }) {
         <Text style={styles.subtitle}>Masuk untuk melanjutkan</Text>
       </View>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-
-      <TouchableOpacity
-        style={[styles.btnLogin, isLoading && { opacity: 0.6 }]}
-        onPress={handleLogin}
-        disabled={isLoading}
-      >
-        <Text style={styles.btnLoginText}>
-          {isLoading ? "Memproses..." : "Masuk"}
-        </Text>
-      </TouchableOpacity>
+      <View style={styles.form}>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TouchableOpacity
+          style={[styles.btnLogin, isLoading && { opacity: 0.6 }]}
+          onPress={handleLogin}
+          disabled={isLoading}
+        >
+          <Text style={styles.btnLoginText}>
+            {isLoading ? "Memproses..." : "Masuk"}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 }
@@ -79,7 +80,7 @@ export default function LoginScreen({ onLoginSuccess }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
   },
   header: {
@@ -89,32 +90,39 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#fff",
+    color: COLORS.textPrimary,
   },
   subtitle: {
-    color: "#bfdbfe",
+    color: COLORS.textSecondary,
     marginTop: 6,
     fontSize: 14,
   },
   form: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.card,
     marginHorizontal: 24,
-    borderRadius: 20,
+    borderRadius: RADIUS.card,
     padding: 24,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   input: {
-    backgroundColor: "#f9fafb",
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 14,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: RADIUS.button,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#e5e7eb",
     fontSize: 14,
+    color: COLORS.textPrimary,
   },
   btnLogin: {
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
     padding: 16,
-    borderRadius: 10,
+    borderRadius: RADIUS.button,
     alignItems: "center",
     marginTop: 6,
   },
