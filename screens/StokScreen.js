@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "../utils/supabase";
+import { COLORS, RADIUS } from "../utils/theme";
 
 const formatRupiah = (angka) => {
   return "Rp " + angka.toLocaleString("id-ID");
@@ -476,10 +477,10 @@ export default function StokScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f7fb",
+    backgroundColor: COLORS.background,
   },
   header: {
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingTop: 52,
     paddingBottom: 20,
@@ -491,7 +492,7 @@ const styles = StyleSheet.create({
   },
   headerSub: {
     fontSize: 13,
-    color: "#bfdbfe",
+    color: "#e6fff7",
     marginTop: 4,
   },
   statistikContainer: {
@@ -503,27 +504,24 @@ const styles = StyleSheet.create({
   },
   statistikCard: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 14,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.card,
     padding: 14,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   statistikAngka: {
     fontSize: 22,
     fontWeight: "bold",
-    color: "#2563eb",
+    color: COLORS.textPrimary,
   },
   statistikLabel: {
     fontSize: 11,
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
   searchWrapper: {
@@ -531,13 +529,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   searchInput: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.button,
     padding: 12,
     fontSize: 14,
     borderWidth: 1,
     borderColor: "#e5e7eb",
-    elevation: 1,
+    color: COLORS.textPrimary,
   },
   list: {
     flex: 1,
@@ -545,18 +543,15 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   kartu: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: COLORS.card,
+    borderRadius: RADIUS.card,
     padding: 16,
     marginBottom: 10,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   kartuHeader: {
     flexDirection: "row",
@@ -567,23 +562,23 @@ const styles = StyleSheet.create({
   namaMobil: {
     fontSize: 15,
     fontWeight: "bold",
-    color: "#111827",
+    color: COLORS.textPrimary,
     flex: 1,
   },
   tahun: {
     fontSize: 12,
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     marginTop: 2,
   },
   harga: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#2563eb",
+    color: COLORS.primary,
     marginTop: 4,
   },
   divider: {
     height: 1,
-    backgroundColor: "#f3f4f6",
+    backgroundColor: "#f1f3f4",
     marginVertical: 12,
   },
   tombolWrapper: {
@@ -597,7 +592,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   tombolTersedia: {
-    backgroundColor: "#dcfce7",
+    backgroundColor: COLORS.tagBackground,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -630,7 +625,7 @@ const styles = StyleSheet.create({
     color: "#dc2626",
   },
   badgeHijau: {
-    backgroundColor: "#dcfce7",
+    backgroundColor: COLORS.tagBackground,
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 3,
@@ -654,9 +649,9 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   tombolTambah: {
-    backgroundColor: "#2563eb",
+    backgroundColor: COLORS.primary,
     margin: 16,
-    borderRadius: 14,
+    borderRadius: RADIUS.button,
     padding: 16,
     alignItems: "center",
   },
@@ -671,7 +666,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalKonten: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.card,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
@@ -680,21 +675,22 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 16,
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   inputLabel: {
     fontSize: 13,
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     marginBottom: 6,
     marginTop: 12,
   },
   input: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 10,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.button,
     padding: 12,
     fontSize: 14,
     borderWidth: 1,
     borderColor: "#e5e7eb",
+    color: COLORS.textPrimary,
   },
   modalTombol: {
     flexDirection: "row",
@@ -704,18 +700,18 @@ const styles = StyleSheet.create({
   tombolBatal: {
     flex: 1,
     backgroundColor: "#f5f5f5",
-    borderRadius: 10,
+    borderRadius: RADIUS.button,
     padding: 14,
     alignItems: "center",
   },
   tombolBatalTeks: {
-    color: "#6b7280",
+    color: COLORS.textSecondary,
     fontWeight: "600",
   },
   tombolSimpan: {
     flex: 1,
-    backgroundColor: "#2563eb",
-    borderRadius: 10,
+    backgroundColor: COLORS.primary,
+    borderRadius: RADIUS.button,
     padding: 14,
     alignItems: "center",
   },
@@ -731,8 +727,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f4f6",
   },
   tombolPilihFoto: {
-    backgroundColor: "#f9fafb",
-    borderRadius: 10,
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.button,
     borderWidth: 1,
     borderColor: "#e5e7eb",
     borderStyle: "dashed",
@@ -742,7 +738,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   tombolPilihFotoTeks: {
-    color: "#9ca3af",
+    color: COLORS.textSecondary,
     fontSize: 13,
   },
   previewFoto: {
