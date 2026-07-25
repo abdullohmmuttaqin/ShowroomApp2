@@ -12,23 +12,28 @@ import {
 import { login } from "../utils/auth";
 
 export default function LoginScreen({ onLoginSuccess }) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (!username.trim() || !password.trim()) {
-      Alert.alert("Peringatan", "Username dan password wajib diisi.");
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Peringatan", "Email dan password wajib diisi.");
       return;
     }
 
-    const user = login(username, password);
+    setIsLoading(true);
 
-    if (!user) {
-      Alert.alert("Gagal", "Username atau password salah.");
+    const result = await login(email, password);
+
+    setIsLoading(false);
+
+    if (result.error) {
+      Alert.alert("Gagal", result.error);
       return;
     }
 
-    onLoginSuccess(user);
+    onLoginSuccess(result.user);
   };
 
   return (
@@ -41,27 +46,32 @@ export default function LoginScreen({ onLoginSuccess }) {
         <Text style={styles.subtitle}>Masuk untuk melanjutkan</Text>
       </View>
 
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          value={username}
-          onChangeText={setUsername}
-          autoCapitalize="none"
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+      />
 
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
 
-        <TouchableOpacity style={styles.btnLogin} onPress={handleLogin}>
-          <Text style={styles.btnLoginText}>Masuk</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={[styles.btnLogin, isLoading && { opacity: 0.6 }]}
+        onPress={handleLogin}
+        disabled={isLoading}
+      >
+        <Text style={styles.btnLoginText}>
+          {isLoading ? "Memproses..." : "Masuk"}
+        </Text>
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }

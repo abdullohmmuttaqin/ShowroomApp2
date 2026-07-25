@@ -1,18 +1,39 @@
-// Data user untuk 3 role: Owner, Admin, Sales
-// Catatan: ini masih data lokal (belum ada backend/database),
-// nanti diganti waktu integrasi Supabase di Fase 3
-export const USERS = [
-  { username: "owner", password: "owner123", role: "Owner" },
-  { username: "admin", password: "admin123", role: "Admin" },
-  { username: "sales", password: "sales123", role: "Sales" },
-];
+import { supabase } from "./supabase";
 
-// Cek username & password, kembalikan data user kalau cocok, null kalau gagal
-export function login(username, password) {
-  const user = USERS.find(
-    (u) => u.username === username.trim() && u.password === password,
-  );
-  return user || null;
+// Login menggunakan Supabase Auth (email + password)
+// Mengembalikan { user: {...} } kalau berhasil, atau { error: 'pesan' } kalau gagal
+export async function login(email, password) {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  // Setelah login berhasil, ambil role dari tabel profiles
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role, email")
+    .eq("id", data.user.id)
+    .single();
+
+  if (profileError) {
+    return { error: "Gagal mengambil data role pengguna." };
+  }
+
+  return {
+    user: {
+      id: data.user.id,
+      email: profile.email,
+      role: profile.role,
+    },
+  };
+}
+
+export async function logout() {
+  await supabase.auth.signOut();
 }
 
 // Daftar tab yang boleh diakses tiap role
