@@ -108,122 +108,130 @@ export default function DashboardScreen({ setActiveTab, activeTab, user }) {
   );
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerJudul}>Dashboard</Text>
         <Text style={styles.headerSub}>Selamat datang di ShowroomApp</Text>
       </View>
 
-      {/* Hero Omset */}
-      <View style={styles.omsetCard}>
-        <Text style={styles.omsetLabel}>Total Omset</Text>
-        <Text style={styles.omsetValue}>{formatRupiah(totalOmset)}</Text>
-        <Text style={styles.omsetSub}>
-          dari {totalTerjual} transaksi penjualan
-        </Text>
-      </View>
-
-      {/* Statistik 2x2 */}
-      <View style={styles.statsGrid}>
-        <View style={styles.statCard}>
-          <MaterialCommunityIcons name="car" size={20} color="#2563eb" />
-          <Text style={styles.statAngka}>{totalStok}</Text>
-          <Text style={styles.statLabel}>Total Stok</Text>
+      <ScrollView
+        style={styles.scrollArea}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Omset */}
+        <View style={styles.omsetCard}>
+          <Text style={styles.omsetLabel}>Total Omset</Text>
+          <Text style={styles.omsetValue}>{formatRupiah(totalOmset)}</Text>
+          <Text style={styles.omsetSub}>
+            dari {totalTerjual} transaksi penjualan
+          </Text>
         </View>
 
-        <View style={styles.statCard}>
-          <MaterialCommunityIcons name="cash" size={20} color="#16a34a" />
-          <Text style={styles.statAngka}>{totalTerjual}</Text>
-          <Text style={styles.statLabel}>Terjual</Text>
+        {/* Statistik 2x2 */}
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <MaterialCommunityIcons name="car" size={20} color="#2563eb" />
+            <Text style={styles.statAngka}>{totalStok}</Text>
+            <Text style={styles.statLabel}>Total Stok</Text>
+          </View>
+
+          <View style={styles.statCard}>
+            <MaterialCommunityIcons name="cash" size={20} color="#16a34a" />
+            <Text style={styles.statAngka}>{totalTerjual}</Text>
+            <Text style={styles.statLabel}>Terjual</Text>
+          </View>
+
+          {tabsUntukRole.includes("Piutang") && (
+            <>
+              <View style={styles.statCard}>
+                <MaterialCommunityIcons
+                  name="account-clock"
+                  size={20}
+                  color="#f59e0b"
+                />
+                <Text style={styles.statAngka}>{totalPiutang}</Text>
+                <Text style={styles.statLabel}>Piutang</Text>
+              </View>
+
+              <View style={styles.statCard}>
+                <MaterialCommunityIcons
+                  name="currency-usd"
+                  size={20}
+                  color="#dc2626"
+                />
+                <Text style={styles.statAngka}>
+                  {formatSingkat(nilaiPiutang)}
+                </Text>
+                <Text style={styles.statLabel}>Nilai Piutang</Text>
+              </View>
+            </>
+          )}
         </View>
 
-        {tabsUntukRole.includes("Piutang") && (
-          <>
-            <View style={styles.statCard}>
-              <MaterialCommunityIcons
-                name="account-clock"
-                size={20}
-                color="#f59e0b"
-              />
-              <Text style={styles.statAngka}>{totalPiutang}</Text>
-              <Text style={styles.statLabel}>Piutang</Text>
-            </View>
-
-            <View style={styles.statCard}>
-              <MaterialCommunityIcons
-                name="currency-usd"
-                size={20}
-                color="#dc2626"
-              />
-              <Text style={styles.statAngka}>
-                {formatSingkat(nilaiPiutang)}
-              </Text>
-              <Text style={styles.statLabel}>Nilai Piutang</Text>
-            </View>
-          </>
-        )}
-      </View>
-
-      {/* Menu Cepat */}
-      <Text style={styles.seksiJudul}>Menu Cepat</Text>
-      <View style={styles.menuGrid}>
-        {menuCepat.map((menu) => (
-          <TouchableOpacity
-            key={menu.tab}
-            style={styles.menuCard}
-            onPress={() => setActiveTab(menu.tab)}
-          >
-            <View
-              style={[styles.menuIcon, { backgroundColor: menu.warna + "15" }]}
+        {/* Menu Cepat */}
+        <Text style={styles.seksiJudul}>Menu Cepat</Text>
+        <View style={styles.menuGrid}>
+          {menuCepat.map((menu) => (
+            <TouchableOpacity
+              key={menu.tab}
+              style={styles.menuCard}
+              onPress={() => setActiveTab(menu.tab)}
             >
-              <MaterialCommunityIcons
-                name={menu.icon}
-                size={24}
-                color={menu.warna}
-              />
-            </View>
-            <Text style={styles.menuLabel}>{menu.label}</Text>
-            <MaterialCommunityIcons
-              name="chevron-right"
-              size={16}
-              color="#9ca3af"
-            />
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* Aktivitas Terbaru */}
-      <Text style={styles.seksiJudul}>Aktivitas Terbaru</Text>
-      <View style={styles.aktivitasCard}>
-        {aktivitas.length === 0 ? (
-          <Text style={styles.kosong}>Belum ada aktivitas</Text>
-        ) : (
-          aktivitas.map((item, index) => {
-            const [ikon, ...sisaKata] = item.teks.split(" ");
-            const teksTanpaIkon = sisaKata.join(" ");
-            const isTerakhir = index === aktivitas.length - 1;
-
-            return (
               <View
-                key={item.id}
                 style={[
-                  styles.aktivitasItem,
-                  !isTerakhir && styles.aktivitasItemDivider,
+                  styles.menuIcon,
+                  { backgroundColor: menu.warna + "15" },
                 ]}
               >
-                <View style={styles.aktivitasIconWrap}>
-                  <Text style={styles.aktivitasIkon}>{ikon}</Text>
-                </View>
-                <Text style={styles.aktivitasTeks}>{teksTanpaIkon}</Text>
+                <MaterialCommunityIcons
+                  name={menu.icon}
+                  size={24}
+                  color={menu.warna}
+                />
               </View>
-            );
-          })
-        )}
-      </View>
+              <Text style={styles.menuLabel}>{menu.label}</Text>
+              <MaterialCommunityIcons
+                name="chevron-right"
+                size={16}
+                color="#9ca3af"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <View style={{ height: 20 }} />
-    </ScrollView>
+        {/* Aktivitas Terbaru */}
+        <Text style={styles.seksiJudul}>Aktivitas Terbaru</Text>
+        <View style={styles.aktivitasCard}>
+          {aktivitas.length === 0 ? (
+            <Text style={styles.kosong}>Belum ada aktivitas</Text>
+          ) : (
+            aktivitas.map((item, index) => {
+              const [ikon, ...sisaKata] = item.teks.split(" ");
+              const teksTanpaIkon = sisaKata.join(" ");
+              const isTerakhir = index === aktivitas.length - 1;
+
+              return (
+                <View
+                  key={item.id}
+                  style={[
+                    styles.aktivitasItem,
+                    !isTerakhir && styles.aktivitasItemDivider,
+                  ]}
+                >
+                  <View style={styles.aktivitasIconWrap}>
+                    <Text style={styles.aktivitasIkon}>{ikon}</Text>
+                  </View>
+                  <Text style={styles.aktivitasTeks}>{teksTanpaIkon}</Text>
+                </View>
+              );
+            })
+          )}
+        </View>
+
+        <View style={{ height: 20 }} />
+      </ScrollView>
+    </View>
   );
 }
 
@@ -231,6 +239,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  scrollArea: {
+    flex: 1,
   },
   header: {
     paddingHorizontal: 20,
