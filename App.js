@@ -13,6 +13,7 @@ import PiutangScreen from "./screens/PiutangScreen";
 import LoginScreen from "./screens/LoginScreen";
 import { TAB_ACCESS, logout } from "./utils/auth";
 import { supabase } from "./utils/supabase";
+import { COLORS, RADIUS } from "./utils/theme";
 
 function MainApp({ user, onLogout }) {
   const [activeTab, setActiveTab] = useState("Dashboard");
@@ -70,7 +71,7 @@ function MainApp({ user, onLogout }) {
                       : "file-document-outline"
               }
               size={22}
-              color={activeTab === tab ? "#2563eb" : "#888"}
+              color={activeTab === tab ? COLORS.primary : COLORS.textSecondary}
             />
             <Text
               style={
@@ -99,9 +100,9 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   tabBar: {
     flexDirection: "row",
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.card,
     borderTopWidth: 1,
-    borderTopColor: "#ddd",
+    borderTopColor: "#f1f3f4",
     paddingTop: 10,
   },
   tabItem: {
@@ -111,21 +112,21 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   tabLabelAktif: {
-    color: "#2563eb",
+    color: COLORS.primary,
     fontWeight: "bold",
     fontSize: 10,
   },
   tabLabelNormal: {
-    color: "#888",
+    color: COLORS.textSecondary,
     fontSize: 10,
   },
   logoutButton: {
     position: "absolute",
     right: 16,
-    backgroundColor: "rgba(0,0,0,0.35)",
+    backgroundColor: "rgba(43, 45, 66, 0.55)",
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: RADIUS.button,
   },
   logoutText: {
     color: "#fff",
@@ -168,9 +169,14 @@ export default function App() {
     return (
       <SafeAreaProvider>
         <View
-          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.background,
+          }}
         >
-          <Text>Memuat...</Text>
+          <Text style={{ color: COLORS.textSecondary }}>Memuat...</Text>
         </View>
       </SafeAreaProvider>
     );
