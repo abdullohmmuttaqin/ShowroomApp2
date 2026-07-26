@@ -1,22 +1,95 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+} from "react-native";
+import { useState, useEffect } from "react";
+import { supabase } from "../utils/supabase";
 import { COLORS, RADIUS } from "../utils/theme";
 
-// Data dummy laporan bulanan
-const dataLaporan = [
-  { bulan: "Januari 2026", pemasukan: 550000000, pengeluaran: 280000000 },
-  { bulan: "Februari 2026", pemasukan: 320000000, pengeluaran: 150000000 },
-  { bulan: "Maret 2026", pemasukan: 410000000, pengeluaran: 210000000 },
-  { bulan: "April 2026", pemasukan: 680000000, pengeluaran: 390000000 },
-  { bulan: "Mei 2026", pemasukan: 490000000, pengeluaran: 220000000 },
+const NAMA_BULAN = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ];
 
-// Fungsi format Rupiah
 const formatRupiah = (angka) => {
   return "Rp " + angka.toLocaleString("id-ID");
 };
 
+// Ubah tanggal ISO jadi kunci "Bulan Tahun", misal "Juli 2026"
+const kunciBulan = (isoDate) => {
+  const d = new Date(isoDate);
+  return `${NAMA_BULAN[d.getMonth()]} ${d.getFullYear()}`;
+};
+
 export default function LaporanScreen() {
-  // Hitung total keseluruhan
+  const [dataLaporan, setDataLaporan] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    muatLaporan();
+  }, []);
+
+  const muatLaporan = async () => {
+    try {
+      const [penjualanRes, stokRes] = await Promise.all([
+        supabase.from("penjualan").select("harga, created_at"),
+        supabase.from("stok_mobil").select("harga, created_at"),
+      ]);
+
+      if (penjualanRes.error) throw penjualanRes.error;
+      if (stokRes.error) throw stokRes.error;
+
+      // Kelompokkan per bulan
+      const perBulan = {};
+
+      penjualanRes.data.forEach((item) => {
+        const bulan = kunciBulan(item.created_at);
+        if (!perBulan[bulan])
+          perBulan[bulan] = {
+            bulan,
+            pemasukan: 0,
+            pengeluaran: 0,
+            urutan: new Date(item.created_at),
+          };
+        perBulan[bulan].pemasukan += item.harga;
+      });
+
+      stokRes.data.forEach((item) => {
+        const bulan = kunciBulan(item.created_at);
+        if (!perBulan[bulan])
+          perBulan[bulan] = {
+            bulan,
+            pemasukan: 0,
+            pengeluaran: 0,
+            urutan: new Date(item.created_at),
+          };
+        perBulan[bulan].pengeluaran += item.harga;
+      });
+
+      // Urutkan dari bulan terbaru ke terlama
+      const hasil = Object.values(perBulan).sort((a, b) => b.urutan - a.urutan);
+
+      setDataLaporan(hasil);
+    } catch (error) {
+      console.log("Error muat laporan:", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const totalPemasukan = dataLaporan.reduce(
     (total, d) => total + d.pemasukan,
     0,
@@ -25,9 +98,20 @@ export default function LaporanScreen() {
     (total, d) => total + d.pengeluaran,
     0,
   );
-
-  // Keuntungan = pemasukan - pengeluaran
   const totalKeuntungan = totalPemasukan - totalPengeluaran;
+
+  if (loading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          { alignItems: "center", justifyContent: "center" },
+        ]}
+      >
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -39,13 +123,11 @@ export default function LaporanScreen() {
 
       {/* Kartu ringkasan */}
       <View style={styles.kartuWrapper}>
-        {/* Pemasukan */}
         <View style={[styles.kartu, styles.kartuHijau]}>
           <Text style={styles.kartuLabel}>Total Pemasukan</Text>
           <Text style={styles.kartuNilai}>{formatRupiah(totalPemasukan)}</Text>
         </View>
 
-        {/* Pengeluaran */}
         <View style={[styles.kartu, styles.kartuMerah]}>
           <Text style={styles.kartuLabel}>Total Pengeluaran</Text>
           <Text style={styles.kartuNilai}>
@@ -62,31 +144,45 @@ export default function LaporanScreen() {
         </Text>
       </View>
 
-      {/* Rekap bulanan — tampilan kartu */}
+      {/* Rekap bulanan */}
       <View style={styles.tabelWrapper}>
         <Text style={styles.tabelJudul}>Rekap Per Bulan</Text>
 
-        {dataLaporan.map((d, index) => (
-          <View key={index} style={styles.kartuBulan}>
-            <Text style={styles.namaBulan}>{d.bulan}</Text>
-            <View style={styles.barisBulan}>
-              <Text style={styles.labelBulan}>Pemasukan</Text>
-              <Text style={styles.teksHijau}>{formatRupiah(d.pemasukan)}</Text>
+        {dataLaporan.length === 0 ? (
+          <Text
+            style={{
+              color: COLORS.textSecondary,
+              textAlign: "center",
+              paddingVertical: 12,
+            }}
+          >
+            Belum ada data
+          </Text>
+        ) : (
+          dataLaporan.map((d, index) => (
+            <View key={index} style={styles.kartuBulan}>
+              <Text style={styles.namaBulan}>{d.bulan}</Text>
+              <View style={styles.barisBulan}>
+                <Text style={styles.labelBulan}>Pemasukan</Text>
+                <Text style={styles.teksHijau}>
+                  {formatRupiah(d.pemasukan)}
+                </Text>
+              </View>
+              <View style={styles.barisBulan}>
+                <Text style={styles.labelBulan}>Pengeluaran</Text>
+                <Text style={styles.teksMerah}>
+                  {formatRupiah(d.pengeluaran)}
+                </Text>
+              </View>
+              <View style={styles.barisBulan}>
+                <Text style={styles.labelBulan}>Keuntungan</Text>
+                <Text style={styles.teksBiru}>
+                  {formatRupiah(d.pemasukan - d.pengeluaran)}
+                </Text>
+              </View>
             </View>
-            <View style={styles.barisBulan}>
-              <Text style={styles.labelBulan}>Pengeluaran</Text>
-              <Text style={styles.teksMerah}>
-                {formatRupiah(d.pengeluaran)}
-              </Text>
-            </View>
-            <View style={styles.barisBulan}>
-              <Text style={styles.labelBulan}>Keuntungan</Text>
-              <Text style={styles.teksBiru}>
-                {formatRupiah(d.pemasukan - d.pengeluaran)}
-              </Text>
-            </View>
-          </View>
-        ))}
+          ))
+        )}
       </View>
     </ScrollView>
   );
@@ -172,7 +268,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     color: COLORS.textPrimary,
   },
-
   teksHijau: {
     color: "#16a34a",
   },
@@ -183,7 +278,6 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: "bold",
   },
-
   kartuBulan: {
     borderBottomWidth: 1,
     borderBottomColor: "#f1f3f4",
