@@ -89,7 +89,7 @@ function MainApp({ user, onLogout }) {
         style={[styles.logoutButton, { top: insets.top + 10 }]}
         onPress={onLogout}
       >
-        <Text style={styles.logoutText}>Keluar</Text>
+        <MaterialCommunityIcons name="logout" size={18} color="#fff" />
       </TouchableOpacity>
     </View>
   );
@@ -124,14 +124,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 16,
     backgroundColor: "rgba(43, 45, 66, 0.55)",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: RADIUS.button,
-  },
-  logoutText: {
-    color: "#fff",
-    fontSize: 12,
-    fontWeight: "600",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 
