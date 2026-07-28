@@ -29,6 +29,7 @@ export default function StokScreen() {
   const [formTipe, setFormTipe] = useState("");
   const [formTahun, setFormTahun] = useState("");
   const [formHarga, setFormHarga] = useState("");
+  const [formHargaModal, setFormHargaModal] = useState("");
   const [formNopol, setFormNopol] = useState("");
   const [formFoto, setFormFoto] = useState(null);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
@@ -189,6 +190,7 @@ export default function StokScreen() {
     setFormTipe(mobil.tipe);
     setFormTahun(mobil.tahun.toString());
     setFormHarga(mobil.harga.toString());
+    setFormHargaModal((mobil.harga_modal || 0).toString());
     setFormNopol(mobil.nopol || "");
     setFormFoto(mobil.foto_url || null);
 
@@ -198,18 +200,30 @@ export default function StokScreen() {
   };
 
   const tambahStok = async () => {
-    if (!formMerk || !formTipe || !formTahun || !formHarga || !formNopol) {
+    if (
+      !formMerk ||
+      !formTipe ||
+      !formTahun ||
+      !formHarga ||
+      !formHargaModal ||
+      !formNopol
+    ) {
       Alert.alert("Peringatan", "Semua field wajib diisi.");
       return;
     }
 
-    if (!/^\d+$/.test(formTahun) || !/^\d+$/.test(formHarga)) {
+    if (
+      !/^\d+$/.test(formTahun) ||
+      !/^\d+$/.test(formHarga) ||
+      !/^\d+$/.test(formHargaModal)
+    ) {
       Alert.alert("Peringatan", "Tahun dan harga hanya boleh berisi angka.");
       return;
     }
 
     const tahunBaru = parseInt(formTahun, 10);
     const hargaBaru = parseInt(formHarga, 10);
+    const hargaModalBaru = parseInt(formHargaModal, 10);
 
     if (!Number.isFinite(tahunBaru) || !Number.isFinite(hargaBaru)) {
       Alert.alert(
@@ -245,6 +259,7 @@ export default function StokScreen() {
             tipe: formTipe,
             tahun: tahunBaru,
             harga: hargaBaru,
+            harga_modal: hargaModalBaru,
             nopol: formNopol.trim().toUpperCase(),
             foto_url: fotoUrlFinal,
           })
@@ -267,6 +282,7 @@ export default function StokScreen() {
             tipe: formTipe,
             tahun: tahunBaru,
             harga: hargaBaru,
+            harga_modal: hargaModalBaru,
             status: "tersedia",
             nopol: formNopol.trim().toUpperCase(),
             foto_url: fotoUrlFinal,
@@ -285,6 +301,7 @@ export default function StokScreen() {
       setFormTipe("");
       setFormTahun("");
       setFormHarga("");
+      setFormHargaModal("");
       setFormNopol("");
       setFormFoto(null);
 
@@ -421,6 +438,7 @@ export default function StokScreen() {
           setFormTipe("");
           setFormTahun("");
           setFormHarga("");
+          setFormHargaModal("");
           setFormNopol("");
           setFormFoto(null);
           setEditId(null);
@@ -484,7 +502,16 @@ export default function StokScreen() {
               keyboardType="numeric"
             />
 
-            <Text style={styles.inputLabel}>Harga (Rp)</Text>
+            <Text style={styles.inputLabel}>Harga Modal / Beli (Rp)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Contoh: 150000000"
+              value={formHargaModal}
+              onChangeText={setFormHargaModal}
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.inputLabel}>Harga Jual / Tawaran (Rp)</Text>
             <TextInput
               style={styles.input}
               placeholder="Contoh: 180000000"
@@ -501,6 +528,7 @@ export default function StokScreen() {
                   setFormTipe("");
                   setFormTahun("");
                   setFormHarga("");
+                  setFormHargaModal("");
                   setFormNopol("");
                   setFormFoto(null);
                   setEditId(null);
