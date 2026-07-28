@@ -36,10 +36,28 @@ export default function PenjualanScreen() {
   const [penjualanDipilih, setPenjualanDipilih] = useState(null);
   const [nominalBayar, setNominalBayar] = useState("");
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [stokTersedia, setStokTersedia] = useState([]);
+  const [stokDipilih, setStokDipilih] = useState(null);
 
   useEffect(() => {
     bacaDataPenjualan();
   }, []);
+
+  const muatStokTersedia = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("stok_mobil")
+        .select("*")
+        .eq("status", "tersedia")
+        .order("id", { ascending: false });
+
+      if (error) throw error;
+
+      setStokTersedia(data);
+    } catch (error) {
+      console.log("Error muat stok tersedia:", error.message);
+    }
+  };
 
   const bacaDataPenjualan = async () => {
     try {
@@ -63,6 +81,11 @@ export default function PenjualanScreen() {
   );
 
   const simpanPenjualan = async () => {
+    if (!modeEdit && !stokDipilih) {
+      Alert.alert("Peringatan", "Pilih mobil dari Stok terlebih dahulu.");
+      return;
+    }
+
     if (!namaMobil || !hargaJual || !tanggalJual) {
       Alert.alert("Peringatan", "Semua field wajib diisi.");
       return;
@@ -132,11 +155,23 @@ export default function PenjualanScreen() {
             tanggal: tanggalJual,
             status: statusTransaksi,
             sisa: sisaBaru,
+            stok_id: stokDipilih.id,
+            harga_modal_snapshot: stokDipilih.harga_modal || 0,
           })
           .select()
           .single();
 
         if (error) throw error;
+
+        // Tandai mobil di Stok sebagai "terjual"
+        const { error: errorStok } = await supabase
+          .from("stok_mobil")
+          .update({ status: "terjual" })
+          .eq("id", stokDipilih.id);
+
+        if (errorStok) {
+          console.log("Error update status stok:", errorStok.message);
+        }
 
         setDataPenjualan((prev) => [data, ...prev]);
 
@@ -155,6 +190,7 @@ export default function PenjualanScreen() {
     setNamaMobil("");
     setHargaJual("");
     setTanggalJual("");
+    setStokDipilih(null);
 
     setModeEdit(false);
     setIdEdit(null);
@@ -475,6 +511,8 @@ export default function PenjualanScreen() {
           setHargaJual("");
           setTanggalJual("");
           setSelectedDate(new Date());
+          setStokDipilih(null);
+          muatStokTersedia();
           setModalVisible(true);
         }}
       >
@@ -489,12 +527,47 @@ export default function PenjualanScreen() {
               {modeEdit ? "Edit Penjualan" : "Tambah Penjualan"}
             </Text>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Nama Mobil"
-              value={namaMobil}
-              onChangeText={setNamaMobil}
-            />
+            {modeEdit ? (
+              <TextInput
+                style={styles.input}
+                placeholder="Nama Mobil"
+                value={namaMobil}
+                onChangeText={setNamaMobil}
+              />
+            ) : (
+              <>
+                <Text style={styles.inputLabelKecil}>
+                  Pilih Mobil dari Stok
+                </Text>
+                {stokTersedia.length === 0 ? (
+                  <Text style={styles.emptyStokTeks}>
+                    Tidak ada mobil tersedia di Stok.
+                  </Text>
+                ) : (
+                  stokTersedia.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.stokPilihan,
+                        stokDipilih?.id === item.id && styles.stokPilihanAktif,
+                      ]}
+                      onPress={() => {
+                        setStokDipilih(item);
+                        setNamaMobil(`${item.merk} ${item.tipe}`);
+                        setHargaJual(item.harga.toString());
+                      }}
+                    >
+                      <Text style={styles.stokPilihanNama}>
+                        {item.merk} {item.tipe}
+                      </Text>
+                      <Text style={styles.stokPilihanHarga}>
+                        {formatRupiah(item.harga)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))
+                )}
+              </>
+            )}
 
             <TextInput
               style={styles.input}
@@ -585,6 +658,7 @@ export default function PenjualanScreen() {
                   setNamaMobil("");
                   setHargaJual("");
                   setTanggalJual("");
+                  setStokDipilih(null);
 
                   setModeEdit(false);
                   setIdEdit(null);
@@ -958,5 +1032,43 @@ const styles = StyleSheet.create({
     color: "#4f46e5",
     fontWeight: "600",
     fontSize: 11,
+  },
+  inputLabelKecil: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+  },
+  emptyStokTeks: {
+    color: COLORS.textSecondary,
+    fontSize: 13,
+    textAlign: "center",
+    paddingVertical: 12,
+    marginBottom: 12,
+  },
+  stokPilihan: {
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.button,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
+    padding: 12,
+    marginBottom: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  stokPilihanAktif: {
+    borderColor: COLORS.primary,
+    borderWidth: 2,
+    backgroundColor: COLORS.tagBackground,
+  },
+  stokPilihanNama: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+  },
+  stokPilihanHarga: {
+    fontSize: 13,
+    color: COLORS.primary,
+    fontWeight: "600",
   },
 });
