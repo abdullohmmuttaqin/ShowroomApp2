@@ -44,18 +44,17 @@ export default function LaporanScreen() {
 
   const muatLaporan = async () => {
     try {
-      const [penjualanRes, stokRes] = await Promise.all([
-        supabase.from("penjualan").select("harga, created_at"),
-        supabase.from("stok_mobil").select("harga, created_at"),
-      ]);
+      const { data: penjualanData, error } = await supabase
+        .from("penjualan")
+        .select("harga, harga_modal_snapshot, created_at");
 
-      if (penjualanRes.error) throw penjualanRes.error;
-      if (stokRes.error) throw stokRes.error;
+      if (error) throw error;
 
-      // Kelompokkan per bulan
+      // Kelompokkan per bulan — pemasukan & pengeluaran sama-sama dari
+      // transaksi Penjualan yang sudah terjadi, bukan dari Stok yang bisa berubah
       const perBulan = {};
 
-      penjualanRes.data.forEach((item) => {
+      penjualanData.forEach((item) => {
         const bulan = kunciBulan(item.created_at);
         if (!perBulan[bulan])
           perBulan[bulan] = {
@@ -65,18 +64,7 @@ export default function LaporanScreen() {
             urutan: new Date(item.created_at),
           };
         perBulan[bulan].pemasukan += item.harga;
-      });
-
-      stokRes.data.forEach((item) => {
-        const bulan = kunciBulan(item.created_at);
-        if (!perBulan[bulan])
-          perBulan[bulan] = {
-            bulan,
-            pemasukan: 0,
-            pengeluaran: 0,
-            urutan: new Date(item.created_at),
-          };
-        perBulan[bulan].pengeluaran += item.harga;
+        perBulan[bulan].pengeluaran += item.harga_modal_snapshot || 0;
       });
 
       // Urutkan dari bulan terbaru ke terlama
