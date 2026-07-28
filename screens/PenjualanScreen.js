@@ -557,7 +557,11 @@ export default function PenjualanScreen() {
                         setHargaJual(item.harga.toString());
                       }}
                     >
-                      <Text style={styles.stokPilihanNama}>
+                      <Text
+                        style={styles.stokPilihanNama}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
                         {item.merk} {item.tipe}
                       </Text>
                       <Text style={styles.stokPilihanHarga}>
@@ -1065,10 +1069,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: COLORS.textPrimary,
+    flex: 1,
+    marginRight: 8,
   },
   stokPilihanHarga: {
     fontSize: 13,
     color: COLORS.primary,
     fontWeight: "600",
+    flexShrink: 0,
   },
 });
