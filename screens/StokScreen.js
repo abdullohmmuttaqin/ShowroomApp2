@@ -398,18 +398,14 @@ export default function StokScreen() {
 
             {/* Tombol aksi */}
             <View style={styles.tombolWrapper}>
-              <TouchableOpacity
-                style={
-                  mobil.status === "tersedia"
-                    ? styles.tombolTerjual
-                    : styles.tombolTersedia
-                }
-                onPress={() => ubahStatus(mobil.id)}
-              >
-                <Text style={styles.tombolStatusTeks}>
-                  {mobil.status === "tersedia" ? "Terjual" : "Tersedia"}
-                </Text>
-              </TouchableOpacity>
+              {mobil.status === "tersedia" && (
+                <TouchableOpacity
+                  style={styles.tombolTerjual}
+                  onPress={() => ubahStatus(mobil.id)}
+                >
+                  <Text style={styles.tombolStatusTeks}>Terjual</Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={styles.tombolEdit}
