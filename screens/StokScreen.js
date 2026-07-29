@@ -30,6 +30,7 @@ export default function StokScreen() {
   const [formTahun, setFormTahun] = useState("");
   const [formHarga, setFormHarga] = useState("");
   const [formHargaModal, setFormHargaModal] = useState("");
+  const [formStatus, setFormStatus] = useState("tersedia");
   const [formNopol, setFormNopol] = useState("");
   const [formFoto, setFormFoto] = useState(null);
   const [isUploadingFoto, setIsUploadingFoto] = useState(false);
@@ -191,6 +192,7 @@ export default function StokScreen() {
     setFormTahun(mobil.tahun.toString());
     setFormHarga(mobil.harga.toString());
     setFormHargaModal((mobil.harga_modal || 0).toString());
+    setFormStatus(mobil.status);
     setFormNopol(mobil.nopol || "");
     setFormFoto(mobil.foto_url || null);
 
@@ -260,6 +262,7 @@ export default function StokScreen() {
             tahun: tahunBaru,
             harga: hargaBaru,
             harga_modal: hargaModalBaru,
+            status: formStatus,
             nopol: formNopol.trim().toUpperCase(),
             foto_url: fotoUrlFinal,
           })
@@ -515,6 +518,49 @@ export default function StokScreen() {
               onChangeText={setFormHarga}
               keyboardType="numeric"
             />
+
+            {editId !== null && (
+              <>
+                <Text style={styles.inputLabel}>Status</Text>
+                <View style={styles.statusToggleContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.statusToggleBtn,
+                      formStatus === "tersedia" && styles.statusToggleBtnAktif,
+                    ]}
+                    onPress={() => setFormStatus("tersedia")}
+                  >
+                    <Text
+                      style={
+                        formStatus === "tersedia"
+                          ? styles.statusToggleTextAktif
+                          : styles.statusToggleText
+                      }
+                    >
+                      Tersedia
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.statusToggleBtn,
+                      formStatus === "terjual" && styles.statusToggleBtnAktif,
+                    ]}
+                    onPress={() => setFormStatus("terjual")}
+                  >
+                    <Text
+                      style={
+                        formStatus === "terjual"
+                          ? styles.statusToggleTextAktif
+                          : styles.statusToggleText
+                      }
+                    >
+                      Terjual
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
 
             <View style={styles.modalTombol}>
               <TouchableOpacity
@@ -824,5 +870,29 @@ const styles = StyleSheet.create({
   previewFoto: {
     width: "100%",
     height: "100%",
+  },
+  statusToggleContainer: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  statusToggleBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: RADIUS.button,
+    alignItems: "center",
+    backgroundColor: "#f3f4f6",
+  },
+  statusToggleBtnAktif: {
+    backgroundColor: COLORS.primary,
+  },
+  statusToggleText: {
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+    fontSize: 13,
+  },
+  statusToggleTextAktif: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 13,
   },
 });
