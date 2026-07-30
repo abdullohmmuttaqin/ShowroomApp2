@@ -10,15 +10,16 @@
     "splash": {
       "image": "./assets/splash-icon-v2.png",
       "resizeMode": "cover",
-      "backgroundColor": "#1d4ed8"
+      "backgroundColor": "#06D6A0"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
+      "package": "com.autoshowroom.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon-v2.png",
-        "backgroundColor": "#1d4ed8"
+        "backgroundColor": "#06D6A0"
       },
       "edgeToEdgeEnabled": true
     },
@@ -27,6 +28,11 @@
     },
     "plugins": [
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b8a368c8-8c5d-450e-a90a-11dcab25cb67"
+      }
+    }
   }
 }
