@@ -6,29 +6,29 @@ Aplikasi mobile pembukuan showroom mobil berbasis **React Native & Expo**, diban
 
 ## Screenshot
 
-> Dashboard | Transaksi | Stok | Laporan
+> Login | Dashboard | Stok | Penjualan | Laporan | Piutang
 
 ---
 
 ## Fitur
 
-- **Dashboard** — Ringkasan pemasukan, pengeluaran, stok tersedia, dan 5 transaksi terakhir secara real-time
-- **Transaksi** — Catat transaksi jual/beli, filter berdasarkan jenis, hapus transaksi dengan konfirmasi, validasi input harga
-- **Autentikasi** — Login multi-role (Owner, Admin, Sales) dengan pembatasan akses tab sesuai role
-- **Stok Mobil** — Daftar stok kendaraan, pencarian, tambah stok baru, ubah status tersedia/terjual, hapus stok
-- **Laporan Keuangan** — Rekap pemasukan, pengeluaran, dan keuntungan bersih per bulan
-- **Penyimpanan Lokal** — Data tersimpan permanen di HP menggunakan AsyncStorage
+- **Autentikasi** — Login multi-role (Owner, Admin, Sales) via Supabase Auth dengan pembatasan akses tab sesuai role
+- **Dashboard** — Ringkasan total omset, stok, terjual, piutang, aktivitas terbaru, dan menu cepat secara real-time
+- **Stok Mobil** — CRUD stok kendaraan, pencarian berdasarkan merk/tipe/nopol, upload foto, harga modal & harga jual terpisah, ubah status tersedia/terjual
+- **Penjualan** — CRUD transaksi penjualan, sistem DP & pelunasan, cetak kwitansi PDF, filter status
+- **Laporan Keuangan** — Rekap pemasukan, pengeluaran, dan keuntungan bersih per bulan dari data Supabase
+- **Piutang** — CRUD piutang pelanggan, proses pembayaran, riwayat pembayaran
 
 ---
 
 ## Tech Stack
 
-| Teknologi    | Versi   | Fungsi                  |
-| ------------ | ------- | ----------------------- |
-| React Native | 0.81.5  | Framework utama mobile  |
-| Expo         | SDK 54  | Toolchain & development |
-| AsyncStorage | ~1.23.1 | Penyimpanan data lokal  |
-| JavaScript   | ES2021  | Bahasa pemrograman      |
+| Teknologi    | Versi    | Fungsi                      |
+| ------------ | -------- | --------------------------- |
+| React Native | 0.81.5   | Framework utama mobile      |
+| Expo         | SDK 54   | Toolchain & development     |
+| Supabase     | ~2.x     | Database cloud & Auth       |
+| JavaScript   | ES2021   | Bahasa pemrograman          |
 
 ---
 
@@ -37,13 +37,20 @@ Aplikasi mobile pembukuan showroom mobil berbasis **React Native & Expo**, diban
 ```
 ShowroomApp2/
 ├── screens/
-│   ├── HomeScreen.js        # Dashboard utama
-│   ├── TransaksiScreen.js   # Manajemen transaksi
+│   ├── LoginScreen.js       # Halaman login
+│   ├── DashboardScreen.js   # Dashboard utama
 │   ├── StokScreen.js        # Manajemen stok mobil
-│   └── LaporanScreen.js     # Laporan keuangan
+│   ├── PenjualanScreen.js   # Manajemen penjualan
+│   ├── LaporanScreen.js     # Laporan keuangan
+│   └── PiutangScreen.js     # Manajemen piutang
+├── utils/
+│   ├── supabase.js          # Konfigurasi Supabase client
+│   ├── auth.js              # Helper autentikasi
+│   └── theme.js             # Tema warna aplikasi
 ├── assets/                  # Gambar dan aset
 ├── App.js                   # Entry point & navigasi tab bar
 ├── app.json                 # Konfigurasi Expo
+├── eas.json                 # Konfigurasi EAS Build
 └── package.json             # Dependensi project
 ```
 
@@ -54,8 +61,9 @@ ShowroomApp2/
 ### Prasyarat
 
 - Node.js v18 ke atas
-- npm atau yarn
-- Expo Go di HP Android/iOS
+- npm
+- Expo Go di HP Android
+- Akun Supabase (untuk environment variables)
 
 ### Langkah
 
@@ -72,6 +80,13 @@ cd ShowroomApp2
 npm install
 ```
 
+1. **Buat file .env di root project**
+
+```
+EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
 1. **Jalankan server**
 
 ```bash
@@ -84,45 +99,51 @@ npx expo start
 
 ---
 
+## Build APK
+
+Project ini sudah dikonfigurasi dengan EAS Build.
+
+```bash
+eas build --platform android --profile preview
+```
+
+---
+
 ## Roadmap Pengembangan
 
 ### Fase 1 — Foundation (Selesai)
 
 - [x] Setup project React Native + Expo
 - [x] Navigasi tab bar
-- [x] Dashboard dengan data real-time
-- [x] CRUD transaksi jual/beli
 - [x] CRUD stok mobil
+- [x] CRUD transaksi penjualan
 - [x] Laporan keuangan bulanan
-- [x] Penyimpanan lokal dengan AsyncStorage
 
-### Fase 2 — Core Features (Dalam Pengembangan)
+### Fase 2 — Core Features (Selesai)
 
 - [x] Autentikasi pengguna (Login/Logout)
 - [x] Multi role pengguna (Owner, Admin, Sales)
-- [x] Modul penjualan lengkap (DP, pelunasan) — kwitansi belum
-- [x] Modul piutang
-- [ ] Pencarian kendaraan berdasarkan nopol
+- [x] Sistem DP & pelunasan di Penjualan
+- [x] Cetak kwitansi PDF
+- [x] Pencarian kendaraan berdasarkan nopol
+- [x] Upload foto kendaraan
+- [x] Integrasi Supabase (database cloud & auth)
+- [x] Modul piutang lengkap
+- [x] Laporan keuangan dari data real Supabase
+- [x] Build APK Android via EAS Build
 
-### Fase 3 — Advanced Features
+### Fase 3 — Advanced Features (Belum)
 
-- [ ] Integrasi Supabase (database cloud)
-- [ ] Upload foto kendaraan
 - [ ] Notifikasi pajak jatuh tempo
 - [ ] Laporan laba rugi otomatis
-- [ ] Cetak kwitansi & surat jalan
-
-### Fase 4 — Production
-
-- [ ] Build APK Android
-- [ ] Publish ke Play Store
 - [ ] Versi web (React Native Web)
 
 ---
 
 ## Developer
 
-**Abd Muttaqin** — [@abdullohmmuttaqin](https://github.com/abdullohmmuttaqin)
+**Abdullah Muhammad Muttaqim** — [@abdullohmmuttaqin](https://github.com/abdullohmmuttaqin)
+**Ain Murphys** — [@ainmurphys](https://github.com/ainmurphys)
 
 ---
 
