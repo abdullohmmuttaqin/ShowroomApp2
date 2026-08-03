@@ -142,8 +142,8 @@ eas build --platform android --profile preview
 
 ## Developer
 
-**Abdullah Muhammad Muttaqim** — [@abdullohmmuttaqin](https://github.com/abdullohmmuttaqin)
-**Ain Murphys** — [@ainmurphys](https://github.com/ainmurphys)
+- **Abdullah Muhammad Muttaqim** — [@abdullohmmuttaqin](https://github.com/abdullohmmuttaqin)
+- **Ain Murphys** — [@ainmurphys](https://github.com/ainmurphys)
 
 ---
 
