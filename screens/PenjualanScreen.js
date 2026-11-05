@@ -14,13 +14,17 @@ import {
   TextInput,
   Modal,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const formatRupiah = (angka) => {
   return "Rp " + angka.toLocaleString("id-ID");
 };
 
 export default function PenjualanScreen() {
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useState(false);
   const [modeEdit, setModeEdit] = useState(false);
   const [idEdit, setIdEdit] = useState(null);
@@ -522,7 +526,21 @@ export default function PenjualanScreen() {
       {/* Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View
+              style={[
+                styles.modalContainer,
+                { paddingBottom: Math.max(insets.bottom + 16, 24) },
+              ]}
+            >
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.modalScrollContent}
+              >
             <Text style={styles.modalTitle}>
               {modeEdit ? "Edit Penjualan" : "Tambah Penjualan"}
             </Text>
@@ -686,14 +704,30 @@ export default function PenjualanScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
       {/* Modal pelunasan DP */}
       <Modal visible={modalBayarVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View
+              style={[
+                styles.modalContainer,
+                { paddingBottom: Math.max(insets.bottom + 16, 24) },
+              ]}
+            >
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.modalScrollContent}
+              >
             <Text style={styles.modalTitle}>Pelunasan DP</Text>
 
             <Text style={styles.detailLabel}>Mobil</Text>
@@ -734,7 +768,9 @@ export default function PenjualanScreen() {
                 <Text style={styles.btnSimpanText}>Bayar</Text>
               </TouchableOpacity>
             </View>
-          </View>
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
     </View>
@@ -922,11 +958,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "flex-end",
   },
+  keyboardAvoidingView: {
+    width: "100%",
+    maxHeight: "92%",
+  },
   modalContainer: {
     backgroundColor: COLORS.card,
     padding: 24,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+  },
+  modalScrollContent: {
+    paddingBottom: 8,
   },
   modalTitle: {
     fontSize: 18,

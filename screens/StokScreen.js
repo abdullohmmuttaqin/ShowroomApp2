@@ -10,18 +10,22 @@ import {
   Modal,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { supabase } from "../utils/supabase";
 import * as FileSystem from "expo-file-system/legacy";
 import { decode } from "base64-arraybuffer";
 import { COLORS, RADIUS } from "../utils/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const formatRupiah = (angka) => {
   return "Rp " + angka.toLocaleString("id-ID");
 };
 
 export default function StokScreen() {
+  const insets = useSafeAreaInsets();
   const [stok, setStok] = useState([]);
   const [cari, setCari] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
@@ -450,7 +454,21 @@ export default function StokScreen() {
       {/* Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalKonten}>
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View
+              style={[
+                styles.modalKonten,
+                { paddingBottom: Math.max(insets.bottom + 16, 24) },
+              ]}
+            >
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.modalScrollContent}
+              >
             <Text style={styles.modalJudul}>
               {editId !== null ? "Edit Stok Mobil" : "Tambah Stok Mobil"}
             </Text>
@@ -593,7 +611,9 @@ export default function StokScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
     </View>
@@ -791,11 +811,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "flex-end",
   },
+  keyboardAvoidingView: {
+    width: "100%",
+    maxHeight: "92%",
+  },
   modalKonten: {
     backgroundColor: COLORS.card,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     padding: 24,
+  },
+  modalScrollContent: {
+    paddingBottom: 8,
   },
   modalJudul: {
     fontSize: 18,
