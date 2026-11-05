@@ -4,8 +4,8 @@ export const COLORS = {
   card: "#FFFFFF", // Kartu produk & menu
   textPrimary: "#2B2D42", // Teks & navigasi utama
   textSecondary: "#7F8C8D", // Teks sekunder/detail
-  primary: "#06D6A0", // Tombol aksi utama (mint green)
-  tagBackground: "#E8F5E9", // Tag status / highlight
+  primary: "#0F766E", // Tombol aksi utama (deep teal)
+  tagBackground: "#CCFBF1", // Tag status / highlight
 };
 
 // Radius sudut standar, biar konsisten di semua kartu & tombol

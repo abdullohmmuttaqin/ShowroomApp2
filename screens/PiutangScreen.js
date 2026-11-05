@@ -7,9 +7,12 @@ import {
   Modal,
   TextInput,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useState, useEffect, useRef } from "react";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { tambahAktivitas } from "../utils/aktivitas";
 import { supabase } from "../utils/supabase";
 import { COLORS, RADIUS } from "../utils/theme";
@@ -28,6 +31,7 @@ const formatRupiah = (value) => {
 };
 
 export default function PiutangScreen() {
+  const insets = useSafeAreaInsets();
   const [dataPiutang, setDataPiutang] = useState([]);
   const [jumlahJatuhTempo, setJumlahJatuhTempo] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
@@ -566,7 +570,21 @@ export default function PiutangScreen() {
       {/* Modal tambah/edit piutang */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View
+              style={[
+                styles.modalContainer,
+                { paddingBottom: Math.max(insets.bottom + 16, 24) },
+              ]}
+            >
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.modalScrollContent}
+              >
             <Text style={styles.modalTitle}>
               {modeEdit ? "Edit Piutang" : "Tambah Piutang"}
             </Text>
@@ -641,14 +659,30 @@ export default function PiutangScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
       {/* Modal bayar piutang */}
       <Modal visible={modalBayarVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoidingView}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <View
+              style={[
+                styles.modalContainer,
+                { paddingBottom: Math.max(insets.bottom + 16, 24) },
+              ]}
+            >
+              <ScrollView
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.modalScrollContent}
+              >
             <Text style={styles.modalTitle}>Pembayaran Piutang</Text>
 
             <Text style={styles.detailLabel}>Nama Pelanggan</Text>
@@ -700,7 +734,9 @@ export default function PiutangScreen() {
                 <Text style={styles.btnSimpanText}>Bayar</Text>
               </TouchableOpacity>
             </View>
-          </View>
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
     </View>
@@ -930,11 +966,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "flex-end",
   },
+  keyboardAvoidingView: {
+    width: "100%",
+    maxHeight: "92%",
+  },
   modalContainer: {
     backgroundColor: COLORS.card,
     padding: 24,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+  },
+  modalScrollContent: {
+    paddingBottom: 8,
   },
   modalTitle: {
     fontSize: 18,

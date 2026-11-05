@@ -68,6 +68,8 @@ function MainApp({ user, onLogout }) {
                     ? "car-outline"
                     : tab === "Penjualan"
                       ? "cash-register"
+                        : tab === "Piutang"
+                          ? "account-credit-card-outline"
                       : "file-document-outline"
               }
               size={22}

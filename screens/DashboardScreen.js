@@ -229,7 +229,7 @@ export default function DashboardScreen({ setActiveTab, activeTab, user }) {
           )}
         </View>
 
-        <View style={{ height: 20 }} />
+        <View style={{ height: 36 }} />
       </ScrollView>
     </View>
   );
