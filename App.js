@@ -194,8 +194,12 @@ export default function App() {
       <MainApp
         user={user}
         onLogout={async () => {
-          await logout();
           setUser(null);
+          try {
+            await logout();
+          } catch (error) {
+            console.log("Error logout:", error.message);
+          }
         }}
       />
     </SafeAreaProvider>

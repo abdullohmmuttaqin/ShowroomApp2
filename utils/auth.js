@@ -33,7 +33,11 @@ export async function login(email, password) {
 }
 
 export async function logout() {
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut({ scope: "local" });
+
+  if (error) {
+    throw error;
+  }
 }
 
 // Daftar tab yang boleh diakses tiap role

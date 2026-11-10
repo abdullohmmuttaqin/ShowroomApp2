@@ -170,14 +170,27 @@ export default function StokScreen() {
       });
 
       const namaFile = `${Date.now()}.jpg`;
+      let timeoutId;
 
-      const { error } = await supabase.storage
-        .from("foto-mobil")
-        .upload(namaFile, decode(base64), {
-          contentType: "image/jpeg",
-        });
+      try {
+        const hasilUpload = await Promise.race([
+          supabase.storage.from("foto-mobil").upload(namaFile, decode(base64), {
+            contentType: "image/jpeg",
+          }),
+          new Promise((_, reject) => {
+            timeoutId = setTimeout(
+              () => reject(new Error("Upload foto timeout setelah 15 detik.")),
+              15000,
+            );
+          }),
+        ]);
 
-      if (error) throw error;
+        const { error } = hasilUpload;
+
+        if (error) throw error;
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       const { data } = supabase.storage
         .from("foto-mobil")
